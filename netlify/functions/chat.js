@@ -1,4 +1,4 @@
-// Netlify Function: proxy seguro hacia OpenAI
+// Netlify Function: proxy seguro hacia Google Gemini (gratuito)
 // La API key vive como variable de entorno en Netlify, nunca en el HTML público
 
 exports.handler = async function (event) {
@@ -6,11 +6,11 @@ exports.handler = async function (event) {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
-  const OPENAI_KEY = process.env.OPENAI_API_KEY;
-  if (!OPENAI_KEY) {
+  const GEMINI_KEY = process.env.GEMINI_API_KEY;
+  if (!GEMINI_KEY) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "OPENAI_API_KEY no configurada en Netlify." }),
+      body: JSON.stringify({ error: "GEMINI_API_KEY no configurada en Netlify." }),
     };
   }
 
@@ -25,30 +25,36 @@ Ayudas al equipo de recepción con:
 
 Responde siempre de forma breve, clara y práctica, como lo haría un compañero de trabajo con experiencia. Si no tienes información concreta sobre un procedimiento específico de NURA, dilo honestamente y sugiere consultar con el responsable (Toni o Ayla) en lugar de inventar datos.`;
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [{ role: "system", content: systemPrompt }, ...messages],
-        max_tokens: 600,
-        temperature: 0.4,
-      }),
-    });
+    // Gemini format: contents array with role user/model, system goes in systemInstruction
+    const geminiContents = messages.map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }],
+    }));
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents: geminiContents,
+          generationConfig: { maxOutputTokens: 600, temperature: 0.4 },
+        }),
+      }
+    );
 
     const data = await response.json();
 
     if (!response.ok) {
       return {
         statusCode: response.status,
-        body: JSON.stringify({ error: data.error?.message || "Error de OpenAI" }),
+        body: JSON.stringify({ error: data.error?.message || "Error de Gemini" }),
       };
     }
 
-    const reply = data.choices?.[0]?.message?.content || "Sin respuesta.";
+    const reply =
+      data.candidates?.[0]?.content?.parts?.[0]?.text || "Sin respuesta.";
 
     return {
       statusCode: 200,
