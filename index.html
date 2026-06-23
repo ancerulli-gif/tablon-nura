@@ -573,6 +573,37 @@ input:focus,select:focus{border-color:#999;}
 .ia-suggestion-chip{font-size:11px;background:#F0EDE8;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:5px 12px;cursor:pointer;transition:all .12s;}
 .ia-suggestion-chip:hover{background:var(--teal-bg);color:var(--teal);border-color:#B8DFC7;}
 
+
+/* ── CHECKLIST DE TURNOS ── */
+.cl-turno-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
+.cl-turno-tab{padding:10px 8px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface);cursor:pointer;text-align:center;font-size:12px;font-weight:500;color:var(--subtle);transition:all .18s;}
+.cl-turno-tab:hover{border-color:#ccc;color:var(--dark);}
+.cl-turno-tab.active[data-turno="manana"]{background:#FAEEDA;border-color:#EF9F27;color:#633806;}
+.cl-turno-tab.active[data-turno="tarde"]{background:#FAECE7;border-color:#D85A30;color:#4A1B0C;}
+.cl-turno-tab.active[data-turno="noche"]{background:#E6F1FB;border-color:#378ADD;color:#042C53;}
+.cl-worker-field{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:14px;}
+.cl-worker-field select{flex:1;border:none;outline:none;font-family:inherit;font-size:14px;font-weight:500;color:var(--dark);background:transparent;}
+.cl-progress-wrap{margin-bottom:16px;}
+.cl-progress-bar{height:5px;background:var(--border);border-radius:99px;overflow:hidden;}
+.cl-progress-fill{height:100%;border-radius:99px;transition:width .3s ease;}
+.cl-progress-label{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--subtle);}
+.cl-section-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);padding:6px 0 4px;margin-top:14px;margin-bottom:6px;border-bottom:1px solid var(--border-light);}
+.cl-task-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:5px;display:flex;align-items:flex-start;gap:12px;padding:11px 13px;cursor:pointer;transition:border-color .15s,background .15s;}
+.cl-task-card:hover{border-color:#ccc;}
+.cl-task-card.done{background:var(--teal-bg);border-color:#B8DFC7;}
+.cl-checkbox{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--border);background:var(--surface);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.cl-task-body{flex:1;min-width:0;}
+.cl-task-main{font-size:13px;color:var(--dark);line-height:1.4;}
+.cl-task-note{font-size:11px;color:var(--subtle);margin-top:3px;line-height:1.5;}
+.cl-task-time{font-size:11px;font-weight:600;flex-shrink:0;white-space:nowrap;margin-top:2px;}
+.cl-task-new{font-size:9px;font-weight:600;padding:1px 6px;border-radius:8px;margin-left:6px;text-transform:uppercase;letter-spacing:.04em;}
+.cl-submit-wrap{margin-top:16px;}
+.cl-submit-btn{width:100%;padding:13px;border:none;border-radius:var(--radius);font-family:inherit;font-size:13px;font-weight:600;letter-spacing:.02em;cursor:pointer;color:#fff;}
+.cl-submit-btn:hover{opacity:.9;}
+.cl-sent-card{display:none;text-align:center;padding:32px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);}
+.cl-sent-card.show{display:block;}
+.cl-sent-card i{font-size:36px;color:var(--teal);display:block;margin-bottom:10px;}
+
 </style>
 </head>
 <body>
@@ -645,6 +676,9 @@ input:focus,select:focus{border-color:#999;}
     <div class="sidebar-label">Herramientas</div>
     <div class="sidebar-item" id="relevo-sidebar-btn" onclick="openRelevo()">
       <i class="ti ti-pencil-check" style="font-size:15px;"></i><span>Relevo de turno</span>
+    </div>
+    <div class="sidebar-item" id="checklist-sidebar-btn" onclick="openChecklist()">
+      <i class="ti ti-list-check" style="font-size:15px;"></i><span>Checklist de turnos</span>
     </div>
     <div class="sidebar-item" id="arqueo-sidebar-btn" onclick="openArqueo()">
       <i class="ti ti-coins" style="font-size:15px;"></i><span>Arqueo de caja</span>
@@ -1592,6 +1626,57 @@ input:focus,select:focus{border-color:#999;}
         <textarea id="ia-input" placeholder="Escribe tu pregunta..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();iaSend();}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';"></textarea>
         <button class="ia-send-btn" onclick="iaSend()"><i class="ti ti-send" style="font-size:15px;"></i></button>
       </div>
+    </div>
+  </div>
+
+  <!-- ── CHECKLIST DE TURNOS ── -->
+  <div class="f2-panel" id="panel-checklist">
+    <div class="f2-card">
+      <div class="f2-header"><span>✅ Checklist de turno — Cóndor</span></div>
+      <div class="f2-body">
+
+        <div class="cl-turno-tabs" id="cl-turno-tabs">
+          <div class="cl-turno-tab active" data-turno="manana" onclick="clSetTurno('manana')">Mañana ☀</div>
+          <div class="cl-turno-tab" data-turno="tarde" onclick="clSetTurno('tarde')">Tarde</div>
+          <div class="cl-turno-tab" data-turno="noche" onclick="clSetTurno('noche')">Noche ◑</div>
+        </div>
+
+        <div class="cl-worker-field">
+          <label style="font-size:12px;color:var(--subtle);white-space:nowrap;">Recepcionista</label>
+          <select id="cl-worker-name">
+            <option value="">— Selecciona —</option>
+            <option>Toni</option><option>Antonia</option><option>Pedro</option>
+            <option>Dani</option><option>Aissa</option><option>Lucas C.</option>
+            <option>Lucas R.</option><option>Manuel</option><option>Ignacio</option><option>Ayla</option>
+          </select>
+        </div>
+
+        <div class="cl-progress-wrap">
+          <div class="cl-progress-bar"><div class="cl-progress-fill" id="cl-prog-fill" style="width:0%;"></div></div>
+          <div class="cl-progress-label"><span id="cl-prog-text">0 de 0 tareas</span><span id="cl-prog-pct">0%</span></div>
+        </div>
+
+        <div id="cl-task-list"></div>
+
+        <div class="cl-submit-wrap" id="cl-submit-wrap">
+          <button class="cl-submit-btn" id="cl-submit-btn" onclick="clSubmitChecklist()">
+            <span id="cl-btn-text">Finalizar turno y guardar resumen</span>
+          </button>
+        </div>
+
+        <div class="cl-sent-card" id="cl-sent-card">
+          <i class="ti ti-circle-check"></i>
+          <div style="font-size:15px;font-weight:500;color:var(--dark);">Turno finalizado</div>
+          <div id="cl-sent-sub" style="font-size:13px;color:var(--subtle);margin-top:6px;"></div>
+          <button class="btn-publish" style="margin-top:16px;" onclick="clResetChecklist()">Nuevo checklist</button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="f2-card">
+      <div class="f2-header"><span>📋 Historial de checklists</span></div>
+      <div id="cl-history-list"><div class="empty"><i class="ti ti-list-check"></i>Sin registros.</div></div>
     </div>
   </div>
 
@@ -3951,6 +4036,221 @@ async function iaSend() {
     const loadingEl = document.getElementById(loadingId);
     if (loadingEl) loadingEl.outerHTML = `<div class="ia-bubble assistant" style="color:var(--red);">⚠️ No se pudo conectar con el asistente. Comprueba que la función de Netlify esté configurada.</div>`;
   }
+}
+
+
+
+
+// ── CHECKLIST DE TURNOS (Cóndor) ──
+const CL_TURNOS = {
+  manana: {
+    label: "Turno Mañana ☀", accent: "#EF9F27", bg: "#FAEEDA", txt: "#633806",
+    sections: [
+      { label: "Al inicio del turno", tasks: [
+        { id:"m0", t:"Leer relevo y novedades del turno anterior" },
+        { id:"m1", t:"Revisar integraciones — filtrar por avisos y errores", n:"Sin errores · Nuevas reservas: Condor, Apto Condor, Magaluf, Magaluf Beach, Claudia · Alerta: Magaluf Beach NO debe tener anticipos", isNew:true },
+        { id:"m2", t:"Revisar No Shows y gestionar", n:"NO facturar · Marcar en reserva + extranet · Si reserva de más noches contactar agencia antes · Email soporte Hotelbeds · Irene en copia + Toni" },
+        { id:"m3", t:"Cierre de cada establecimiento", n:"Check-ins día anterior facturados · Relación facturas/cobros · Cuadrar efectivo y tiquets TPV" },
+        { id:"m4", t:"Enviar hospedajes", n:"Revisar que no quede ninguno en rojo" },
+        { id:"m5", t:"Sacar listados goberanta", n:"Si turno noche no tuvo tiempo" },
+        { id:"m6", t:"Previsiones entrada/salida — Nura Houses", n:"Dom y lun · 1 semana vista · Grupos de WhatsApp", time:"9:30 h" },
+      ]},
+      { label: "Durante el turno", tasks: [
+        { id:"m7", t:"Gestionar email y peticiones — todos los establecimientos", n:"Incluir buzón nurahouses@nurahotels.com · Verificar confirmaciones, cancelaciones y modificaciones en Timón · Irene en copia en emails de venta, cambios y cancelaciones", isNew:true },
+        { id:"m8", t:"Gestionar mensajes extranet Booking y Airbnb", n:"Responder durante todo el día · Nota en reserva con nombre y fecha", isNew:true },
+        { id:"m9", t:"Reservas Dertour — insertar al recibir el email", n:"No esperar al siguiente turno · Anotación con fecha y nombre · Gestionar cancelaciones/modificaciones en el momento", isNew:true },
+        { id:"m10", t:"Asignar habitaciones a nuevas reservas en Timón", n:"Actualizar también en Nura Houses para informes de apartamentos correctos", isNew:true },
+        { id:"m11", t:"Revisar entradas/salidas · Crear ficha aptos en WhatsApp", n:"Verificar check-in online · Enviar mensajes correspondientes" },
+        { id:"m12", t:"Encender música y abrir piscina", time:"10:00 h" },
+        { id:"m13", t:"Gestionar Check-in del día" },
+        { id:"m14", t:"Preparar tarjetas / llaves de habitaciones del día", n:"En la medida de lo posible" },
+      ]},
+    ]
+  },
+  tarde: {
+    label: "Turno Tarde", accent: "#D85A30", bg: "#FAECE7", txt: "#4A1B0C",
+    sections: [
+      { label: "Al inicio del turno", tasks: [
+        { id:"t0", t:"Cuadrar caja con turno anterior" },
+        { id:"t1", t:"Leer relevo y novedades del turno anterior" },
+        { id:"t2", t:"Revisar integraciones — filtrar por avisos y errores", n:"Sin errores · Nuevas reservas (todos los establecimientos) · Alerta: Magaluf Beach NO debe tener anticipos", isNew:true },
+      ]},
+      { label: "Durante el turno", tasks: [
+        { id:"t3", t:"Gestionar email, peticiones y mensajes extranet — todos los establecimientos", n:"Incluir buzón nurahouses@nurahotels.com · Verificar confirmaciones, cancelaciones y modificaciones en Timón · Irene en copia", isNew:true },
+        { id:"t4", t:"Gestionar mensajes extranet Booking y Airbnb", n:"Responder durante todo el día · Nota en reserva con nombre y fecha", isNew:true },
+        { id:"t5", t:"Reservas Dertour — insertar al recibir el email", n:"Anotación con fecha y nombre · Gestionar cancelaciones/modificaciones en el momento", isNew:true },
+        { id:"t6", t:"Asignar habitaciones a nuevas reservas en Timón y Nura Houses", n:"Sin número de apartamento las reservas no aparecen en informes de Ignacio", isNew:true },
+        { id:"t7", t:"Revisar WhatsApp Apto · Check-in online", n:"Mandar links con instrucciones de entrada si no han hecho check-in" },
+        { id:"t8", t:"Gestionar Check-in" },
+        { id:"t9", t:"Revisar check-in apartamentos", n:"Atento a posibles llamadas de Nura Houses" },
+        { id:"t10", t:"Volcar anticipos SiteMinder a Timón", n:"Por fecha del día siguiente" },
+        { id:"t11", t:"Cerrar piscina y bajar música", time:"20:00 h" },
+        { id:"t12", t:"Encender luces (hall, entrada y piscina)", time:"21:00 h" },
+        { id:"t13", t:"Contar caja", time:"22:50 h" },
+      ]},
+    ]
+  },
+  noche: {
+    label: "Turno Noche ◑", accent: "#378ADD", bg: "#E6F1FB", txt: "#042C53",
+    sections: [
+      { label: "Durante el turno", tasks: [
+        { id:"n0", t:"Leer relevo y novedades del turno anterior" },
+        { id:"n1", t:"Gestionar Check-in pendientes del día" },
+        { id:"n2", t:"Gestionar mensajes extranet Booking y Airbnb", n:"Dudas → consultar al turno siguiente · Nota en reserva con nombre y fecha" },
+        { id:"n3", t:"Reservas Dertour — insertar al recibir el email", n:"Anotación con fecha y nombre", isNew:true },
+        { id:"n4", t:"Asignar habitaciones a nuevas reservas en Timón y Nura Houses", n:"Mantener el planning actualizado en todo momento", isNew:true },
+        { id:"n5", t:"Vigilar balcones (sin ruido) y ordenar piscina" },
+        { id:"n6", t:"Vigilar pasillos, todo tranquilo" },
+        { id:"n7", t:"Revisar anticipos SiteMinder a Timón", n:"Por fecha del día siguiente" },
+        { id:"n8", t:"Imprimir y cuadrar listados de tesorería con boletas de cobros del día anterior", n:"Revisar que cada línea esté justificada en base a los cobros de ese día · Aplica a: Apto. Condor, Magaluf Beach, Magaluf y Claudia únicamente" },
+      ]},
+      { label: "Al final del turno", tasks: [
+        { id:"n9", t:"Imprimir listados: goberanta, servicios por rangos y comedor", time:"06:00 h" },
+      ]},
+      { label: "Tarea periódica", tasks: [
+        { id:"n10", t:"Revisar y actualizar manual de procedimientos", n:"Tras cambios de PMS o novedades de temporada · Incluir: gestión de no shows por agencia", isNew:true },
+      ]},
+    ]
+  }
+};
+
+let clCurrentTurno = "manana";
+let clChecked = {};
+
+function openChecklist() {
+  ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = 'none';
+  });
+  document.querySelectorAll('.f2-panel').forEach(p => p.style.display = 'none');
+  document.getElementById('panel-checklist').style.display = 'block';
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('checklist-sidebar-btn').classList.add('active');
+  currentF2Panel = 'checklist';
+  clRender();
+  clLoadHistory();
+}
+
+function clSetTurno(t) {
+  clCurrentTurno = t;
+  clChecked = {};
+  document.querySelectorAll('#cl-turno-tabs .cl-turno-tab').forEach(b => b.classList.toggle('active', b.dataset.turno === t));
+  document.getElementById('cl-sent-card').classList.remove('show');
+  document.getElementById('cl-submit-wrap').style.display = '';
+  document.getElementById('cl-task-list').style.display = '';
+  clRender();
+}
+
+function clAllTasks() {
+  return CL_TURNOS[clCurrentTurno].sections.flatMap(s => s.tasks);
+}
+
+function clRender() {
+  const turno = CL_TURNOS[clCurrentTurno];
+  const list = document.getElementById('cl-task-list');
+  let html = '';
+
+  turno.sections.forEach(sec => {
+    html += `<div class="cl-section-label">${sec.label}</div>`;
+    sec.tasks.forEach(task => {
+      const isDone = clChecked[task.id];
+      html += `<div class="cl-task-card ${isDone?'done':''}" onclick="clToggle('${task.id}')">
+        <div class="cl-checkbox" style="${isDone?`border-color:${turno.accent};background:${turno.accent};`:''}">
+          ${isDone?'<i class="ti ti-check" style="font-size:13px;color:#fff;"></i>':''}
+        </div>
+        <div class="cl-task-body">
+          <div class="cl-task-main">${task.t}${task.isNew?`<span class="cl-task-new" style="background:${turno.bg};color:${turno.txt};">nuevo</span>`:''}</div>
+          ${task.n?`<div class="cl-task-note">${task.n}</div>`:''}
+        </div>
+        ${task.time?`<div class="cl-task-time" style="color:${turno.accent};">${task.time}</div>`:''}
+      </div>`;
+    });
+  });
+
+  list.innerHTML = html;
+  document.getElementById('cl-submit-btn').style.background = turno.accent;
+  clUpdateProgress();
+}
+
+function clToggle(id) {
+  clChecked[id] = !clChecked[id];
+  clRender();
+}
+
+function clUpdateProgress() {
+  const tasks = clAllTasks();
+  const done = tasks.filter(t => clChecked[t.id]).length;
+  const pct = tasks.length ? Math.round(done / tasks.length * 100) : 0;
+  document.getElementById('cl-prog-fill').style.width = pct + '%';
+  document.getElementById('cl-prog-fill').style.background = CL_TURNOS[clCurrentTurno].accent;
+  document.getElementById('cl-prog-text').textContent = `${done} de ${tasks.length} tareas`;
+  document.getElementById('cl-prog-pct').textContent = pct + '%';
+}
+
+async function clSubmitChecklist() {
+  const worker = document.getElementById('cl-worker-name').value;
+  if (!worker) { showToast('Selecciona tu nombre antes de finalizar'); return; }
+
+  const btn = document.getElementById('cl-submit-btn');
+  const btnText = document.getElementById('cl-btn-text');
+  btn.disabled = true;
+  btnText.textContent = 'Guardando...';
+
+  const turno = CL_TURNOS[clCurrentTurno];
+  const tasks = clAllTasks();
+  const done = tasks.filter(t => clChecked[t.id]).length;
+  const pendientes = tasks.filter(t => !clChecked[t.id]).map(t => t.t);
+  const now = new Date();
+  const p2 = n => String(n).padStart(2,'0');
+  const dateStr = `${p2(now.getDate())}/${p2(now.getMonth()+1)}/${now.getFullYear()}`;
+  const timeStr = `${p2(now.getHours())}:${p2(now.getMinutes())}`;
+
+  const {error} = await db.from('checklists').insert([{
+    turno: clCurrentTurno, turno_label: turno.label, worker,
+    total_tasks: tasks.length, done_tasks: done,
+    pendientes: pendientes, date_str: dateStr, time_str: timeStr,
+    created_at: new Date().toISOString()
+  }]);
+
+  btn.disabled = false;
+  if (error) { showToast('Error al guardar: ' + error.message); btnText.textContent = 'Finalizar turno y guardar resumen'; return; }
+
+  document.getElementById('cl-task-list').style.display = 'none';
+  document.getElementById('cl-submit-wrap').style.display = 'none';
+  const sc = document.getElementById('cl-sent-card');
+  sc.classList.add('show');
+  document.getElementById('cl-sent-sub').textContent = `${worker} · ${done}/${tasks.length} tareas completadas (${Math.round(done/tasks.length*100)}%)`;
+
+  clLoadHistory();
+}
+
+function clResetChecklist() {
+  clChecked = {};
+  document.getElementById('cl-sent-card').classList.remove('show');
+  document.getElementById('cl-submit-wrap').style.display = '';
+  document.getElementById('cl-task-list').style.display = '';
+  document.getElementById('cl-btn-text').textContent = 'Finalizar turno y guardar resumen';
+  clRender();
+}
+
+async function clLoadHistory() {
+  const el = document.getElementById('cl-history-list');
+  const {data} = await db.from('checklists').select('*').order('created_at',{ascending:false}).limit(20);
+  if (!data || !data.length) { el.innerHTML = '<div class="empty"><i class="ti ti-list-check"></i>Sin registros.</div>'; return; }
+  el.innerHTML = data.map(c => {
+    const pct = Math.round(c.done_tasks / c.total_tasks * 100);
+    const pendList = (c.pendientes||[]);
+    return `<div class="req-card">
+      <div class="req-top">
+        <div>
+          <strong style="font-size:13px;">${c.worker}</strong>
+          <span style="font-size:12px;color:var(--muted);margin-left:6px;">${c.turno_label} · ${c.date_str} ${c.time_str}</span>
+        </div>
+        <span class="req-badge ${pct===100?'badge-aprobado':'badge-pendiente'}">${c.done_tasks}/${c.total_tasks} (${pct}%)</span>
+      </div>
+      ${pendList.length ? `<div class="req-meta" style="margin-top:4px;">Pendientes: ${pendList.slice(0,3).join(' · ')}${pendList.length>3?` (+${pendList.length-3} más)`:''}</div>` : ''}
+    </div>`;
+  }).join('');
 }
 
 
