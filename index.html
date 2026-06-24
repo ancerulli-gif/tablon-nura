@@ -1632,8 +1632,16 @@ input:focus,select:focus{border-color:#999;}
   <!-- ── CHECKLIST DE TURNOS ── -->
   <div class="f2-panel" id="panel-checklist">
     <div class="f2-card">
-      <div class="f2-header"><span>✅ Checklist de turno — Cóndor</span></div>
+      <div class="f2-header"><span>✅ Checklist de turno</span></div>
       <div class="f2-body">
+
+        <div class="f2-field" style="margin-bottom:14px;">
+          <label>Hotel</label>
+          <select id="cl-hotel-select" onchange="clSetHotel(this.value)">
+            <option value="condor">Hotel Cóndor</option>
+            <option value="boreal">Hotel Boreal</option>
+          </select>
+        </div>
 
         <div class="cl-turno-tabs" id="cl-turno-tabs">
           <div class="cl-turno-tab active" data-turno="manana" onclick="clSetTurno('manana')">Mañana ☀</div>
@@ -4042,7 +4050,8 @@ async function iaSend() {
 
 
 // ── CHECKLIST DE TURNOS (Cóndor) ──
-const CL_TURNOS = {
+const CL_HOTELS = {
+  condor: {
   manana: {
     label: "Turno Mañana ☀", accent: "#EF9F27", bg: "#FAEEDA", txt: "#633806",
     sections: [
@@ -4112,7 +4121,36 @@ const CL_TURNOS = {
       ]},
     ]
   }
+  },
+  boreal: {
+    manana: {
+      label: "Turno Mañana ☀", accent: "#EF9F27", bg: "#FAEEDA", txt: "#633806",
+      sections: [
+        { label: "Pendiente de cargar", tasks: [
+          { id:"b-m0", t:"Checklist de Boreal — pendiente de añadir tareas" },
+        ]},
+      ]
+    },
+    tarde: {
+      label: "Turno Tarde", accent: "#D85A30", bg: "#FAECE7", txt: "#4A1B0C",
+      sections: [
+        { label: "Pendiente de cargar", tasks: [
+          { id:"b-t0", t:"Checklist de Boreal — pendiente de añadir tareas" },
+        ]},
+      ]
+    },
+    noche: {
+      label: "Turno Noche ◑", accent: "#378ADD", bg: "#E6F1FB", txt: "#042C53",
+      sections: [
+        { label: "Pendiente de cargar", tasks: [
+          { id:"b-n0", t:"Checklist de Boreal — pendiente de añadir tareas" },
+        ]},
+      ]
+    }
+  }
 };
+
+let clCurrentHotel = "condor";
 
 let clCurrentTurno = "manana";
 let clChecked = {};
@@ -4127,8 +4165,18 @@ function openChecklist() {
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('checklist-sidebar-btn').classList.add('active');
   currentF2Panel = 'checklist';
+  document.getElementById('cl-hotel-select').value = clCurrentHotel;
   clRender();
   clLoadHistory();
+}
+
+function clSetHotel(hotel) {
+  clCurrentHotel = hotel;
+  clChecked = {};
+  document.getElementById('cl-sent-card').classList.remove('show');
+  document.getElementById('cl-submit-wrap').style.display = '';
+  document.getElementById('cl-task-list').style.display = '';
+  clRender();
 }
 
 function clSetTurno(t) {
@@ -4142,11 +4190,11 @@ function clSetTurno(t) {
 }
 
 function clAllTasks() {
-  return CL_TURNOS[clCurrentTurno].sections.flatMap(s => s.tasks);
+  return CL_HOTELS[clCurrentHotel][clCurrentTurno].sections.flatMap(s => s.tasks);
 }
 
 function clRender() {
-  const turno = CL_TURNOS[clCurrentTurno];
+  const turno = CL_HOTELS[clCurrentHotel][clCurrentTurno];
   const list = document.getElementById('cl-task-list');
   let html = '';
 
@@ -4182,7 +4230,7 @@ function clUpdateProgress() {
   const done = tasks.filter(t => clChecked[t.id]).length;
   const pct = tasks.length ? Math.round(done / tasks.length * 100) : 0;
   document.getElementById('cl-prog-fill').style.width = pct + '%';
-  document.getElementById('cl-prog-fill').style.background = CL_TURNOS[clCurrentTurno].accent;
+  document.getElementById('cl-prog-fill').style.background = CL_HOTELS[clCurrentHotel][clCurrentTurno].accent;
   document.getElementById('cl-prog-text').textContent = `${done} de ${tasks.length} tareas`;
   document.getElementById('cl-prog-pct').textContent = pct + '%';
 }
@@ -4196,7 +4244,7 @@ async function clSubmitChecklist() {
   btn.disabled = true;
   btnText.textContent = 'Guardando...';
 
-  const turno = CL_TURNOS[clCurrentTurno];
+  const turno = CL_HOTELS[clCurrentHotel][clCurrentTurno];
   const tasks = clAllTasks();
   const done = tasks.filter(t => clChecked[t.id]).length;
   const pendientes = tasks.filter(t => !clChecked[t.id]).map(t => t.t);
@@ -4206,7 +4254,7 @@ async function clSubmitChecklist() {
   const timeStr = `${p2(now.getHours())}:${p2(now.getMinutes())}`;
 
   const {error} = await db.from('checklists').insert([{
-    turno: clCurrentTurno, turno_label: turno.label, worker,
+    hotel: clCurrentHotel, turno: clCurrentTurno, turno_label: turno.label, worker,
     total_tasks: tasks.length, done_tasks: done,
     pendientes: pendientes, date_str: dateStr, time_str: timeStr,
     created_at: new Date().toISOString()
@@ -4237,6 +4285,7 @@ async function clLoadHistory() {
   const el = document.getElementById('cl-history-list');
   const {data} = await db.from('checklists').select('*').order('created_at',{ascending:false}).limit(20);
   if (!data || !data.length) { el.innerHTML = '<div class="empty"><i class="ti ti-list-check"></i>Sin registros.</div>'; return; }
+  const hotelLabel = h => h==='boreal' ? 'Boreal' : 'Cóndor';
   el.innerHTML = data.map(c => {
     const pct = Math.round(c.done_tasks / c.total_tasks * 100);
     const pendList = (c.pendientes||[]);
@@ -4244,7 +4293,7 @@ async function clLoadHistory() {
       <div class="req-top">
         <div>
           <strong style="font-size:13px;">${c.worker}</strong>
-          <span style="font-size:12px;color:var(--muted);margin-left:6px;">${c.turno_label} · ${c.date_str} ${c.time_str}</span>
+          <span style="font-size:12px;color:var(--muted);margin-left:6px;">${hotelLabel(c.hotel)} · ${c.turno_label} · ${c.date_str} ${c.time_str}</span>
         </div>
         <span class="req-badge ${pct===100?'badge-aprobado':'badge-pendiente'}">${c.done_tasks}/${c.total_tasks} (${pct}%)</span>
       </div>
