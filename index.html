@@ -1865,11 +1865,11 @@ input:focus,select:focus{border-color:#999;}
     </div>
   </div>
 
-  <div class="section-header" id="section-header">
+  <div class="section-header" id="section-header" style="display:none;">
     <div class="section-title" id="section-title">Tablón</div>
     <div class="section-desc" id="section-desc">Comunicaciones y avisos para el equipo</div>
   </div>
-  <div id="announcements-list"><div class="loading"><i class="ti ti-loader"></i>Cargando...</div></div>
+  <div id="announcements-list" style="display:none;"><div class="loading"><i class="ti ti-loader"></i>Cargando...</div></div>
 </div>
 </div>
 <div id="lightbox" class="lightbox" onclick="closeLightbox()"><img id="lightbox-img" src="" alt="" /></div>
@@ -4513,8 +4513,8 @@ buildEmojiPickers();
 buildWorkersSidebar();
 buildTurnosWidget();
 updateTurnosVisibility();
-loadSection();
 setTimeout(checkRelevoMention, 3000);
+updateCounts();
 
 // Relevo quill - lazy init
 var quillRelevo = null;
