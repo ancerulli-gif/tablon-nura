@@ -655,32 +655,33 @@ input:focus,select:focus{border-color:#999;}
 .tw-festivo-badge{font-size:9px;font-weight:600;background:#FCF0EF;color:#C0392B;padding:1px 5px;border-radius:3px;margin-left:3px;white-space:nowrap;}
 
 
-/* ── PREMIO RESEÑAS (divertido) ── */
-.premio-hero{background:linear-gradient(135deg,#FFD580 0%,#FFB347 50%,#FF9966 100%);border-radius:var(--radius-lg);padding:24px 20px;text-align:center;margin-bottom:18px;position:relative;overflow:hidden;}
-.premio-hero::before{content:'⭐';position:absolute;top:10px;left:16px;font-size:24px;opacity:.5;transform:rotate(-15deg);}
-.premio-hero::after{content:'⭐';position:absolute;bottom:8px;right:20px;font-size:20px;opacity:.4;transform:rotate(20deg);}
-.premio-hero-title{font-family:'DM Serif Display',serif;font-size:24px;color:#5C3D10;margin-bottom:4px;}
+/* ── PREMIO RESEÑAS (carrera divertida) ── */
+.premio-hero{background:linear-gradient(135deg,#FFD580 0%,#FFB347 45%,#FF8C5A 100%);border-radius:var(--radius-lg);padding:26px 20px;text-align:center;margin-bottom:18px;position:relative;overflow:hidden;}
+.premio-hero::before{content:'🎉';position:absolute;top:8px;left:14px;font-size:22px;opacity:.55;transform:rotate(-15deg);}
+.premio-hero::after{content:'🎊';position:absolute;bottom:6px;right:18px;font-size:20px;opacity:.5;transform:rotate(15deg);}
+.premio-hero-title{font-family:'DM Serif Display',serif;font-size:25px;color:#5C3D10;margin-bottom:4px;}
 .premio-hero-sub{font-size:13px;color:#7A5520;font-weight:500;}
-.premio-leaderboard{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
-.premio-row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;box-shadow:var(--shadow);transition:transform .15s;}
-.premio-row:hover{transform:translateX(2px);}
-.premio-rank{font-size:18px;font-weight:700;width:32px;text-align:center;flex-shrink:0;}
-.premio-row.rank-1{background:linear-gradient(90deg,#FFF8E1,var(--surface));border-color:#F5D061;box-shadow:0 2px 12px rgba(245,208,97,.35);}
-.premio-row.rank-1 .premio-rank{color:#D4A017;}
-.premio-row.rank-2{border-color:#C8C8D0;}
-.premio-row.rank-2 .premio-rank{color:#8A8A95;}
-.premio-row.rank-3{border-color:#D9A878;}
-.premio-row.rank-3 .premio-rank{color:#A6692E;}
-.premio-avatar{width:38px;height:38px;border-radius:50%;background:var(--border-light);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--muted);flex-shrink:0;}
-.premio-row.rank-1 .premio-avatar{background:#FFD580;color:#5C3D10;}
-.premio-name{flex:1;font-size:14px;font-weight:500;color:var(--dark);}
-.premio-medal{font-size:18px;margin-right:2px;}
-.premio-points-wrap{display:flex;align-items:center;gap:8px;}
-.premio-points{font-size:20px;font-weight:700;color:var(--dark);min-width:36px;text-align:right;}
-.premio-points-label{font-size:10px;color:var(--subtle);text-transform:uppercase;letter-spacing:.04em;}
-.premio-edit-btns{display:flex;gap:3px;}
+.premio-track-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 18px 14px;margin-bottom:18px;box-shadow:var(--shadow);overflow:hidden;}
+.premio-track-finish{position:relative;height:6px;margin-bottom:4px;}
+.premio-flag{position:absolute;right:6px;top:-26px;font-size:22px;}
+.premio-lane{position:relative;margin-bottom:16px;}
+.premio-lane:last-child{margin-bottom:0;}
+.premio-lane-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.premio-lane-name{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--dark);}
+.premio-lane-pts{font-size:13px;font-weight:700;color:var(--dark);background:#F0EDE8;padding:2px 9px;border-radius:20px;}
+.premio-track{position:relative;height:30px;background:repeating-linear-gradient(90deg,#F7F5F2 0,#F7F5F2 18px,#EFECE7 18px,#EFECE7 20px);border-radius:6px;overflow:hidden;border:1px solid var(--border);}
+.premio-track::after{content:'🏁';position:absolute;right:2px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.7;z-index:2;}
+.premio-track-fill{position:absolute;left:0;top:0;height:100%;border-radius:6px;transition:width .6s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;justify-content:flex-end;padding-right:4px;}
+.premio-runner{font-size:18px;transition:transform .15s;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25));}
+.premio-rank-1 .premio-track-fill{background:linear-gradient(90deg,#FFE9A8,#FFD580);}
+.premio-rank-2 .premio-track-fill{background:linear-gradient(90deg,#E5E5EC,#D4D4DD);}
+.premio-rank-3 .premio-track-fill{background:linear-gradient(90deg,#F0D4B8,#E0B98F);}
+.premio-rank-other .premio-track-fill{background:linear-gradient(90deg,#D4EDE5,#B8DFC7);}
+.premio-medal-icon{font-size:15px;}
+.premio-streak{font-size:11px;background:#FCF0EF;color:#C0392B;padding:1px 7px;border-radius:10px;font-weight:600;margin-left:2px;}
+.premio-edit-btns{display:flex;gap:4px;align-items:center;}
 .premio-edit-btn{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .12s;}
-.premio-edit-btn:hover{background:#F0EDE8;color:var(--dark);}
+.premio-edit-btn:hover{transform:scale(1.12);}
 .premio-edit-btn.plus:hover{background:var(--teal-bg);color:var(--teal);border-color:#B8DFC7;}
 .premio-edit-btn.minus:hover{background:var(--red-bg);color:var(--red);border-color:#F5C4C4;}
 .premio-prize-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);}
@@ -690,6 +691,8 @@ input:focus,select:focus{border-color:#999;}
 .premio-prize-desc{font-size:13px;color:var(--muted);line-height:1.6;}
 .premio-confetti{display:inline-block;animation:premio-bounce 1.8s ease-in-out infinite;}
 @keyframes premio-bounce{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-4px) rotate(8deg);}}
+@keyframes premio-pop{0%{transform:scale(1);}50%{transform:scale(1.3);}100%{transform:scale(1);}}
+.premio-pop{animation:premio-pop .35s ease;}
 
 </style>
 </head>
@@ -4920,28 +4923,42 @@ async function loadPremioRanking() {
   const sorted = PREMIO_WORKERS.map(w => ({ name: w, points: scores[w] || 0 }))
     .sort((a, b) => b.points - a.points);
 
-  const medals = ['🥇', '🥈', '🥉'];
+  const maxPts = Math.max(1, sorted[0]?.points || 1);
+  const RUNNERS = ['🏃','🚴','🏇','🛹','🏂'];
+  const medals = ['🥇','🥈','🥉'];
 
-  el.innerHTML = sorted.map((entry, i) => {
-    const ini = entry.name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
-    const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
+  let html = '<div class="premio-track-wrap">';
+  html += sorted.map((entry, i) => {
+    const pct = Math.max(6, Math.round((entry.points / maxPts) * 100));
+    const rankClass = i === 0 ? 'premio-rank-1' : i === 1 ? 'premio-rank-2' : i === 2 ? 'premio-rank-3' : 'premio-rank-other';
     const medal = medals[i] || '';
-    return `<div class="premio-row ${rankClass}">
-      <div class="premio-rank">${i + 1}</div>
-      <div class="premio-avatar">${ini}</div>
-      <div class="premio-name">${medal ? `<span class="premio-medal">${medal}</span>` : ''}${entry.name}</div>
-      <div class="premio-points-wrap">
-        <div>
-          <div class="premio-points">${entry.points}</div>
-          <div class="premio-points-label">pts</div>
+    const runner = entry.points === 0 ? '🐌' : RUNNERS[i % RUNNERS.length];
+    const isLeader = i === 0 && entry.points > 0;
+    return `<div class="premio-lane ${rankClass}" id="premio-lane-${i}">
+      <div class="premio-lane-top">
+        <div class="premio-lane-name">
+          ${medal ? `<span class="premio-medal-icon">${medal}</span>` : `<span style="color:var(--subtle);font-size:11px;">#${i+1}</span>`}
+          ${entry.name}
+          ${isLeader ? '<span class="premio-streak">🔥 líder</span>' : ''}
         </div>
-        ${adminMode ? `<div class="premio-edit-btns">
-          <button class="premio-edit-btn minus" onclick="premioAdjust('${entry.name}',-1)">−</button>
-          <button class="premio-edit-btn plus" onclick="premioAdjust('${entry.name}',1)">+</button>
-        </div>` : ''}
+        <div class="premio-edit-btns">
+          <span class="premio-lane-pts" id="premio-pts-${entry.name.replace(/\s/g,'')}">${entry.points} pts</span>
+          ${adminMode ? `
+            <button class="premio-edit-btn minus" onclick="premioAdjust('${entry.name}',-1)">−</button>
+            <button class="premio-edit-btn plus" onclick="premioAdjust('${entry.name}',1)">+</button>
+          ` : ''}
+        </div>
+      </div>
+      <div class="premio-track">
+        <div class="premio-track-fill" style="width:${pct}%;">
+          <span class="premio-runner">${runner}</span>
+        </div>
       </div>
     </div>`;
   }).join('');
+  html += '</div>';
+
+  el.innerHTML = html;
 }
 
 async function premioAdjust(worker, delta) {
@@ -4954,6 +4971,7 @@ async function premioAdjust(worker, delta) {
   } else {
     await db.from('premio_resenas').insert([{ worker, puntos: newPoints }]);
   }
+  if (delta > 0) showToast('🎉 +1 punto para ' + worker + '!');
   loadPremioRanking();
 }
 
