@@ -604,6 +604,36 @@ input:focus,select:focus{border-color:#999;}
 .cl-sent-card.show{display:block;}
 .cl-sent-card i{font-size:36px;color:var(--teal);display:block;margin-bottom:10px;}
 
+
+/* ── CONTACTOS FIJO (visual, sin desplegar) ── */
+.cf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;}
+.cf-card{border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);}
+.cf-card-header{padding:11px 16px;font-size:12px;font-weight:600;letter-spacing:.04em;display:flex;align-items:center;gap:7px;}
+.cf-card-header i{font-size:15px;}
+.cf-card-body{background:var(--surface);padding:4px 0;}
+.cf-row{display:flex;align-items:flex-start;gap:10px;padding:8px 16px;border-bottom:1px solid var(--border-light);font-size:12.5px;}
+.cf-row:last-child{border-bottom:none;}
+.cf-row-label{font-weight:600;color:var(--dark);min-width:115px;flex-shrink:0;line-height:1.4;}
+.cf-row-value{color:var(--muted);line-height:1.5;flex:1;min-width:0;}
+.cf-row-value code{background:#F0EDE8;padding:1px 6px;border-radius:3px;font-family:monospace;font-size:11.5px;color:var(--dark);}
+.cf-row-note{font-size:11px;color:var(--subtle);margin-top:2px;font-style:italic;}
+
+/* Color themes per category */
+.cf-blue .cf-card-header{background:#1A4F8A;color:#fff;}
+.cf-blue .cf-row code{background:#EEF4FB;color:#0C3A7A;}
+.cf-teal .cf-card-header{background:#1D6A5A;color:#fff;}
+.cf-teal .cf-row code{background:#EBF5F2;color:#0F4A3A;}
+.cf-amber .cf-card-header{background:#8A5D1A;color:#fff;}
+.cf-amber .cf-row code{background:#FBF4E8;color:#5C3D10;}
+.cf-red .cf-card-header{background:#A33;color:#fff;}
+.cf-red .cf-row code{background:#FCF0EF;color:#7A2620;}
+.cf-purple .cf-card-header{background:#6B3A8A;color:#fff;}
+.cf-purple .cf-row code{background:#F3EEF9;color:#4A2860;}
+.cf-dark .cf-card-header{background:#1C1C1E;color:#fff;}
+.cf-dark .cf-row code{background:#EEECF0;color:#2A2530;}
+
+@media(max-width:640px){.cf-grid{grid-template-columns:1fr;}.cf-row{flex-direction:column;gap:3px;}.cf-row-label{min-width:0;}}
+
 </style>
 </head>
 <body>
@@ -655,8 +685,8 @@ input:focus,select:focus{border-color:#999;}
     <div class="sidebar-item" data-section="nurahouses" onclick="switchSection(this)" ondragover="sidebarDragOver(event,this)" ondragleave="sidebarDragLeave(event,this)" ondrop="sidebarDrop(event,this)">
       <i class="ti ti-home"></i><span>Nura Houses</span><span class="count" id="count-nurahouses">0</span>
     </div>
-    <div class="sidebar-item" data-section="contactos" onclick="switchSection(this)" ondragover="sidebarDragOver(event,this)" ondragleave="sidebarDragLeave(event,this)" ondrop="sidebarDrop(event,this)">
-      <i class="ti ti-lock-password"></i><span>Tlf. y Contraseñas</span><span class="count" id="count-contactos">0</span>
+    <div class="sidebar-item" id="contactos-fijo-btn" onclick="openContactosFijo()">
+      <i class="ti ti-lock-password"></i><span>Tlf. y Contraseñas</span>
     </div>
     <div class="sidebar-item" id="alojamientos-btn" onclick="openAlojamientos()">
       <i class="ti ti-photo"></i><span>Alojamientos</span>
@@ -1685,6 +1715,153 @@ input:focus,select:focus{border-color:#999;}
     <div class="f2-card">
       <div class="f2-header"><span>📋 Historial de checklists</span></div>
       <div id="cl-history-list"><div class="empty"><i class="ti ti-list-check"></i>Sin registros.</div></div>
+    </div>
+  </div>
+
+  <!-- ── CONTACTOS FIJO ── -->
+  <div class="f2-panel" id="panel-contactos-fijo">
+    <div class="section-header" style="margin-bottom:20px;">
+      <div class="section-title">Teléfonos y Contraseñas</div>
+      <div class="section-desc">Contactos, accesos y credenciales del equipo — vista rápida</div>
+    </div>
+
+    <div class="cf-grid">
+
+      <!-- RECEPCIÓN Y TÉCNICOS -->
+      <div class="cf-card cf-blue">
+        <div class="cf-card-header"><i class="ti ti-phone"></i>Recepción y técnicos</div>
+        <div class="cf-card-body">
+          <div class="cf-row"><div class="cf-row-label">Recepción Cóndor</div><div class="cf-row-value"><code>971 26 09 39</code><br>condor@nurahotels.com</div></div>
+          <div class="cf-row"><div class="cf-row-label">Recepción Boreal</div><div class="cf-row-value"><code>971 26 21 12</code><br>boreal@nurahotels.com</div></div>
+          <div class="cf-row"><div class="cf-row-label">Recepción Sta. Ponça</div><div class="cf-row-value"><code>971 26 84 40</code><br>pins@nurahotels.com</div></div>
+          <div class="cf-row"><div class="cf-row-label">Pepe (Técnico)</div><div class="cf-row-value"><code>620 98 99 72</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Rafa (Técnico)</div><div class="cf-row-value"><code>653 11 48 21</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Juan Fran (Técnico)</div><div class="cf-row-value">—</div></div>
+          <div class="cf-row"><div class="cf-row-label">Aptos. Nura Houses</div><div class="cf-row-value"><code>649 53 45 02</code></div></div>
+        </div>
+      </div>
+
+      <!-- AGENCIAS Y PROVEEDORES -->
+      <div class="cf-card cf-teal">
+        <div class="cf-card-header"><i class="ti ti-building"></i>Agencias, canales y proveedores</div>
+        <div class="cf-card-body">
+          <div class="cf-row"><div class="cf-row-label">Hotelbeds</div><div class="cf-row-value"><code>919 03 42 34</code><div class="cf-row-note">Reubicaciones poca antelación. Temp. baja → Yield</div></div></div>
+          <div class="cf-row"><div class="cf-row-label">Hotelbeds (No Shows)</div><div class="cf-row-value">hotelsupport.latam@hotelbeds.com</div></div>
+          <div class="cf-row"><div class="cf-row-label">Booking soporte</div><div class="cf-row-value"><code>917 696 670</code> / <code>971 99 25 21</code><div class="cf-row-note">Estefanía Alfaro</div></div></div>
+          <div class="cf-row"><div class="cf-row-label">Krossbooking</div><div class="cf-row-value"><code>931 70 10 78</code><div class="cf-row-note">Horario 9:00–18:00</div></div></div>
+          <div class="cf-row"><div class="cf-row-label">MTS Globe / W2M</div><div class="cf-row-value"><code>871 17 05 55</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Rent a Car Vanrell</div><div class="cf-row-value"><code>971 89 06 11</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Máq. expendedoras</div><div class="cf-row-value">Jose: <code>629 64 28 28</code> · Eduardo: <code>601 16 35 02</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">3Villas Booking</div><div class="cf-row-value"><code>644 89 58 67</code> / <code>659 93 34 34</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Mallorca Tours — Santi</div><div class="cf-row-value"><code>675 45 71 18</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Ayuntamiento Palma</div><div class="cf-row-value"><code>971 22 59 00</code><div class="cf-row-note">Avisos desperfectos / tormentas</div></div></div>
+        </div>
+      </div>
+
+      <!-- SISTEMAS PMS / RESERVAS -->
+      <div class="cf-card cf-amber">
+        <div class="cf-card-header"><i class="ti ti-key"></i>Sistemas — PMS y reservas</div>
+        <div class="cf-card-body">
+          <div class="cf-row"><div class="cf-row-label">GuestPro</div><div class="cf-row-value">condor@nurahotels.com<br><code>RecepcionCondor2024_</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Timón</div><div class="cf-row-value">boreal@nurahotels.com<br><code>frontBoreal2025</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Krossbooking</div><div class="cf-row-value"><code>nuraHOUSES26.</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Mirai Extranet</div><div class="cf-row-value">BorealNura<br><code>yncCHW402Grf</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">SiteMinder Boreal</div><div class="cf-row-value">boreal@nurahotels.com<br><code>frontBoreal2026</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Last Minute Extranet</div><div class="cf-row-value">boreal@nurahotels.com<br><code>Lastminute26</code><div class="cf-row-note">partners.extranet-lastminute.com · Act. 04/03 Daniel</div></div></div>
+          <div class="cf-row"><div class="cf-row-label">DeepL</div><div class="cf-row-value">condor@nurahotels.com<br><code>nuracondor2023</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">LMON Tours</div><div class="cf-row-value">condor@nurahotels.com<br><code>Lemon2023</code><div class="cf-row-note">Tel: 971 68 24 66 / 636 88 24 19</div></div></div>
+          <div class="cf-row"><div class="cf-row-label">eDreams Cóndor</div><div class="cf-row-value">condor@nurahotels.com<br><code>Nuracondor_2025</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">eDreams Boreal</div><div class="cf-row-value">boreal@nurahotels.com<br><code>Nuraboreal.2026</code><div class="cf-row-note">Act. 26/03 Daniel</div></div></div>
+        </div>
+      </div>
+
+      <!-- CHECK-IN ONLINE -->
+      <div class="cf-card cf-amber">
+        <div class="cf-card-header"><i class="ti ti-device-tablet"></i>Check-in online (Civitfun)</div>
+        <div class="cf-card-body">
+          <div class="cf-row"><div class="cf-row-label">Boreal (online)</div><div class="cf-row-value">tpaperlessNB@nurahotels.com<br><code>NuraBoreal2022</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Cóndor (online)</div><div class="cf-row-value">tpaperlessNC@nurahotels.com<br><code>NuraCondor2022</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Boreal (tablet)</div><div class="cf-row-value">tpaperlessNB@nurahotels.com<br><code>NuraBoreal2022</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Enlace check-in</div><div class="cf-row-value">checkin.civitfun.com/hotel/nura-boreal</div></div>
+        </div>
+      </div>
+
+      <!-- EMAIL / OUTLOOK -->
+      <div class="cf-card cf-dark">
+        <div class="cf-card-header"><i class="ti ti-mail"></i>Cuentas Outlook y Email</div>
+        <div class="cf-card-body">
+          <div class="cf-row"><div class="cf-row-label">boreal@nurahotels.com</div><div class="cf-row-value"><code>B0real_2023</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">condor@nurahotels.com</div><div class="cf-row-value"><code>C0ndor_2023</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">pins@nurahotels.com</div><div class="cf-row-value"><code>P1ns_2024</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">TPV Cóndor</div><div class="cf-row-value">tpvcondor@gmail.com<br><code>tpvcondor2026</code><div class="cf-row-note">Tel. recuperación: 649 53 45 02</div></div></div>
+        </div>
+      </div>
+
+      <!-- SPOTIFY / CÁMARAS -->
+      <div class="cf-card cf-purple">
+        <div class="cf-card-header"><i class="ti ti-music"></i>Spotify, Cámaras y Vídeo portero</div>
+        <div class="cf-card-body">
+          <div class="cf-row"><div class="cf-row-label">Spotify Boreal</div><div class="cf-row-value">boreal@nurahotels.com<br><code>nurahotels</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Spotify Cóndor</div><div class="cf-row-value">condor@nurahotels.com<br><code>nurahotels1</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Spotify Pins</div><div class="cf-row-value">pins@nurahotels.com<br><code>nurahotels2</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Cámaras</div><div class="cf-row-value">admin<br><code>B0re4l123$1</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Vídeo portero Boreal</div><div class="cf-row-value">dl12tuds14<br><code>321789456z@</code></div></div>
+        </div>
+      </div>
+
+      <!-- BOOKING POR HOTEL -->
+      <div class="cf-card cf-blue">
+        <div class="cf-card-header"><i class="ti ti-bed"></i>Booking.com — cuentas por hotel</div>
+        <div class="cf-card-body">
+          <div class="cf-row"><div class="cf-row-label">Boreal</div><div class="cf-row-value">NURA Boreal<br><code>Boreal.2026</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Cóndor</div><div class="cf-row-value">NURA Condor<br><code>CONDOR25booking</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Magaluf</div><div class="cf-row-value">MAGALUF NURA<br><code>Magalufnura24.</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Claudia</div><div class="cf-row-value">10607184<br><code>CLAUdia2024</code></div></div>
+        </div>
+      </div>
+
+      <!-- POLICÍA / GUARDIA CIVIL -->
+      <div class="cf-card cf-red">
+        <div class="cf-card-header"><i class="ti ti-shield"></i>Policía y Guardia Civil — Hospedajes</div>
+        <div class="cf-card-body">
+          <div class="cf-row"><div class="cf-row-label">Policía Cóndor</div><div class="cf-row-value">H07601AAH31<br><code>RECEPCIONCONDOR</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Policía Boreal</div><div class="cf-row-value">H07601AAH2Z<br><code>RECEPCIONBOREAL2024</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Policía Pins</div><div class="cf-row-value">07166SAH07<br><code>34D143153256</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Policía Claudia</div><div class="cf-row-value">07196AAXFL<br><code>52D12515545N</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">G.C. ficheros Magaluf</div><div class="cf-row-value">07166MAA05<br><code>59D195155256</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">G.C. ficheros Claudia</div><div class="cf-row-value">07196AAXFL<br><code>52D12515545N</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Sistema fich. hospedajes</div><div class="cf-row-value">41501991D<br><code>Guests2026</code></div></div>
+        </div>
+      </div>
+
+      <!-- OTROS / CÓDIGOS PUERTAS -->
+      <div class="cf-card cf-red">
+        <div class="cf-card-header"><i class="ti ti-alert-triangle"></i>Códigos críticos — Puertas y caja fuerte</div>
+        <div class="cf-card-body">
+          <div class="cf-row"><div class="cf-row-label">Puerta Boreal</div><div class="cf-row-value">Clientes: <code>7979#</code> · Trabajadores: <code>2030#</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Puerta + barrera Cóndor</div><div class="cf-row-value">Clientes: <code>7979#</code> · Trabajadores: <code>2030#</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Caja fuerte (desbloqueo)</div><div class="cf-row-value"><code>*#*250004</code><div class="cf-row-note" style="color:var(--red);">⚠️ Solo si es indispensable — avisar a SSTT</div></div></div>
+          <div class="cf-row"><div class="cf-row-label">HS Consulting</div><div class="cf-row-value">amercant@nurahotels.com<br><code>subnura10</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Tarjetas puerta principal</div><div class="cf-row-value">Manager<br><code>1234</code></div></div>
+        </div>
+      </div>
+
+      <!-- VARIOS -->
+      <div class="cf-card cf-teal">
+        <div class="cf-card-header"><i class="ti ti-dots"></i>Otros contactos varios</div>
+        <div class="cf-card-body">
+          <div class="cf-row"><div class="cf-row-label">Téc. bicicletas Boreal</div><div class="cf-row-value"><code>638 46 61 38</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Floristería Manolita</div><div class="cf-row-value"><code>630 42 68 31</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Flors Marga</div><div class="cf-row-value"><code>664 42 13 99</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Teléfono TUI</div><div class="cf-row-value"><code>971 26 85 16</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Elis Lavandería</div><div class="cf-row-value"><code>654 24 67 16</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Taxis Playa de Palma</div><div class="cf-row-value"><code>971 74 37 37</code> / <code>971 74 40 50</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Taxiclick</div><div class="cf-row-value">Cód. abonado: 21 · Usuario: 1<br><code>1234</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">Movistar (Internet)</div><div class="cf-row-value">Particular: <code>1004</code> · Empresa: <code>1489</code></div></div>
+          <div class="cf-row"><div class="cf-row-label">CIF empresa CLOT</div><div class="cf-row-value"><code>B-16629958</code></div></div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -3986,6 +4163,18 @@ async function alojHandleFiles(fileList, mode) {
 
 // ── ASISTENTE IA ──
 let iaHistory = [];
+
+function openContactosFijo() {
+  ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = 'none';
+  });
+  document.querySelectorAll('.f2-panel').forEach(p => p.style.display = 'none');
+  document.getElementById('panel-contactos-fijo').style.display = 'block';
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('contactos-fijo-btn').classList.add('active');
+  currentF2Panel = 'contactos-fijo';
+}
 
 function openIA() {
   ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
