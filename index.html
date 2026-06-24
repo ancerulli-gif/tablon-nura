@@ -704,6 +704,9 @@ input:focus,select:focus{border-color:#999;}
 
   <div class="sidebar-section">
     <div class="sidebar-label">Herramientas</div>
+    <div class="sidebar-item" id="turnos-sidebar-btn" onclick="openTurnosFijo()">
+      <i class="ti ti-calendar-time" style="font-size:15px;"></i><span>Turnos</span>
+    </div>
     <div class="sidebar-item" id="relevo-sidebar-btn" onclick="openRelevo()">
       <i class="ti ti-pencil-check" style="font-size:15px;"></i><span>Relevo de turno</span>
     </div>
@@ -1865,11 +1868,20 @@ input:focus,select:focus{border-color:#999;}
     </div>
   </div>
 
-  <div class="section-header" id="section-header" style="display:none;">
+
+  <!-- ── TURNOS (acceso directo) ── -->
+  <div class="f2-panel" id="panel-turnos-fijo">
+    <div class="section-header" style="margin-bottom:16px;">
+      <div class="section-title">Turnos de la semana</div>
+      <div class="section-desc">Vista rápida de los turnos asignados</div>
+    </div>
+  </div>
+
+  <div class="section-header" id="section-header">
     <div class="section-title" id="section-title">Tablón</div>
     <div class="section-desc" id="section-desc">Comunicaciones y avisos para el equipo</div>
   </div>
-  <div id="announcements-list" style="display:none;"><div class="loading"><i class="ti ti-loader"></i>Cargando...</div></div>
+  <div id="announcements-list"><div class="loading"><i class="ti ti-loader"></i>Cargando...</div></div>
 </div>
 </div>
 <div id="lightbox" class="lightbox" onclick="closeLightbox()"><img id="lightbox-img" src="" alt="" /></div>
@@ -2050,6 +2062,7 @@ function checkPass(){
 
 function switchSection(el){
   lockWorker();
+  restoreTurnosWidget();
   document.getElementById("relevo-panel").style.display="none";
   document.getElementById("arqueo-panel").style.display="none";
   document.getElementById("worker-pass-box").style.display="none";
@@ -2060,6 +2073,7 @@ function switchSection(el){
   currentSection=el.dataset.section;
   document.getElementById("section-title").textContent=SECTIONS[currentSection].title;
   document.getElementById("section-desc").textContent=SECTIONS[currentSection].desc;
+  updateTurnosVisibility();
   loadSection();
 }
 
@@ -2070,7 +2084,12 @@ async function loadSection(){
   const cached=sessionStorage.getItem(cacheKey);
   if(cached){renderList(JSON.parse(cached));}
   else{list.innerHTML='<div class="loading"><i class="ti ti-loader"></i>Cargando...</div>';}
-  const{data,error}=await db.from("announcements").select("*").eq("section",currentSection).order("created_at",{ascending:false});
+  let query=db.from("announcements").select("*").eq("section",currentSection).order("created_at",{ascending:false});
+  if(currentSection==="tablon"){
+    const weekAgo=new Date(Date.now()-7*86400000).toISOString();
+    query=query.gte("created_at",weekAgo);
+  }
+  const{data,error}=await query;
   if(error){if(!cached)list.innerHTML='<div class="empty"><i class="ti ti-wifi-off"></i>Error al cargar.</div>';return;}
   const fresh=data||[];
   sessionStorage.setItem(cacheKey,JSON.stringify(fresh));
@@ -2469,7 +2488,45 @@ const TURNO_LABELS_R = {mañana:'Turno Mañana 7-15h', tarde:'Turno Tarde 15-23h
 const DAY_ES = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 const MONTH_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 
+
+function openTurnosFijo() {
+  ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = 'none';
+  });
+  document.querySelectorAll('.f2-panel').forEach(p => p.style.display = 'none');
+  const panel = document.getElementById('panel-turnos-fijo');
+  panel.style.display = 'block';
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('turnos-sidebar-btn').classList.add('active');
+  currentF2Panel = 'turnos-fijo';
+
+  // Move the #tw widget into this panel
+  const tw = document.getElementById('tw');
+  if(tw){
+    if(!window._twOriginalParent){
+      window._twOriginalParent = tw.parentNode;
+      window._twOriginalNext = tw.nextSibling;
+    }
+    panel.appendChild(tw);
+    tw.style.display = 'block';
+  }
+}
+
+function restoreTurnosWidget() {
+  const tw = document.getElementById('tw');
+  if(tw && window._twOriginalParent){
+    if(window._twOriginalNext){
+      window._twOriginalParent.insertBefore(tw, window._twOriginalNext);
+    } else {
+      window._twOriginalParent.appendChild(tw);
+    }
+  }
+}
+
 function openRelevo() {
+  restoreTurnosWidget();
+  var twEl=document.getElementById('tw');if(twEl)twEl.style.display='none';
   // Hide main content
   document.getElementById('section-header').style.display='none';
   document.getElementById('announcements-list').style.display='none';
@@ -2794,9 +2851,10 @@ async function loadArqueoHistory(){
 }
 
 function openArqueo(){
+  restoreTurnosWidget();
   document.getElementById('section-header').style.display='none';
   document.getElementById('announcements-list').style.display='none';
-  // turnos widget stays visible
+  var twEl=document.getElementById('tw');if(twEl)twEl.style.display='none';
   document.getElementById('worker-note-panel').style.display='none';
   document.getElementById('worker-pass-box').style.display='none';
   document.getElementById('relevo-panel').style.display='none';
@@ -2975,6 +3033,7 @@ function openPanel(name) {
     const el = document.getElementById(id);
     if(el) el.style.display = 'none';
   });
+  restoreTurnosWidget();
   const tw = document.getElementById('tw');
   if(tw) tw.style.display = 'none';
 
@@ -3538,6 +3597,8 @@ let msgActiveContact = null;
 let msgPollInterval = null;
 
 function openMensajes() {
+  restoreTurnosWidget();
+  var twEl=document.getElementById('tw');if(twEl)twEl.style.display='none';
   ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.style.display = 'none';
@@ -3761,6 +3822,8 @@ let alojCurrentGeneralId = ESTABLECIMIENTOS[0].id;
 let alojMode = 'codigos';
 
 function openAlojamientos() {
+  restoreTurnosWidget();
+  var twEl=document.getElementById('tw');if(twEl)twEl.style.display='none';
   ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.style.display = 'none';
@@ -4180,6 +4243,8 @@ async function alojHandleFiles(fileList, mode) {
 let iaHistory = [];
 
 function openContactosFijo() {
+  restoreTurnosWidget();
+  var twEl=document.getElementById('tw');if(twEl)twEl.style.display='none';
   ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.style.display = 'none';
@@ -4192,6 +4257,8 @@ function openContactosFijo() {
 }
 
 function openIA() {
+  restoreTurnosWidget();
+  var twEl=document.getElementById('tw');if(twEl)twEl.style.display='none';
   ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.style.display = 'none';
@@ -4360,6 +4427,8 @@ let clCurrentTurno = "manana";
 let clChecked = {};
 
 function openChecklist() {
+  restoreTurnosWidget();
+  var twEl=document.getElementById('tw');if(twEl)twEl.style.display='none';
   ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.style.display = 'none';
@@ -4513,8 +4582,8 @@ buildEmojiPickers();
 buildWorkersSidebar();
 buildTurnosWidget();
 updateTurnosVisibility();
+loadSection();
 setTimeout(checkRelevoMention, 3000);
-updateCounts();
 
 // Relevo quill - lazy init
 var quillRelevo = null;
