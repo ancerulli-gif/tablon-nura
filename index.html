@@ -633,17 +633,26 @@ input:focus,select:focus{border-color:#999;}
 
 
 /* ── TURNOS VISTA MENSUAL ── */
-.twm-group{margin-bottom:20px;}
-.twm-glabel{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--subtle);margin-bottom:8px;}
-.twm-worker-block{margin-bottom:14px;}
-.twm-worker-name{font-size:12px;font-weight:500;color:var(--dark);margin-bottom:5px;}
-.twm-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
-.twm-day-name{text-align:center;font-size:9px;font-weight:600;color:var(--subtle);padding:3px 0;text-transform:uppercase;}
-.twm-day{aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;position:relative;}
+.twm-group{margin-bottom:10px;}
+.twm-glabel{font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--subtle);margin-bottom:3px;}
+.twm-worker-block{margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+.twm-worker-name{font-size:10px;font-weight:500;color:var(--dark);width:50px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.twm-cal-grid{display:grid;grid-template-columns:repeat(31,1fr);gap:1px;flex:1;}
+.twm-day-name{text-align:center;font-size:7px;font-weight:600;color:var(--subtle);padding:0;}
+.twm-day{aspect-ratio:0.7;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;position:relative;}
 .twm-day.empty{visibility:hidden;}
-.twm-day-num{position:absolute;top:1px;left:3px;font-size:7px;font-weight:500;opacity:.55;}
-.twm-day.today{outline:2px solid #1a1a2e;outline-offset:-1px;}
-@media(max-width:640px){.twm-day{font-size:9px;}.twm-day-num{font-size:6px;}}
+.twm-day-num{position:absolute;top:-9px;left:0;right:0;text-align:center;font-size:6px;font-weight:500;color:var(--subtle);}
+.twm-day.today{outline:1.5px solid #1a1a2e;outline-offset:-1px;}
+.twm-cal-header{display:grid;grid-template-columns:50px 1fr;gap:6px;margin-bottom:2px;}
+.twm-cal-header-days{display:grid;gap:1px;}
+@media(max-width:640px){.twm-worker-name{width:38px;font-size:9px;}.twm-day{font-size:5.5px;}.twm-day-num{font-size:4.5px;}}
+
+
+/* ── FESTIVOS ── */
+.tw-day.festivo{box-shadow:0 0 0 2px #C0392B;}
+.tw-day-col.festivo .tw-day-lbl,.tw-day-col.festivo .tw-day-num{color:#C0392B!important;}
+.twm-day.festivo{box-shadow:0 0 0 1.5px #C0392B;}
+.tw-festivo-badge{font-size:9px;font-weight:600;background:#FCF0EF;color:#C0392B;padding:1px 5px;border-radius:3px;margin-left:3px;white-space:nowrap;}
 
 </style>
 </head>
@@ -1924,6 +1933,7 @@ const SUPA_URL="https://fdszxvscbfgyoinylbfu.supabase.co";
 const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkc3p4dnNjYmZneW9pbnlsYmZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTM4MTcsImV4cCI6MjA5NjU2OTgxN30.6ZdkoJr_ANqFpiciXwJ2eJ7QfpCvKBwK0ztrkydvEFM";
 const BUCKET="attachments";
 const db=window.supabase.createClient(SUPA_URL,SUPA_KEY);
+window._sharedDb=db;
 const WORKERS=["Lucas C.","Lucas R.","Toni","Antonia","Pedro","Dani","Manuel","Aissa","Ignacio"];
 const SECTIONS={tablon:{title:"Tablón",desc:"Comunicaciones y avisos para el equipo"},procedimientos:{title:"Procedimientos",desc:"Guías y pasos a seguir en cada situación"},normativas:{title:"Normativas",desc:"Reglas, políticas y normativas internas"},cursos:{title:"Cursos",desc:"Formaciones, tutorías y material de aprendizaje"},archivos:{title:"Archivos importantes",desc:"Documentos y recursos de referencia"},nurahouses:{title:"Nura Houses",desc:"Documentos y comunicaciones de Nura Houses"},contactos:{title:"Teléfonos y Contraseñas",desc:"Contactos, accesos y credenciales del equipo"},emergencias:{title:"Emergencias",desc:"Contactos y protocolos de emergencia"},rrhh:{title:"RRHH",desc:"Recursos Humanos, contratos y normativa laboral"},documentos:{title:"Documentos",desc:"Contratos, formularios y documentos oficiales"}};
 const EMOJIS="😀😁😂🤣😊😍🥰😎😢😅👍👎❤️🔥⚠️✅❌📢📌📎🗓️🏨🛎️🧹🔑💼📋🚨💡📞🎉🙏👏💪🤝🫡✍️📝🔔💬🌟⭐🎯📊💯";
@@ -2321,6 +2331,8 @@ document.addEventListener("click",e=>{if(e.target.tagName==="IMG"&&e.target.clos
 function closeLightbox(){document.getElementById("lightbox").classList.remove("open");}
 
 db.channel("ann-rt").on("postgres_changes",{event:"*",schema:"public",table:"announcements"},()=>loadSection()).subscribe();
+db.channel("cambios-turno-rt").on("postgres_changes",{event:"*",schema:"public",table:"cambios_turno"},()=>{ if(window.loadTwOverrides) window.loadTwOverrides(); }).subscribe();
+db.channel("dias-libres-rt").on("postgres_changes",{event:"*",schema:"public",table:"dias_libres"},()=>{ if(window.loadTwOverrides) window.loadTwOverrides(); }).subscribe();
 
 
 const TURNOS_DATA = {
@@ -2392,14 +2404,78 @@ function fmt2(n){ return String(n).padStart(2,'0'); }
       { n:'Deiby',   p:['M','M','L','L','M','M','M'], libre_aviso:'consultar' }
     ]}
   ];
+
+  // Festivos Islas Baleares 2026
+  var FESTIVOS_2026 = {
+    '2026-01-01': 'Año Nuevo',
+    '2026-01-06': 'Epifanía del Señor',
+    '2026-03-01': 'Día de las Islas Baleares',
+    '2026-04-09': 'Jueves Santo',
+    '2026-04-10': 'Viernes Santo',
+    '2026-05-01': 'Día del Trabajador',
+    '2026-08-15': 'Asunción de la Virgen',
+    '2026-10-12': 'Fiesta Nacional de España',
+    '2026-11-01': 'Todos los Santos',
+    '2026-12-06': 'Día de la Constitución',
+    '2026-12-08': 'Inmaculada Concepción',
+    '2026-12-25': 'Navidad'
+  };
+
+  function isFestivo(date){
+    return FESTIVOS_2026[dateKeyLocal(date)] || null;
+  }
   var LABEL = {M:'Mañana',T:'Tarde',N:'Noche',L:'Libre'};
   var DAY = ['L','M','X','J','V','S','D'];
 
-  function shift(pattern, date){
+  function dateKeyLocal(date){
+    var p2=function(n){return ('0'+n).slice(-2);};
+    return date.getFullYear()+'-'+p2(date.getMonth()+1)+'-'+p2(date.getDate());
+  }
+
+  function shift(pattern, date, workerName){
+    // Check for an override first (from cambios_turno aprobados)
+    if(workerName && window._twOverrides){
+      var key = workerName + '_' + dateKeyLocal(date);
+      if(window._twOverrides[key]) return window._twOverrides[key];
+    }
     var ms = date - REF;
     var d = Math.floor(ms / 86400000);
     var i = ((d % 7) + 7) % 7;
     return pattern[i];
+  }
+
+  async function loadTwOverrides(){
+    var dbRef = window.db || window._sharedDb;
+    if(!dbRef) return;
+    window._twOverrides = window._twOverrides || {};
+    try{
+      // Cambios de turno aprobados
+      var res = await dbRef.from('cambios_turno').select('*').eq('estado','aprobado');
+      var data = res.data || [];
+      data.forEach(function(c){
+        window._twOverrides[c.cede+'_'+c.fecha] = 'L';
+        var turnoMap = {manana:'M', tarde:'T', noche:'N'};
+        window._twOverrides[c.coge+'_'+c.fecha] = turnoMap[c.turno] || 'M';
+      });
+
+      // Días libres / vacaciones aprobados — marcan todo el rango como Libre
+      var res2 = await dbRef.from('dias_libres').select('*').eq('estado','aprobado');
+      var data2 = res2.data || [];
+      data2.forEach(function(d){
+        if(!d.fecha_inicio) return;
+        var start = new Date(d.fecha_inicio+'T00:00:00');
+        var end = new Date((d.fecha_fin||d.fecha_inicio)+'T00:00:00');
+        var cur = new Date(start);
+        while(cur <= end){
+          var key = d.quien+'_'+dateKeyLocal(cur);
+          window._twOverrides[key] = 'L';
+          cur.setDate(cur.getDate()+1);
+        }
+      });
+
+      if(window._turnosBuild) window._turnosBuild();
+      if(typeof twRenderMonth === 'function' && document.getElementById('tw-month-view')) twRenderMonth();
+    }catch(e){ console.warn('Error loading turno overrides:', e); }
   }
 
   function weekDays(base){
@@ -2437,7 +2513,7 @@ function fmt2(n){ return String(n).padStart(2,'0'); }
 
       for(var w=0; w<grupo.workers.length; w++){
         var worker = grupo.workers[w];
-        var todayS = shift(worker.p, today);
+        var todayS = shift(worker.p, today, worker.n);
         var shiftBg = todayS==='M'?'#DBEAFE':todayS==='T'?'#FEF3C7':todayS==='N'?'#EDE9FE':'#F0FDF4';
         var shiftFg = todayS==='M'?'#1E40AF':todayS==='T'?'#92400E':todayS==='N'?'#5B21B6':'#166534';
         var shiftText = todayS==='M'?'7–15h':todayS==='T'?'15–23h':todayS==='N'?'23–7h':'Libre';
@@ -2454,18 +2530,21 @@ function fmt2(n){ return String(n).padStart(2,'0'); }
         // Week mini calendar - only show day labels on first worker of each group
         html += '<td class="tw-td-week"><div class="tw-week">';
         for(var d=0; d<7; d++){
-          var s = shift(worker.p, days[d]);
+          var s = shift(worker.p, days[d], worker.n);
           var isToday = days[d].getTime()===today.getTime();
+          var festivoNombre = isFestivo(days[d]);
+          var isFest = !!festivoNombre;
           var bg = s==='M'?'#DBEAFE':s==='T'?'#FEF3C7':s==='N'?'#EDE9FE':'#F0FDF4';
           var fg = s==='M'?'#1E40AF':s==='T'?'#92400E':s==='N'?'#5B21B6':'#166534';
-          html += '<div class="tw-day-col">';
+          html += '<div class="tw-day-col'+(isFest?' festivo':'')+'">';
           if(w===0){
             html += '<div class="tw-day-lbl'+(isToday?' td-lbl':'')+'">'+DAY[d]+'</div>';
             html += '<div class="tw-day-num'+(isToday?' td-num':'')+'">'+days[d].getDate()+'</div>';
           } else {
             html += '<div style="height:1.2em"></div><div style="height:1.2em"></div>';
           }
-          html += '<div class="tw-day'+(isToday?' tw-today':'')+'" title="'+DAY[d]+': '+LABEL[s]+'" style="background:'+bg+';color:'+fg+'">'+s+'</div>';
+          var titleTxt = DAY[d]+': '+LABEL[s]+(isFest?' — Festivo: '+festivoNombre:'');
+          html += '<div class="tw-day'+(isToday?' tw-today':'')+(isFest&&s!=='L'?' festivo':'')+'" title="'+titleTxt+'" style="background:'+bg+';color:'+fg+'">'+s+'</div>';
           html += '</div>';
         }
         html += '</div></td>';
@@ -2483,6 +2562,31 @@ function fmt2(n){ return String(n).padStart(2,'0'); }
       }
       html += '</tbody></table></div>';
     }
+
+    // Holiday alert summary for this week
+    var festivosEstaSemana = [];
+    days.forEach(function(d){
+      var nombre = isFestivo(d);
+      if(nombre){
+        var trabajanEseDia = [];
+        GRUPOS.forEach(function(grupo){
+          grupo.workers.forEach(function(worker){
+            var s = shift(worker.p, d, worker.n);
+            if(s !== 'L') trabajanEseDia.push(worker.n + ' (' + LABEL[s] + ')');
+          });
+        });
+        if(trabajanEseDia.length) festivosEstaSemana.push({fecha:d, nombre:nombre, trabajan:trabajanEseDia});
+      }
+    });
+    if(festivosEstaSemana.length){
+      html += '<div style="margin-top:10px;padding:10px 14px;background:#FCF0EF;border:1px solid #F0C5C0;border-radius:4px;">';
+      festivosEstaSemana.forEach(function(f){
+        html += '<div style="font-size:11px;font-weight:600;color:#A33;margin-bottom:3px;">🎉 '+DAY[(f.fecha.getDay()+6)%7]+' '+f.fecha.getDate()+' — '+f.nombre+'</div>';
+        html += '<div style="font-size:10px;color:#7A2620;margin-bottom:6px;">Trabajan: '+f.trabajan.join(', ')+'</div>';
+      });
+      html += '</div>';
+    }
+
     bodyEl.innerHTML = html;
   }
 
@@ -2497,6 +2601,8 @@ function fmt2(n){ return String(n).padStart(2,'0'); }
   window._twShift = shift;
   window._twRef = REF;
   window._twLabel = LABEL;
+  window._twIsFestivo = isFestivo;
+  window.loadTwOverrides = loadTwOverrides;
 })();
 
 function buildTurnosWidget(){ if(window._turnosBuild) window._turnosBuild(); }
@@ -2554,37 +2660,73 @@ function twMonthNext() { twMonthDate.setMonth(twMonthDate.getMonth() + 1); twRen
 function twRenderMonth() {
   if (!window._twGrupos || !window._twShift) return;
   const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  const DAY_LETTERS = ['L','M','X','J','V','S','D'];
   const year = twMonthDate.getFullYear();
   const month = twMonthDate.getMonth();
   document.getElementById('tw-month-label').textContent = `${MONTHS[month]} ${year}`;
 
-  const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
-  const startDow = (firstDay.getDay() + 6) % 7; // Monday=0
+  const numDays = lastDay.getDate();
   const today = new Date(); today.setHours(0,0,0,0);
 
   const colorFor = (s) => s === 'M' ? {bg:'#DBEAFE',fg:'#1E40AF'} : s === 'T' ? {bg:'#FEF3C7',fg:'#92400E'} : s === 'N' ? {bg:'#EDE9FE',fg:'#5B21B6'} : {bg:'#F0FDF4',fg:'#166534'};
 
-  let html = '';
+  // Header row with day numbers, aligned to the worker rows
+  let headerDays = '';
+  for (let day = 1; day <= numDays; day++) {
+    const date = new Date(year, month, day);
+    const isToday = date.getTime() === today.getTime();
+    const fest = window._twIsFestivo ? window._twIsFestivo(date) : null;
+    headerDays += `<div class="twm-day-name" style="${isToday?'color:#1a1a2e;font-weight:700;':fest?'color:#C0392B;font-weight:700;':''}" title="${fest||''}">${day}</div>`;
+  }
+
+  let html = `<div class="twm-cal-header">
+    <div></div>
+    <div class="twm-cal-header-days" style="grid-template-columns:repeat(${numDays},1fr);">${headerDays}</div>
+  </div>`;
+
   window._twGrupos.forEach(grupo => {
     html += `<div class="twm-group"><div class="twm-glabel">${grupo.label}</div>`;
     grupo.workers.forEach(worker => {
       html += `<div class="twm-worker-block"><div class="twm-worker-name">${worker.n}</div>`;
-      html += `<div class="twm-cal-grid">`;
-      DAY_LETTERS.forEach(d => html += `<div class="twm-day-name">${d}</div>`);
-      for (let i = 0; i < startDow; i++) html += `<div class="twm-day empty"></div>`;
-      for (let day = 1; day <= lastDay.getDate(); day++) {
+      html += `<div class="twm-cal-grid" style="grid-template-columns:repeat(${numDays},1fr);">`;
+      for (let day = 1; day <= numDays; day++) {
         const date = new Date(year, month, day);
-        const s = window._twShift(worker.p, date);
+        const s = window._twShift(worker.p, date, worker.n);
         const c = colorFor(s);
         const isToday = date.getTime() === today.getTime();
-        html += `<div class="twm-day${isToday ? ' today' : ''}" style="background:${c.bg};color:${c.fg};" title="${day}: ${window._twLabel[s]}"><span class="twm-day-num">${day}</span>${s}</div>`;
+        const fest = window._twIsFestivo ? window._twIsFestivo(date) : null;
+        const isFestWorking = fest && s !== 'L';
+        html += `<div class="twm-day${isToday ? ' today' : ''}${isFestWorking ? ' festivo' : ''}" style="background:${c.bg};color:${c.fg};" title="Día ${day}: ${window._twLabel[s]}${fest ? ' — Festivo: '+fest : ''}">${s}</div>`;
       }
       html += `</div></div>`;
     });
     html += `</div>`;
   });
+
+  // Holiday summary for this month
+  let festivosEsteMes = [];
+  for (let day = 1; day <= numDays; day++) {
+    const date = new Date(year, month, day);
+    const nombre = window._twIsFestivo ? window._twIsFestivo(date) : null;
+    if (nombre) {
+      const trabajan = [];
+      window._twGrupos.forEach(grupo => {
+        grupo.workers.forEach(worker => {
+          const s = window._twShift(worker.p, date, worker.n);
+          if (s !== 'L') trabajan.push(`${worker.n} (${window._twLabel[s]})`);
+        });
+      });
+      if (trabajan.length) festivosEsteMes.push({day, nombre, trabajan});
+    }
+  }
+  if (festivosEsteMes.length) {
+    html += '<div style="margin-top:14px;padding:12px 16px;background:#FCF0EF;border:1px solid #F0C5C0;border-radius:6px;">';
+    html += '<div style="font-size:11px;font-weight:600;color:#A33;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;">🎉 Festivos este mes</div>';
+    festivosEsteMes.forEach(f => {
+      html += `<div style="font-size:12px;color:#7A2620;margin-bottom:5px;"><strong>Día ${f.day} — ${f.nombre}:</strong> ${f.trabajan.join(', ')}</div>`;
+    });
+    html += '</div>';
+  }
 
   document.getElementById('tw-month-view').innerHTML = html;
 }
@@ -3313,6 +3455,7 @@ async function loadCambiosTurno() {
 async function updateCambioEstado(id, estado) {
   await db.from('cambios_turno').update({estado}).eq('id',id);
   loadCambiosTurno();
+  if(window.loadTwOverrides) window.loadTwOverrides();
 }
 
 // ── DÍA LIBRE ──
@@ -3406,6 +3549,7 @@ async function loadDiasStats(quien) {
 async function updateDLEstado(id, estado) {
   await db.from('dias_libres').update({estado}).eq('id',id);
   loadDiasLibres();
+  if(window.loadTwOverrides) window.loadTwOverrides();
 }
 
 // ── PETICIONES PRIVADAS ──
@@ -4686,6 +4830,7 @@ buildTurnosWidget();
 updateTurnosVisibility();
 loadSection();
 setTimeout(checkRelevoMention, 3000);
+setTimeout(()=>{ if(window.loadTwOverrides) window.loadTwOverrides(); }, 500);
 
 // Relevo quill - lazy init
 var quillRelevo = null;
