@@ -654,6 +654,43 @@ input:focus,select:focus{border-color:#999;}
 .twm-day.festivo{box-shadow:0 0 0 1.5px #C0392B;}
 .tw-festivo-badge{font-size:9px;font-weight:600;background:#FCF0EF;color:#C0392B;padding:1px 5px;border-radius:3px;margin-left:3px;white-space:nowrap;}
 
+
+/* ── PREMIO RESEÑAS (divertido) ── */
+.premio-hero{background:linear-gradient(135deg,#FFD580 0%,#FFB347 50%,#FF9966 100%);border-radius:var(--radius-lg);padding:24px 20px;text-align:center;margin-bottom:18px;position:relative;overflow:hidden;}
+.premio-hero::before{content:'⭐';position:absolute;top:10px;left:16px;font-size:24px;opacity:.5;transform:rotate(-15deg);}
+.premio-hero::after{content:'⭐';position:absolute;bottom:8px;right:20px;font-size:20px;opacity:.4;transform:rotate(20deg);}
+.premio-hero-title{font-family:'DM Serif Display',serif;font-size:24px;color:#5C3D10;margin-bottom:4px;}
+.premio-hero-sub{font-size:13px;color:#7A5520;font-weight:500;}
+.premio-leaderboard{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.premio-row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;box-shadow:var(--shadow);transition:transform .15s;}
+.premio-row:hover{transform:translateX(2px);}
+.premio-rank{font-size:18px;font-weight:700;width:32px;text-align:center;flex-shrink:0;}
+.premio-row.rank-1{background:linear-gradient(90deg,#FFF8E1,var(--surface));border-color:#F5D061;box-shadow:0 2px 12px rgba(245,208,97,.35);}
+.premio-row.rank-1 .premio-rank{color:#D4A017;}
+.premio-row.rank-2{border-color:#C8C8D0;}
+.premio-row.rank-2 .premio-rank{color:#8A8A95;}
+.premio-row.rank-3{border-color:#D9A878;}
+.premio-row.rank-3 .premio-rank{color:#A6692E;}
+.premio-avatar{width:38px;height:38px;border-radius:50%;background:var(--border-light);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--muted);flex-shrink:0;}
+.premio-row.rank-1 .premio-avatar{background:#FFD580;color:#5C3D10;}
+.premio-name{flex:1;font-size:14px;font-weight:500;color:var(--dark);}
+.premio-medal{font-size:18px;margin-right:2px;}
+.premio-points-wrap{display:flex;align-items:center;gap:8px;}
+.premio-points{font-size:20px;font-weight:700;color:var(--dark);min-width:36px;text-align:right;}
+.premio-points-label{font-size:10px;color:var(--subtle);text-transform:uppercase;letter-spacing:.04em;}
+.premio-edit-btns{display:flex;gap:3px;}
+.premio-edit-btn{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .12s;}
+.premio-edit-btn:hover{background:#F0EDE8;color:var(--dark);}
+.premio-edit-btn.plus:hover{background:var(--teal-bg);color:var(--teal);border-color:#B8DFC7;}
+.premio-edit-btn.minus:hover{background:var(--red-bg);color:var(--red);border-color:#F5C4C4;}
+.premio-prize-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);}
+.premio-prize-img{width:100%;height:220px;object-fit:cover;display:block;}
+.premio-prize-body{padding:18px 20px;}
+.premio-prize-title{font-family:'DM Serif Display',serif;font-size:19px;color:var(--dark);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.premio-prize-desc{font-size:13px;color:var(--muted);line-height:1.6;}
+.premio-confetti{display:inline-block;animation:premio-bounce 1.8s ease-in-out infinite;}
+@keyframes premio-bounce{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-4px) rotate(8deg);}}
+
 </style>
 </head>
 <body>
@@ -759,6 +796,12 @@ input:focus,select:focus{border-color:#999;}
     </div>
     <div class="sidebar-item" id="comisiones-btn" onclick="openPanel('comisiones')" style="display:none;">
       <i class="ti ti-percentage" style="font-size:15px;color:#8A5D1A;"></i><span style="color:#8A5D1A;">Comisiones</span>
+    </div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">🏆 Diversión</div>
+    <div class="sidebar-item" id="premio-btn" onclick="openPremio()">
+      <i class="ti ti-trophy" style="font-size:15px;color:#D4A017;"></i><span style="color:#D4A017;font-weight:500;">Premio Reseñas</span>
     </div>
   </div>
   <div class="sidebar-section">
@@ -1912,6 +1955,26 @@ input:focus,select:focus{border-color:#999;}
     </div>
 
     <div id="tw-month-view"></div>
+  </div>
+
+  <!-- ── PREMIO RESEÑAS ── -->
+  <div class="f2-panel" id="panel-premio">
+
+    <div class="premio-hero">
+      <div class="premio-hero-title"><span class="premio-confetti">🏆</span> Premio Reseñas <span class="premio-confetti">🏆</span></div>
+      <div class="premio-hero-sub">¿Quién consigue más clientes que dejen su nombre en las reseñas de Booking? 😏</div>
+    </div>
+
+    <div class="premio-leaderboard" id="premio-leaderboard"></div>
+
+    <div class="premio-prize-card">
+      <img class="premio-prize-img" src="" id="premio-prize-img" alt="Premio: estancia en Claudia by Nura" />
+      <div class="premio-prize-body">
+        <div class="premio-prize-title">🎁 El premio: una noche en Claudia by Nura</div>
+        <div class="premio-prize-desc">Quien acabe primero en el ranking se lleva una estancia para desconectar en nuestro agroturismo de Campos — piscina, palmeras y total tranquilidad. ¡A por esas reseñas! ⭐⭐⭐⭐⭐</div>
+      </div>
+    </div>
+
   </div>
 
   <div class="section-header" id="section-header">
@@ -4819,6 +4882,79 @@ async function clLoadHistory() {
       ${pendList.length ? `<div class="req-meta" style="margin-top:4px;">Pendientes: ${pendList.slice(0,3).join(' · ')}${pendList.length>3?` (+${pendList.length-3} más)`:''}</div>` : ''}
     </div>`;
   }).join('');
+}
+
+
+
+
+// ── PREMIO RESEÑAS ──
+const PREMIO_WORKERS = ["Toni","Antonia","Pedro","Dani","Aissa","Lucas C.","Lucas R.","Manuel","Ayla"];
+const PREMIO_IMG_URL = "https://fdszxvscbfgyoinylbfu.supabase.co/storage/v1/object/public/attachments/premio_resenas_claudia.jpg";
+
+function openPremio() {
+  restoreTurnosWidget();
+  var twEl=document.getElementById('tw');if(twEl)twEl.style.display='none';
+  ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = 'none';
+  });
+  document.querySelectorAll('.f2-panel').forEach(p => p.style.display = 'none');
+  document.getElementById('panel-premio').style.display = 'block';
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('premio-btn').classList.add('active');
+  currentF2Panel = 'premio';
+
+  document.getElementById('premio-prize-img').src = PREMIO_IMG_URL;
+  loadPremioRanking();
+}
+
+async function loadPremioRanking() {
+  const el = document.getElementById('premio-leaderboard');
+  el.innerHTML = '<div class="empty"><i class="ti ti-loader" style="animation:spin 1s linear infinite;"></i></div>';
+
+  const {data} = await db.from('premio_resenas').select('*');
+  const scores = {};
+  PREMIO_WORKERS.forEach(w => scores[w] = 0);
+  (data || []).forEach(r => { scores[r.worker] = r.puntos; });
+
+  const sorted = PREMIO_WORKERS.map(w => ({ name: w, points: scores[w] || 0 }))
+    .sort((a, b) => b.points - a.points);
+
+  const medals = ['🥇', '🥈', '🥉'];
+
+  el.innerHTML = sorted.map((entry, i) => {
+    const ini = entry.name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
+    const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
+    const medal = medals[i] || '';
+    return `<div class="premio-row ${rankClass}">
+      <div class="premio-rank">${i + 1}</div>
+      <div class="premio-avatar">${ini}</div>
+      <div class="premio-name">${medal ? `<span class="premio-medal">${medal}</span>` : ''}${entry.name}</div>
+      <div class="premio-points-wrap">
+        <div>
+          <div class="premio-points">${entry.points}</div>
+          <div class="premio-points-label">pts</div>
+        </div>
+        ${adminMode ? `<div class="premio-edit-btns">
+          <button class="premio-edit-btn minus" onclick="premioAdjust('${entry.name}',-1)">−</button>
+          <button class="premio-edit-btn plus" onclick="premioAdjust('${entry.name}',1)">+</button>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function premioAdjust(worker, delta) {
+  const {data} = await db.from('premio_resenas').select('*').eq('worker', worker).maybeSingle();
+  const current = data?.puntos || 0;
+  const newPoints = Math.max(0, current + delta);
+
+  if (data) {
+    await db.from('premio_resenas').update({ puntos: newPoints }).eq('worker', worker);
+  } else {
+    await db.from('premio_resenas').insert([{ worker, puntos: newPoints }]);
+  }
+  loadPremioRanking();
 }
 
 
