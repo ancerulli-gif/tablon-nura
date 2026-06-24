@@ -115,7 +115,7 @@ input:focus,select:focus{border-color:#999;}
 .section-desc{font-size:13px;color:var(--subtle);margin-top:3px;}
 .ann-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .15s;}
 .ann-card:hover{box-shadow:0 2px 10px rgba(0,0,0,0.09);}
-.move-menu{position:absolute;top:36px;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:0 4px 20px rgba(0,0,0,0.12);z-index:200;min-width:190px;padding:6px 0;display:none;}
+.move-menu{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:0 4px 20px rgba(0,0,0,0.12);z-index:300;min-width:190px;padding:6px 0;display:none;}
 .move-menu.open{display:block;}
 .move-menu-header{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);padding:4px 14px 6px;font-weight:500;}
 .move-menu-item{display:flex;align-items:center;gap:9px;padding:8px 14px;font-size:13px;color:var(--muted);cursor:pointer;transition:background .1s;}
@@ -2119,11 +2119,11 @@ function renderList(data){
           <div style="flex:1;min-width:0;">
             <div class="ann-title" style="font-size:14px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.title}</div>
           </div>
-          <button class="ann-toggle" onclick="event.stopPropagation();toggleAnnCard(this.closest('.ann-inner').querySelector('.ann-top'))" title="Expandir">
+          <button class="ann-toggle${files.length?' open':''}" onclick="event.stopPropagation();toggleAnnCard(this.closest('.ann-inner').querySelector('.ann-top'))" title="Expandir">
             <i class="ti ti-chevron-down" style="font-size:15px;"></i>
           </button>
         </div>
-        <div class="ann-body-wrap">
+        <div class="ann-body-wrap${files.length?' open':''}">
           <div class="ann-title" style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;margin:10px 0 8px;">${a.title}</div>
           <div class="ann-body">${a.body}</div>
           ${fHtml}
@@ -2139,7 +2139,22 @@ function renderList(data){
 }
 
 function sectionIcon(k){return{tablon:"ti-layout-board",procedimientos:"ti-list-check",normativas:"ti-file-certificate",cursos:"ti-school",archivos:"ti-folder"}[k]||"ti-folder";}
-function toggleMoveMenu(id,e){e.stopPropagation();document.querySelectorAll(".move-menu").forEach(m=>{if(m.id!==id)m.classList.remove("open");});document.getElementById(id).classList.toggle("open");}
+function toggleMoveMenu(id,e){
+  e.stopPropagation();
+  const menu = document.getElementById(id);
+  const isOpening = !menu.classList.contains("open");
+  document.querySelectorAll(".move-menu").forEach(m=>m.classList.remove("open"));
+  if(isOpening){
+    const btn = e.currentTarget || e.target.closest("button");
+    const rect = btn.getBoundingClientRect();
+    menu.style.top = (rect.bottom + 4) + "px";
+    let left = rect.right - menu.offsetWidth;
+    if(left < 8) left = 8;
+    menu.style.left = left + "px";
+    menu.style.right = "auto";
+    menu.classList.add("open");
+  }
+}
 document.addEventListener("click",()=>document.querySelectorAll(".move-menu").forEach(m=>m.classList.remove("open")));
 async function moveCard(id,section,menuId){
   document.getElementById(menuId).classList.remove("open");
