@@ -631,6 +631,20 @@ input:focus,select:focus{border-color:#999;}
 
 @media(max-width:640px){.cf-grid{grid-template-columns:1fr;}.cf-row{flex-direction:column;gap:3px;}.cf-row-label{min-width:0;}}
 
+
+/* ── TURNOS VISTA MENSUAL ── */
+.twm-group{margin-bottom:20px;}
+.twm-glabel{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--subtle);margin-bottom:8px;}
+.twm-worker-block{margin-bottom:14px;}
+.twm-worker-name{font-size:12px;font-weight:500;color:var(--dark);margin-bottom:5px;}
+.twm-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.twm-day-name{text-align:center;font-size:9px;font-weight:600;color:var(--subtle);padding:3px 0;text-transform:uppercase;}
+.twm-day{aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;position:relative;}
+.twm-day.empty{visibility:hidden;}
+.twm-day-num{position:absolute;top:1px;left:3px;font-size:7px;font-weight:500;opacity:.55;}
+.twm-day.today{outline:2px solid #1a1a2e;outline-offset:-1px;}
+@media(max-width:640px){.twm-day{font-size:9px;}.twm-day-num{font-size:6px;}}
+
 </style>
 </head>
 <body>
@@ -1868,10 +1882,27 @@ input:focus,select:focus{border-color:#999;}
 
   <!-- ── TURNOS (acceso directo) ── -->
   <div class="f2-panel" id="panel-turnos-fijo">
-    <div class="section-header" style="margin-bottom:16px;">
-      <div class="section-title">Turnos de la semana</div>
-      <div class="section-desc">Vista rápida de los turnos asignados</div>
+    <div class="section-header" style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+      <div>
+        <div class="section-title" id="tw-fijo-title">Turnos de la semana</div>
+        <div class="section-desc">Vista rápida de los turnos asignados</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <div class="aloj-mode-tabs" style="margin:0;">
+          <div class="aloj-mode-tab active" data-vista="semana" onclick="twSwitchVista('semana')">Semana</div>
+          <div class="aloj-mode-tab" data-vista="mes" onclick="twSwitchVista('mes')">Mes</div>
+        </div>
+      </div>
     </div>
+
+    <!-- Month nav, only visible in month view -->
+    <div id="tw-month-nav" style="display:none;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <button onclick="twMonthPrev()" style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:6px 12px;cursor:pointer;font-size:13px;color:var(--muted);"><i class="ti ti-chevron-left" style="font-size:14px;"></i></button>
+      <span id="tw-month-label" style="font-size:14px;font-weight:500;color:var(--dark);"></span>
+      <button onclick="twMonthNext()" style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:6px 12px;cursor:pointer;font-size:13px;color:var(--muted);"><i class="ti ti-chevron-right" style="font-size:14px;"></i></button>
+    </div>
+
+    <div id="tw-month-view"></div>
   </div>
 
   <div class="section-header" id="section-header">
@@ -2462,6 +2493,10 @@ function fmt2(n){ return String(n).padStart(2,'0'); }
     build();
   }
   window._turnosBuild = build;
+  window._twGrupos = GRUPOS;
+  window._twShift = shift;
+  window._twRef = REF;
+  window._twLabel = LABEL;
 })();
 
 function buildTurnosWidget(){ if(window._turnosBuild) window._turnosBuild(); }
@@ -2486,6 +2521,75 @@ const DAY_ES = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sáb
 const MONTH_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 
 
+
+// ── TURNOS — VISTA MENSUAL (solo en pestaña Turnos) ──
+let twVista = 'semana';
+let twMonthDate = new Date();
+
+function twSwitchVista(vista) {
+  twVista = vista;
+  document.querySelectorAll('#panel-turnos-fijo .aloj-mode-tab').forEach(t => t.classList.toggle('active', t.dataset.vista === vista));
+  const tw = document.getElementById('tw');
+  const monthNav = document.getElementById('tw-month-nav');
+  const monthView = document.getElementById('tw-month-view');
+  const title = document.getElementById('tw-fijo-title');
+
+  if (vista === 'semana') {
+    if (tw) tw.style.display = 'block';
+    monthNav.style.display = 'none';
+    monthView.innerHTML = '';
+    title.textContent = 'Turnos de la semana';
+  } else {
+    if (tw) tw.style.display = 'none';
+    monthNav.style.display = 'flex';
+    title.textContent = 'Turnos del mes';
+    twMonthDate = new Date();
+    twRenderMonth();
+  }
+}
+
+function twMonthPrev() { twMonthDate.setMonth(twMonthDate.getMonth() - 1); twRenderMonth(); }
+function twMonthNext() { twMonthDate.setMonth(twMonthDate.getMonth() + 1); twRenderMonth(); }
+
+function twRenderMonth() {
+  if (!window._twGrupos || !window._twShift) return;
+  const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const DAY_LETTERS = ['L','M','X','J','V','S','D'];
+  const year = twMonthDate.getFullYear();
+  const month = twMonthDate.getMonth();
+  document.getElementById('tw-month-label').textContent = `${MONTHS[month]} ${year}`;
+
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const startDow = (firstDay.getDay() + 6) % 7; // Monday=0
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  const colorFor = (s) => s === 'M' ? {bg:'#DBEAFE',fg:'#1E40AF'} : s === 'T' ? {bg:'#FEF3C7',fg:'#92400E'} : s === 'N' ? {bg:'#EDE9FE',fg:'#5B21B6'} : {bg:'#F0FDF4',fg:'#166534'};
+
+  let html = '';
+  window._twGrupos.forEach(grupo => {
+    html += `<div class="twm-group"><div class="twm-glabel">${grupo.label}</div>`;
+    grupo.workers.forEach(worker => {
+      html += `<div class="twm-worker-block"><div class="twm-worker-name">${worker.n}</div>`;
+      html += `<div class="twm-cal-grid">`;
+      DAY_LETTERS.forEach(d => html += `<div class="twm-day-name">${d}</div>`);
+      for (let i = 0; i < startDow; i++) html += `<div class="twm-day empty"></div>`;
+      for (let day = 1; day <= lastDay.getDate(); day++) {
+        const date = new Date(year, month, day);
+        const s = window._twShift(worker.p, date);
+        const c = colorFor(s);
+        const isToday = date.getTime() === today.getTime();
+        html += `<div class="twm-day${isToday ? ' today' : ''}" style="background:${c.bg};color:${c.fg};" title="${day}: ${window._twLabel[s]}"><span class="twm-day-num">${day}</span>${s}</div>`;
+      }
+      html += `</div></div>`;
+    });
+    html += `</div>`;
+  });
+
+  document.getElementById('tw-month-view').innerHTML = html;
+}
+
+
 function openTurnosFijo() {
   ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
     const el = document.getElementById(id);
@@ -2508,6 +2612,7 @@ function openTurnosFijo() {
     panel.appendChild(tw);
     tw.style.display = 'block';
   }
+  twSwitchVista('semana');
 }
 
 function restoreTurnosWidget() {
