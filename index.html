@@ -1024,6 +1024,9 @@ input:focus,select:focus{border-color:#999;}
     <div class="sidebar-item active" data-section="tablon" onclick="switchSection(this)">
       <i class="ti ti-layout-board"></i><span>Tablón</span><span class="count" id="count-tablon">0</span>
     </div>
+    <div class="sidebar-item" id="nuevo-anuncio-btn" onclick="openNuevoAnuncio()" style="display:none;">
+      <i class="ti ti-square-plus" style="color:var(--teal);"></i><span style="color:var(--teal);font-weight:500;">Nuevo anuncio</span>
+    </div>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-label">Archivos</div>
@@ -2439,7 +2442,7 @@ async function saveWorkerNote(){
 }
 
 function toggleAdmin(){
-  if(adminMode){adminMode=false;document.getElementById("admin-wrap").style.display="none";document.getElementById("pass-screen").style.display="none";document.getElementById("admin-badge").style.display="none";document.getElementById("toggle-admin-btn").textContent="Admin";var cb=document.getElementById("comisiones-btn");if(cb)cb.style.display="none";loadSection();}
+  if(adminMode){adminMode=false;document.getElementById("admin-wrap").style.display="none";document.getElementById("pass-screen").style.display="none";document.getElementById("admin-badge").style.display="none";document.getElementById("toggle-admin-btn").textContent="Admin";var cb=document.getElementById("comisiones-btn");if(cb)cb.style.display="none";var naBtn=document.getElementById("nuevo-anuncio-btn");if(naBtn)naBtn.style.display="none";loadSection();}
   else{document.getElementById("pass-screen").style.display="block";document.getElementById("toggle-admin-btn").textContent="Cancelar";setTimeout(()=>document.getElementById("pass-input").focus(),50);}
 }
 function checkPass(){
@@ -2448,7 +2451,6 @@ function checkPass(){
     adminMode=true;
     var name=val===ADMIN_PASS_2?ADMIN_NAME_2:"Admin";
     document.getElementById("pass-screen").style.display="none";
-    document.getElementById("admin-wrap").style.display="block";
     document.getElementById("admin-badge").style.display="inline-block";
     document.getElementById("admin-badge").innerHTML='<i class="ti ti-shield-check" style="font-size:12px;margin-right:3px;"></i>'+name;
     document.getElementById("toggle-admin-btn").textContent="Salir";
@@ -2457,6 +2459,8 @@ function checkPass(){
     // Comisiones panel only visible to Toni (main admin), not Ayla
     var comBtn = document.getElementById("comisiones-btn");
     if(comBtn) comBtn.style.display = (val===ADMIN_PASS) ? "flex" : "none";
+    var naBtn = document.getElementById("nuevo-anuncio-btn");
+    if(naBtn) naBtn.style.display = "flex";
     loadSection();
   } else {document.getElementById("pass-err").style.display="block";}
 }
@@ -3129,6 +3133,21 @@ function restoreTurnosWidget() {
       window._twOriginalParent.appendChild(tw);
     }
   }
+}
+
+
+function openNuevoAnuncio(){
+  restoreTurnosWidget();
+  var twEl=document.getElementById('tw');if(twEl)twEl.style.display='none';
+  ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = 'none';
+  });
+  document.querySelectorAll('.f2-panel').forEach(p => p.style.display = 'none');
+  document.getElementById('admin-wrap').style.display = 'block';
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('nuevo-anuncio-btn').classList.add('active');
+  currentF2Panel = 'nuevo-anuncio';
 }
 
 function openRelevo() {
@@ -5327,11 +5346,11 @@ function doLogin(){
   if(name === 'Admin'){
     if(pass === ADMIN_PASS || pass === ADMIN_PASS_2){
       const adminName = pass === ADMIN_PASS_2 ? ADMIN_NAME_2 : 'Admin';
-      // Activate full admin mode too
       adminMode = true;
-      document.getElementById('admin-wrap').style.display = 'block';
       var cb = document.getElementById('comisiones-btn');
       if(cb) cb.style.display = (pass === ADMIN_PASS) ? 'flex' : 'none';
+      var naBtn = document.getElementById('nuevo-anuncio-btn');
+      if(naBtn) naBtn.style.display = 'flex';
       completeLogin(adminName, true);
     } else {
       errEl.textContent = 'Contraseña de administrador incorrecta.';
@@ -5415,15 +5434,12 @@ function showWelcomeToast(name){
 }
 
 function doLogout(){
-  sessionStorage.removeItem('nura_logged_user');
-  sessionStorage.removeItem('nura_login_time');
-  sessionStorage.removeItem('nura_logged_admin');
+  sessionStorage.clear();
   currentLoggedUser = null;
+  adminMode = false;
   clearTimeout(sessionTimer);
-  document.getElementById('current-user-badge').style.display = 'none';
-  document.getElementById('logout-btn').style.display = 'none';
-  // Manual logout always goes back to the full intro screen
-  location.reload();
+  // Force a hard navigation back to the same URL without cache, ensuring full intro replay
+  window.location.href = window.location.pathname + '?t=' + Date.now();
 }
 
 function sessionExpiredShowLogin(){
@@ -5462,7 +5478,8 @@ function checkExistingSession(){
     currentLoggedUser = name;
     if(wasAdmin){
       adminMode = true;
-      document.getElementById('admin-wrap').style.display = 'block';
+      var naBtn = document.getElementById('nuevo-anuncio-btn');
+      if(naBtn) naBtn.style.display = 'flex';
     }
     applyLoggedUserUI(name, wasAdmin);
     startSessionTimer();
@@ -5477,23 +5494,39 @@ let loginBgIndex = 0;
 let loginBgActiveSlot = 1;
 let loginBgInterval = null;
 
+const LOGIN_BG_FALLBACK = [
+  'https://www.nurahotels.com/app/uploads/sites/1635/nura-boral-decoracion1-1-1.webp',
+  'https://www.nurahotels.com/app/uploads/sites/1635/nura-boral-decoracion2-1024x597.webp',
+  'https://www.nurahotels.com/app/uploads/sites/1635/nura-boral-decoracion4-1.webp',
+  'https://www.nurahotels.com/app/uploads/sites/1635/piscina-boreal-2.webp',
+  'https://www.nurahotels.com/app/uploads/sites/1635/hotel-boreal_services_4.webp',
+  'https://www.nurahotels.com/app/uploads/sites/1635/Hero_contacto_boreal_02-1-1024x647.webp',
+  'https://www.nurahotels.com/app/uploads/sites/1635/nura-home_adventages.webp'
+];
+
+function shuffleArr(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
 async function loadLoginBgPhotos(){
+  let photos = [];
   try{
     const {data} = await db.from('aloj_fotos').select('url').limit(60);
-    if(data && data.length){
-      loginBgPhotos = data.map(d => d.url);
-      // shuffle
-      for(let i=loginBgPhotos.length-1;i>0;i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [loginBgPhotos[i],loginBgPhotos[j]] = [loginBgPhotos[j],loginBgPhotos[i]];
-      }
-      showNextLoginBg();
-      if(loginBgInterval) clearInterval(loginBgInterval);
-      if(loginBgPhotos.length > 1){
-        loginBgInterval = setInterval(showNextLoginBg, 6000);
-      }
-    }
-  }catch(e){ console.warn('No se pudieron cargar fotos de fondo:', e); }
+    if(data && data.length){ photos = data.map(d => d.url); }
+  }catch(e){ console.warn('No se pudieron cargar fotos de Supabase:', e); }
+
+  // Combine real uploaded photos with the web fallback set, prioritizing uploaded ones
+  loginBgPhotos = shuffleArr([...photos]).concat(shuffleArr([...LOGIN_BG_FALLBACK]));
+  if(!loginBgPhotos.length) loginBgPhotos = LOGIN_BG_FALLBACK;
+
+  loginBgIndex = 0;
+  showNextLoginBg();
+  if(loginBgInterval) clearInterval(loginBgInterval);
+  loginBgInterval = setInterval(showNextLoginBg, 6000);
 }
 
 function showNextLoginBg(){
