@@ -951,6 +951,19 @@ input:focus,select:focus{border-color:#999;}
 .logout-stars{position:absolute;font-size:20px;opacity:.35;animation:logout-twinkle 2s ease-in-out infinite;}
 @keyframes logout-twinkle{0%,100%{opacity:.15;}50%{opacity:.5;}}
 
+
+/* ── CONTROL DE CONTRASEÑAS ── */
+.pw-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:13px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);}
+.pw-avatar{width:36px;height:36px;border-radius:50%;background:var(--border-light);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--muted);flex-shrink:0;}
+.pw-info{flex:1;min-width:0;}
+.pw-name{font-size:13px;font-weight:500;color:var(--dark);}
+.pw-status{font-size:11px;margin-top:2px;}
+.pw-status.set{color:var(--teal);}
+.pw-status.unset{color:var(--subtle);}
+.pw-reset-btn{font-size:12px;background:var(--red-bg);color:var(--red);border:none;border-radius:var(--radius);padding:7px 13px;cursor:pointer;font-weight:500;white-space:nowrap;}
+.pw-reset-btn:hover{background:var(--red);color:#fff;}
+.pw-reset-btn:disabled{opacity:.4;cursor:not-allowed;}
+
 </style>
 </head>
 <body>
@@ -1155,6 +1168,9 @@ input:focus,select:focus{border-color:#999;}
     </div>
     <div class="sidebar-item" id="comisiones-btn" onclick="openPanel('comisiones')" style="display:none;">
       <i class="ti ti-percentage" style="font-size:15px;color:#8A5D1A;"></i><span style="color:#8A5D1A;">Comisiones</span>
+    </div>
+    <div class="sidebar-item" id="passwords-btn" onclick="openPasswordsAdmin()" style="display:none;">
+      <i class="ti ti-key" style="font-size:15px;color:#8A5D1A;"></i><span style="color:#8A5D1A;">Control contraseñas</span>
     </div>
   </div>
   <div class="sidebar-section">
@@ -2336,6 +2352,17 @@ input:focus,select:focus{border-color:#999;}
 
   </div>
 
+  <!-- ── CONTROL DE CONTRASEÑAS ── -->
+  <div class="f2-panel" id="panel-passwords">
+    <div class="f2-card">
+      <div class="f2-header"><span>🔑 Control de contraseñas</span></div>
+      <div class="f2-body">
+        <p style="font-size:12.5px;color:var(--subtle);margin-bottom:14px;">Aquí puedes ver quién ya ha creado su contraseña personal y resetearla si la ha olvidado. Al resetear, esa persona tendrá que crear una nueva contraseña la próxima vez que entre.</p>
+        <div id="passwords-list"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="section-header" id="section-header">
     <div class="section-title" id="section-title">Tablón</div>
     <div class="section-desc" id="section-desc">Comunicaciones y avisos para el equipo</div>
@@ -2498,7 +2525,7 @@ async function saveWorkerNote(){
 }
 
 function toggleAdmin(){
-  if(adminMode){adminMode=false;document.getElementById("admin-wrap").style.display="none";document.getElementById("pass-screen").style.display="none";document.getElementById("admin-badge").style.display="none";document.getElementById("toggle-admin-btn").textContent="Admin";var cb=document.getElementById("comisiones-btn");if(cb)cb.style.display="none";var naBtn=document.getElementById("nuevo-anuncio-btn");if(naBtn)naBtn.style.display="none";loadSection();}
+  if(adminMode){adminMode=false;document.getElementById("admin-wrap").style.display="none";document.getElementById("pass-screen").style.display="none";document.getElementById("admin-badge").style.display="none";document.getElementById("toggle-admin-btn").textContent="Admin";var cb=document.getElementById("comisiones-btn");if(cb)cb.style.display="none";var pwBtn=document.getElementById("passwords-btn");if(pwBtn)pwBtn.style.display="none";var naBtn=document.getElementById("nuevo-anuncio-btn");if(naBtn)naBtn.style.display="none";loadSection();}
   else{document.getElementById("pass-screen").style.display="block";document.getElementById("toggle-admin-btn").textContent="Cancelar";setTimeout(()=>document.getElementById("pass-input").focus(),50);}
 }
 function checkPass(){
@@ -2515,6 +2542,8 @@ function checkPass(){
     // Comisiones panel only visible to Toni (main admin), not Ayla
     var comBtn = document.getElementById("comisiones-btn");
     if(comBtn) comBtn.style.display = (val===ADMIN_PASS) ? "flex" : "none";
+    var pwBtn = document.getElementById("passwords-btn");
+    if(pwBtn) pwBtn.style.display = (val===ADMIN_PASS) ? "flex" : "none";
     var naBtn = document.getElementById("nuevo-anuncio-btn");
     if(naBtn) naBtn.style.display = "flex";
     loadSection();
@@ -5425,6 +5454,8 @@ function doLogin(){
       adminMode = true;
       var cb = document.getElementById('comisiones-btn');
       if(cb) cb.style.display = 'flex';
+      var pwBtn = document.getElementById('passwords-btn');
+      if(pwBtn) pwBtn.style.display = 'flex';
       var naBtn = document.getElementById('nuevo-anuncio-btn');
       if(naBtn) naBtn.style.display = 'flex';
       completeLogin('Admin', true);
@@ -5603,6 +5634,10 @@ function checkExistingSession(){
       adminMode = true;
       var naBtn = document.getElementById('nuevo-anuncio-btn');
       if(naBtn) naBtn.style.display = 'flex';
+      if(name === 'Admin'){
+        var pwBtn = document.getElementById('passwords-btn');
+        if(pwBtn) pwBtn.style.display = 'flex';
+      }
     }
     applyLoggedUserUI(name, wasAdmin);
     startSessionTimer();
@@ -5675,6 +5710,61 @@ function showLoginScreen(){
   document.getElementById('login-err').style.display = 'none';
   document.getElementById('login-firsttime-hint').style.display = 'none';
   loadLoginBgPhotos();
+}
+
+
+
+
+// ── CONTROL DE CONTRASEÑAS (solo Toni) ──
+const PW_PEOPLE = [
+  { name: "Toni", key: "nura_pass_toni" },
+  { name: "Antonia", key: "nura_pass_antonia" },
+  { name: "Pedro", key: "nura_pass_pedro" },
+  { name: "Dani", key: "nura_pass_dani" },
+  { name: "Aissa", key: "nura_pass_aissa" },
+  { name: "Lucas C.", key: "nura_pass_lucas_c_" },
+  { name: "Lucas R.", key: "nura_pass_lucas_r_" },
+  { name: "Manuel", key: "nura_pass_manuel" },
+  { name: "Ignacio", key: "nura_pass_ignacio" },
+  { name: "Ayla (Admin)", key: "nura_pass_admin_ayla" }
+];
+
+function openPasswordsAdmin(){
+  restoreTurnosWidget();
+  var twEl=document.getElementById('tw');if(twEl)twEl.style.display='none';
+  ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = 'none';
+  });
+  document.querySelectorAll('.f2-panel').forEach(p => p.style.display = 'none');
+  document.getElementById('panel-passwords').style.display = 'block';
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('passwords-btn').classList.add('active');
+  currentF2Panel = 'passwords';
+  renderPasswordsList();
+}
+
+function renderPasswordsList(){
+  const el = document.getElementById('passwords-list');
+  el.innerHTML = PW_PEOPLE.map(p => {
+    const hasPass = !!localStorage.getItem(p.key);
+    const ini = p.name.split(' ').map(s=>s[0]).join('').toUpperCase().slice(0,2);
+    return `<div class="pw-card">
+      <div class="pw-avatar">${ini}</div>
+      <div class="pw-info">
+        <div class="pw-name">${p.name}</div>
+        <div class="pw-status ${hasPass?'set':'unset'}">${hasPass ? '✓ Contraseña creada (en este dispositivo)' : '— Sin contraseña en este dispositivo'}</div>
+      </div>
+      <button class="pw-reset-btn" onclick="resetPassword('${p.key}','${p.name}')" ${hasPass?'':'disabled'}>Resetear</button>
+    </div>`;
+  }).join('');
+}
+
+function resetPassword(key, name){
+  if(!confirm(`¿Resetear la contraseña de ${name}? Tendrá que crear una nueva la próxima vez que entre (en este dispositivo).`)) return;
+  localStorage.removeItem(key);
+  showToast(`🔑 Contraseña de ${name} reseteada`);
+  renderPasswordsList();
 }
 
 
