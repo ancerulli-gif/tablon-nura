@@ -1021,9 +1021,10 @@ input:focus,select:focus{border-color:#999;}
       <select id="login-worker-select" onchange="loginCheckFirstTime()">
         <option value="">— Selecciona —</option>
         <option value="Admin">⭐ Admin</option>
+        <option value="AdminAyla">⭐ Admin (Ayla)</option>
         <option>Toni</option><option>Antonia</option><option>Pedro</option>
         <option>Dani</option><option>Aissa</option><option>Lucas C.</option>
-        <option>Lucas R.</option><option>Manuel</option><option>Ignacio</option><option>Deiby</option><option>Ayla</option>
+        <option>Lucas R.</option><option>Manuel</option><option>Ignacio</option>
       </select>
     </div>
     <div class="login-field">
@@ -5393,7 +5394,7 @@ function skipIntroPhase(){
 
 
 // ── SISTEMA DE LOGIN POST-INTRO ──
-const LOGIN_WORKERS = ["Toni","Antonia","Pedro","Dani","Aissa","Lucas C.","Lucas R.","Manuel","Ignacio","Deiby","Ayla"];
+const LOGIN_WORKERS = ["Toni","Antonia","Pedro","Dani","Aissa","Lucas C.","Lucas R.","Manuel","Ignacio"];
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutos
 let currentLoggedUser = null;
 let sessionTimer = null;
@@ -5404,7 +5405,9 @@ function loginCheckFirstTime(){
   const name = document.getElementById('login-worker-select').value;
   const hint = document.getElementById('login-firsttime-hint');
   if(!name){ hint.style.display='none'; return; }
-  const stored = localStorage.getItem('nura_pass_'+wKeyLogin(name));
+  if(name === 'Admin'){ hint.style.display='none'; return; } // Admin (Toni) uses fixed password
+  const key = name === 'AdminAyla' ? 'nura_pass_admin_ayla' : 'nura_pass_'+wKeyLogin(name);
+  const stored = localStorage.getItem(key);
   hint.style.display = stored ? 'none' : 'block';
 }
 
@@ -5416,18 +5419,45 @@ function doLogin(){
 
   if(!name || !pass){ errEl.textContent = 'Selecciona tu nombre y escribe una contraseña.'; errEl.style.display='block'; return; }
 
-  // Admin login uses the existing admin password system
+  // Admin (Toni) login: fixed password, no first-time setup
   if(name === 'Admin'){
-    if(pass === ADMIN_PASS || pass === ADMIN_PASS_2){
-      const adminName = pass === ADMIN_PASS_2 ? ADMIN_NAME_2 : 'Admin';
+    if(pass === ADMIN_PASS){
       adminMode = true;
       var cb = document.getElementById('comisiones-btn');
-      if(cb) cb.style.display = (pass === ADMIN_PASS) ? 'flex' : 'none';
+      if(cb) cb.style.display = 'flex';
       var naBtn = document.getElementById('nuevo-anuncio-btn');
       if(naBtn) naBtn.style.display = 'flex';
-      completeLogin(adminName, true);
+      completeLogin('Admin', true);
     } else {
       errEl.textContent = 'Contraseña de administrador incorrecta.';
+      errEl.style.display = 'block';
+    }
+    return;
+  }
+
+  // Admin (Ayla) login: she can set up her own password on first use, like regular workers
+  if(name === 'AdminAyla'){
+    const aylaKey = 'nura_pass_admin_ayla';
+    const aylaStored = localStorage.getItem(aylaKey);
+    const aylaHash = simpleHash(pass);
+
+    if(!aylaStored){
+      localStorage.setItem(aylaKey, aylaHash);
+      adminMode = true;
+      var cb2 = document.getElementById('comisiones-btn');
+      if(cb2) cb2.style.display = 'none';
+      var naBtn2 = document.getElementById('nuevo-anuncio-btn');
+      if(naBtn2) naBtn2.style.display = 'flex';
+      completeLogin(ADMIN_NAME_2, true);
+    } else if(aylaStored === aylaHash){
+      adminMode = true;
+      var cb3 = document.getElementById('comisiones-btn');
+      if(cb3) cb3.style.display = 'none';
+      var naBtn3 = document.getElementById('nuevo-anuncio-btn');
+      if(naBtn3) naBtn3.style.display = 'flex';
+      completeLogin(ADMIN_NAME_2, true);
+    } else {
+      errEl.textContent = 'Contraseña incorrecta.';
       errEl.style.display = 'block';
     }
     return;
