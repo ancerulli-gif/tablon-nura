@@ -416,9 +416,12 @@ input:focus,select:focus{border-color:#999;}
 #nav-overlay.open { display: block; }
 
 @media (max-width: 768px) {
-  #mobile-menu-btn { display: flex !important; align-items: center; justify-content: center; }
+  #mobile-menu-btn { display: flex !important; align-items: center; justify-content: center; order:-1; margin-right:6px; position:relative; z-index:200; }
   .topbar-sep { display: none; }
   .topbar-sub { display: none; }
+  #current-user-badge { font-size:10px !important; padding:3px 8px !important; }
+  #logout-btn { font-size:10px !important; padding:4px 8px !important; }
+  #logout-btn span, #logout-btn { white-space:nowrap; }
   .sidebar {
     position: fixed !important;
     left: -260px !important;
