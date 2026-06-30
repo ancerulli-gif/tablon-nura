@@ -1044,6 +1044,37 @@ input:focus,select:focus{border-color:#999;}
 .review-check-score-num.low{color:#D1453B;}
 .review-check-new-badge{font-size:10px;background:var(--teal-bg);color:var(--teal);padding:1px 7px;border-radius:10px;font-weight:600;}
 
+
+/* ── MODAL CENTRAL NUEVAS RESEÑAS ── */
+.review-modal-backdrop{
+  position:fixed;inset:0;z-index:600;
+  background:rgba(15,15,31,.55);backdrop-filter:blur(3px);
+  display:none;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+.review-modal-backdrop.show{display:flex;}
+.review-modal{
+  background:var(--surface);border-radius:var(--radius-lg);
+  padding:24px 26px;width:380px;max-width:90vw;max-height:80vh;overflow-y:auto;
+  box-shadow:0 24px 70px rgba(0,0,0,.4);cursor:default;
+  animation:review-modal-in .35s cubic-bezier(.2,.9,.3,1.1);
+}
+@keyframes review-modal-in{
+  0%{opacity:0;transform:scale(.92) translateY(10px);}
+  100%{opacity:1;transform:scale(1) translateY(0);}
+}
+.review-modal-title{font-family:'DM Serif Display',serif;font-size:19px;color:var(--dark);margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.review-modal-sub{font-size:12px;color:var(--subtle);margin-bottom:16px;}
+.review-modal-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border-light);font-size:13px;}
+.review-modal-row:last-child{border-bottom:none;}
+.review-modal-name{font-weight:500;color:var(--dark);display:flex;align-items:center;gap:6px;}
+.review-modal-score{font-weight:700;font-size:15px;}
+.review-modal-score.good{color:#2E9E5B;}
+.review-modal-score.mid{color:#B5800F;}
+.review-modal-score.low{color:#D1453B;}
+.review-modal-hint{font-size:11px;color:var(--subtle);text-align:center;margin-top:16px;}
+.review-modal-new-tag{font-size:9px;background:var(--teal);color:#fff;padding:1px 6px;border-radius:8px;font-weight:600;}
+
 </style>
 </head>
 <body>
@@ -1139,6 +1170,10 @@ input:focus,select:focus{border-color:#999;}
   <div class="logout-emoji">👋</div>
   <div class="logout-title" id="logout-title">¡Buen turno, !</div>
   <div class="logout-sub">Nos vemos en el próximo 😊</div>
+</div>
+
+<div class="review-modal-backdrop" id="review-modal-backdrop" onclick="closeReviewModal()">
+  <div class="review-modal" id="review-modal-content"></div>
 </div>
 <div id="review-pushup-container"></div>
 <div class="login-welcome-toast" id="login-welcome-toast"></div>
@@ -6091,7 +6126,7 @@ async function manualCheckBookingReviews() {
   for (const est of BOOKING_REVIEW_PAGES) {
     try {
       const html = await fetchWithProxyFallback(est.url);
-      if (!html) { errCount++; continue; }
+      if (!html) { errCount++; console.warn('❌ No se pudo obtener HTML de:', est.nombre); continue; }
 
       const countMatch = html.match(/itemprop="ratingCount"\s+content="([\d.,]+)"/i) || html.match(/<title>\s*([\d.,]+)\s*Opiniones/i);
       const reviewCount = countMatch ? countMatch[1].replace(/\./g, '').replace(',', '') : null;
@@ -6099,7 +6134,7 @@ async function manualCheckBookingReviews() {
       const scoreMatch = html.match(/itemprop="ratingValue"\s+content="([\d.,]+)"/i);
       const score = scoreMatch ? scoreMatch[1].replace(',', '.') : null;
 
-      if (!reviewCount) { errCount++; continue; }
+      if (!reviewCount) { errCount++; console.warn('❌ No se encontró el patrón de reseñas en:', est.nombre); continue; }
       okCount++;
 
       const { data: lastData } = await db.from('resenas_contadores').select('*').eq('establecimiento_key', est.key).maybeSingle();
@@ -6140,11 +6175,43 @@ async function manualCheckBookingReviews() {
     return;
   }
 
-  if (foundNew > 0) {
-    showToast(`🔔 ${foundNew} reseña(s) nueva(s) detectada(s)`);
+  showReviewModal(results, foundNew);
+}
+
+function showReviewModal(results, foundNew) {
+  const scoreClass = (s) => {
+    const n = parseFloat(s);
+    if (!n) return '';
+    if (n >= 8.5) return 'good';
+    if (n >= 7.5) return 'mid';
+    return 'low';
+  };
+
+  const content = document.getElementById('review-modal-content');
+  content.innerHTML = `
+    <div class="review-modal-title">⭐ Puntuaciones actuales</div>
+    <div class="review-modal-sub">${foundNew > 0 ? foundNew + ' reseña(s) nueva(s) detectada(s)' : 'Sin reseñas nuevas desde la última comprobación'}</div>
+    ${results.map(r => `<div class="review-modal-row">
+      <div class="review-modal-name">${r.nombre}${r.isNew ? '<span class="review-modal-new-tag">NUEVA</span>' : ''}</div>
+      <div>
+        <span class="review-modal-score ${scoreClass(r.puntuacion)}">${r.puntuacion || '—'}</span>
+        <span style="color:var(--subtle);font-size:11px;"> (${r.numResenas})</span>
+      </div>
+    </div>`).join('')}
+    <div class="review-modal-hint">Toca en cualquier lugar para cerrar</div>
+  `;
+
+  document.getElementById('review-modal-backdrop').classList.add('show');
+
+  // After closing, trigger the push-up notifications for new reviews
+  window._pendingReviewPushups = foundNew > 0;
+}
+
+function closeReviewModal() {
+  document.getElementById('review-modal-backdrop').classList.remove('show');
+  if (window._pendingReviewPushups) {
+    window._pendingReviewPushups = false;
     checkNewReviewAlerts();
-  } else {
-    showToast(`✓ Sin reseñas nuevas (${okCount}/${BOOKING_REVIEW_PAGES.length} comprobados)`);
   }
 }
 
