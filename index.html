@@ -1028,6 +1028,22 @@ input:focus,select:focus{border-color:#999;}
 .check-resenas-reminder.show{display:block;animation:reminder-pulse 1.6s ease-in-out infinite;}
 @keyframes reminder-pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.4);opacity:.6;}}
 
+
+.review-check-summary{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:14px 16px;margin-bottom:14px;box-shadow:var(--shadow);
+}
+.review-check-summary-title{font-size:11px;font-weight:600;color:var(--subtle);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;}
+.review-check-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border-light);font-size:13px;}
+.review-check-row:last-child{border-bottom:none;}
+.review-check-name{font-weight:500;color:var(--dark);}
+.review-check-score{display:flex;align-items:center;gap:8px;}
+.review-check-score-num{font-weight:700;}
+.review-check-score-num.good{color:#2E9E5B;}
+.review-check-score-num.mid{color:#B5800F;}
+.review-check-score-num.low{color:#D1453B;}
+.review-check-new-badge{font-size:10px;background:var(--teal-bg);color:var(--teal);padding:1px 7px;border-radius:10px;font-weight:600;}
+
 </style>
 </head>
 <body>
@@ -2447,6 +2463,8 @@ input:focus,select:focus{border-color:#999;}
       <div class="rr-stat-box"><div class="rr-stat-num">8,22</div><div class="rr-stat-label">Media global</div></div>
       <div class="rr-stat-box"><div class="rr-stat-num" style="color:var(--red);">3.896</div><div class="rr-stat-label">Sin responder</div></div>
     </div>
+
+    <div id="review-check-summary-container"></div>
 
     <div id="rr-list"></div>
   </div>
@@ -5882,6 +5900,21 @@ function openResumenResenas() {
   document.getElementById('resumen-resenas-btn').classList.add('active');
   currentF2Panel = 'resumen-resenas';
   renderResenasResumen();
+  loadStoredReviewCheckSummary();
+}
+
+async function loadStoredReviewCheckSummary() {
+  try {
+    const { data } = await db.from('resenas_contadores').select('*');
+    if (!data || !data.length) return;
+    const results = data.map(d => ({
+      nombre: d.establecimiento,
+      puntuacion: d.ultima_puntuacion,
+      numResenas: d.ultimo_conteo,
+      isNew: false
+    }));
+    renderReviewCheckSummary(results);
+  } catch (e) { /* silent */ }
 }
 
 function semaforoFor(score){
@@ -6000,7 +6033,24 @@ const BOOKING_REVIEW_PAGES = [
 ];
 
 // Proxy CORS público para poder leer el HTML desde el navegador (Booking bloquea fetch directo cross-origin)
-const CORS_PROXY = "https://corsproxy.io/?url=";
+const CORS_PROXIES = [
+  "https://api.allorigins.win/raw?url=",
+  "https://corsproxy.io/?url=",
+  "https://api.codetabs.com/v1/proxy?quest="
+];
+
+async function fetchWithProxyFallback(targetUrl) {
+  for (const proxy of CORS_PROXIES) {
+    try {
+      const resp = await fetch(proxy + encodeURIComponent(targetUrl));
+      if (resp.ok) {
+        const text = await resp.text();
+        if (text && text.length > 500) return text; // basic sanity check, avoid empty/error pages
+      }
+    } catch (e) { /* try next proxy */ }
+  }
+  return null;
+}
 
 async function checkResenasReminder() {
   try {
@@ -6018,18 +6068,17 @@ async function manualCheckBookingReviews() {
   const spinner = document.getElementById('check-resenas-spinner');
   const badge = document.getElementById('check-resenas-reminder');
   spinner.style.display = 'inline';
-  // Apagar el aviso visual inmediatamente al pulsar, sin esperar a que termine la comprobación
   if (badge) badge.classList.remove('show');
 
   let foundNew = 0;
   let okCount = 0;
   let errCount = 0;
+  const results = [];
 
   for (const est of BOOKING_REVIEW_PAGES) {
     try {
-      const resp = await fetch(CORS_PROXY + encodeURIComponent(est.url));
-      if (!resp.ok) { errCount++; continue; }
-      const html = await resp.text();
+      const html = await fetchWithProxyFallback(est.url);
+      if (!html) { errCount++; continue; }
 
       const countMatch = html.match(/Basada en\s+([\d.,]+)\s+opiniones/i) || html.match(/([\d.,]+)\s+reviews/i);
       const reviewCount = countMatch ? countMatch[1].replace(/\./g, '').replace(',', '') : null;
@@ -6056,6 +6105,9 @@ async function manualCheckBookingReviews() {
         foundNew += diff;
       }
 
+      const isNew = lastCount !== null && newCount > lastCount;
+      results.push({ nombre: est.nombre, puntuacion: score, numResenas: newCount, isNew });
+
       if (lastData) {
         await db.from('resenas_contadores').update({ ultimo_conteo: newCount, ultima_puntuacion: score, checked_at: new Date().toISOString() }).eq('establecimiento_key', est.key);
       } else {
@@ -6068,10 +6120,10 @@ async function manualCheckBookingReviews() {
   }
 
   spinner.style.display = 'none';
+  renderReviewCheckSummary(results);
 
   if (okCount === 0) {
     showToast('⚠️ No se pudo conectar con Booking. Inténtalo de nuevo más tarde.');
-    // No reactivamos el aviso rojo aquí: el usuario ya hizo el esfuerzo de comprobar
     return;
   }
 
@@ -6081,6 +6133,32 @@ async function manualCheckBookingReviews() {
   } else {
     showToast(`✓ Sin reseñas nuevas (${okCount}/${BOOKING_REVIEW_PAGES.length} comprobados)`);
   }
+}
+
+function renderReviewCheckSummary(results) {
+  const container = document.getElementById('review-check-summary-container');
+  if (!container) return;
+  if (!results.length) { container.innerHTML = ''; return; }
+
+  const scoreClass = (s) => {
+    const n = parseFloat(s);
+    if (!n) return '';
+    if (n >= 8.5) return 'good';
+    if (n >= 7.5) return 'mid';
+    return 'low';
+  };
+
+  container.innerHTML = `<div class="review-check-summary">
+    <div class="review-check-summary-title">Última comprobación</div>
+    ${results.map(r => `<div class="review-check-row">
+      <div class="review-check-name">${r.nombre}</div>
+      <div class="review-check-score">
+        ${r.isNew ? '<span class="review-check-new-badge">Nueva</span>' : ''}
+        <span class="review-check-score-num ${scoreClass(r.puntuacion)}">${r.puntuacion || '—'}</span>
+        <span style="color:var(--subtle);font-size:11px;">(${r.numResenas} reseñas)</span>
+      </div>
+    </div>`).join('')}
+  </div>`;
 }
 
 
