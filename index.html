@@ -967,6 +967,38 @@ input:focus,select:focus{border-color:#999;}
 .pw-reset-btn:hover{background:var(--red);color:#fff;}
 .pw-reset-btn:disabled{opacity:.4;cursor:not-allowed;}
 
+
+/* ── RESUMEN DE RESEÑAS ── */
+.rr-stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
+.rr-stat-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;text-align:center;box-shadow:var(--shadow);}
+.rr-stat-num{font-size:24px;font-weight:700;color:var(--dark);}
+.rr-stat-label{font-size:10.5px;color:var(--subtle);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;}
+.rr-card{background:var(--surface);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:10px;box-shadow:var(--shadow);border-left:5px solid var(--border);}
+.rr-card.semaforo-verde{border-left-color:#2E9E5B;}
+.rr-card.semaforo-ambar{border-left-color:#E0A521;}
+.rr-card.semaforo-rojo{border-left-color:#D1453B;}
+.rr-card-top{padding:13px 16px 10px;display:flex;align-items:center;justify-content:space-between;}
+.rr-card-name{font-size:14.5px;font-weight:600;color:var(--dark);}
+.rr-card-score{display:flex;align-items:baseline;gap:4px;}
+.rr-score-num{font-size:20px;font-weight:700;}
+.rr-score-num.semaforo-verde{color:#2E9E5B;}
+.rr-score-num.semaforo-ambar{color:#B5800F;}
+.rr-score-num.semaforo-rojo{color:#D1453B;}
+.rr-score-max{font-size:11px;color:var(--subtle);}
+.rr-card-meta{padding:0 16px 13px;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--muted);}
+.rr-card-meta strong{color:var(--dark);}
+.rr-pct-bar-wrap{padding:0 16px 13px;}
+.rr-pct-bar{height:7px;border-radius:99px;background:#F0EDE8;overflow:hidden;display:flex;}
+.rr-pct-seg-good{background:#2E9E5B;}
+.rr-pct-seg-mid{background:#E0A521;}
+.rr-pct-seg-bad{background:#D1453B;}
+.rr-pct-labels{display:flex;justify-content:space-between;font-size:9.5px;color:var(--subtle);margin-top:4px;}
+.rr-tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;}
+.rr-tag.tendencia-mejorando{background:var(--teal-bg);color:var(--teal);}
+.rr-tag.tendencia-estable{background:#F0EDE8;color:var(--muted);}
+.rr-tag.tendencia-empeorando{background:var(--red-bg);color:var(--red);}
+.rr-unanswered{font-size:11px;color:var(--red);font-weight:500;}
+
 </style>
 </head>
 <body>
@@ -1177,7 +1209,10 @@ input:focus,select:focus{border-color:#999;}
     </div>
   </div>
   <div class="sidebar-section">
-    <div class="sidebar-label">🏆 Diversión</div>
+    <div class="sidebar-label">⭐ Reseñas</div>
+    <div class="sidebar-item" id="resumen-resenas-btn" onclick="openResumenResenas()">
+      <i class="ti ti-star" style="font-size:15px;"></i><span>Resumen reseñas</span>
+    </div>
     <div class="sidebar-item" id="premio-btn" onclick="openPremio()">
       <i class="ti ti-trophy" style="font-size:15px;color:#D4A017;"></i><span style="color:#D4A017;font-weight:500;">Premio Reseñas</span>
     </div>
@@ -2364,6 +2399,22 @@ input:focus,select:focus{border-color:#999;}
         <div id="passwords-list"></div>
       </div>
     </div>
+  </div>
+
+  <!-- ── RESUMEN DE RESEÑAS ── -->
+  <div class="f2-panel" id="panel-resumen-resenas">
+    <div class="section-header" style="margin-bottom:18px;">
+      <div class="section-title">Resumen de reseñas</div>
+      <div class="section-desc">Vista rápida de Booking por alojamiento — actualizado 30/06</div>
+    </div>
+
+    <div class="rr-stats-bar">
+      <div class="rr-stat-box"><div class="rr-stat-num">4.310</div><div class="rr-stat-label">Reseñas totales</div></div>
+      <div class="rr-stat-box"><div class="rr-stat-num">8,22</div><div class="rr-stat-label">Media global</div></div>
+      <div class="rr-stat-box"><div class="rr-stat-num" style="color:var(--red);">3.896</div><div class="rr-stat-label">Sin responder</div></div>
+    </div>
+
+    <div id="rr-list"></div>
   </div>
 
   <div class="section-header" id="section-header">
@@ -5768,6 +5819,83 @@ function resetPassword(key, name){
   localStorage.removeItem(key);
   showToast(`🔑 Contraseña de ${name} reseteada`);
   renderPasswordsList();
+}
+
+
+
+
+// ── RESUMEN DE RESEÑAS ──
+const RESENAS_DATA = [
+  { nombre:"Claudia by Nura", n:55, score:9.07, excelente:63.6, buena:30.9, baja:3.6, mejorCat:"Limpieza", mejorVal:9.17, peorCat:"Calidad/Precio", peorVal:8.52, respuesta:69.1, sinResponder:17, tendencia:"Mejorando", estado:"Excelente" },
+  { nombre:"Hotel Boreal", n:1840, score:8.2, excelente:40.3, buena:45.5, baja:8.9, mejorCat:"Personal", mejorVal:8.97, peorCat:"Instalaciones", peorVal:7.72, respuesta:7.2, sinResponder:1708, tendencia:"Estable", estado:"Correcto" },
+  { nombre:"Santa Ponça Pins", n:977, score:8.18, excelente:45, buena:39.9, baja:8.4, mejorCat:"Personal", mejorVal:8.78, peorCat:"Instalaciones", peorVal:7.85, respuesta:0.5, sinResponder:972, tendencia:"Estable", estado:"Correcto" },
+  { nombre:"Magaluf Apartments", n:22, score:8.15, excelente:36.4, buena:59.1, baja:4.5, mejorCat:"Ubicación", mejorVal:9.43, peorCat:"Instalaciones", peorVal:7.5, respuesta:36.4, sinResponder:14, tendencia:"Mejorando", estado:"Correcto" },
+  { nombre:"Magaluf Beach", n:36, score:8.01, excelente:58.3, buena:25, baja:13.9, mejorCat:"Ubicación", mejorVal:8.89, peorCat:"Personal", peorVal:7.86, respuesta:44.4, sinResponder:20, tendencia:"Estable", estado:"Correcto" },
+  { nombre:"Apartamentos Cóndor", n:402, score:8.0, excelente:49, buena:36.1, baja:10.2, mejorCat:"Personal", mejorVal:9.05, peorCat:"Calidad/Precio", peorVal:7.96, respuesta:16.2, sinResponder:337, tendencia:"Empeorando", estado:"Correcto" },
+  { nombre:"Hotel Cóndor", n:978, score:7.9, excelente:34.9, buena:46.1, baja:11, mejorCat:"Personal", mejorVal:8.8, peorCat:"Instalaciones", peorVal:7.6, respuesta:15.3, sinResponder:828, tendencia:"Mejorando", estado:"Correcto" },
+];
+
+function openResumenResenas() {
+  restoreTurnosWidget();
+  var twEl=document.getElementById('tw');if(twEl)twEl.style.display='none';
+  ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = 'none';
+  });
+  document.querySelectorAll('.f2-panel').forEach(p => p.style.display = 'none');
+  document.getElementById('panel-resumen-resenas').style.display = 'block';
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('resumen-resenas-btn').classList.add('active');
+  currentF2Panel = 'resumen-resenas';
+  renderResenasResumen();
+}
+
+function semaforoFor(score){
+  if(score >= 8.5) return 'verde';
+  if(score >= 7.5) return 'ambar';
+  return 'rojo';
+}
+
+function renderResenasResumen(){
+  const el = document.getElementById('rr-list');
+  const sorted = [...RESENAS_DATA].sort((a,b) => b.score - a.score);
+
+  el.innerHTML = sorted.map(r => {
+    const sem = semaforoFor(r.score);
+    const tendClass = r.tendencia === 'Mejorando' ? 'tendencia-mejorando' : r.tendencia === 'Empeorando' ? 'tendencia-empeorando' : 'tendencia-estable';
+    const tendIcon = r.tendencia === 'Mejorando' ? '↗' : r.tendencia === 'Empeorando' ? '↘' : '→';
+    return `<div class="rr-card semaforo-${sem}">
+      <div class="rr-card-top">
+        <div class="rr-card-name">${r.nombre}</div>
+        <div class="rr-card-score">
+          <span class="rr-score-num semaforo-${sem}">${r.score.toFixed(2).replace('.',',')}</span>
+          <span class="rr-score-max">/10</span>
+        </div>
+      </div>
+      <div class="rr-card-meta">
+        <span><strong>${r.n}</strong> reseñas</span>
+        <span class="rr-tag ${tendClass}">${tendIcon} ${r.tendencia}</span>
+        <span style="color:#2E9E5B;">✓ Mejor: <strong>${r.mejorCat}</strong> (${r.mejorVal})</span>
+        <span style="color:#D1453B;">⚠ Peor: <strong>${r.peorCat}</strong> (${r.peorVal})</span>
+      </div>
+      <div class="rr-pct-bar-wrap">
+        <div class="rr-pct-bar">
+          <div class="rr-pct-seg-good" style="width:${r.excelente}%;"></div>
+          <div class="rr-pct-seg-mid" style="width:${r.buena}%;"></div>
+          <div class="rr-pct-seg-bad" style="width:${r.baja}%;"></div>
+        </div>
+        <div class="rr-pct-labels">
+          <span>${r.excelente}% excelentes</span>
+          <span>${r.buena}% buenas</span>
+          <span>${r.baja}% bajas</span>
+        </div>
+      </div>
+      <div class="rr-card-meta" style="padding-top:0;padding-bottom:13px;">
+        <span>Respuesta del hotel: <strong>${r.respuesta}%</strong></span>
+        <span class="rr-unanswered">${r.sinResponder} sin responder</span>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 
