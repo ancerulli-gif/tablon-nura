@@ -6108,7 +6108,7 @@ const BOOKING_REVIEW_PAGES = [
   { key: "condor", nombre: "Hotel Cóndor", url: "https://www.booking.com/reviews/es/hotel/condor.es.html" },
   { key: "apartamentos_condor", nombre: "Apartamentos Cóndor", url: "https://www.booking.com/reviews/es/hotel/apartamentos-condor.es.html" },
   { key: "magaluf_beach", nombre: "Magaluf Beach", url: "https://www.booking.com/reviews/es/hotel/magaluf-beach-by-nura-duplex.es.html" },
-  { key: "magaluf_apartments", nombre: "Magaluf Apartamentos", url: "https://www.booking.com/reviews/es/hotel/magaluf-1a.es.html", useJsRender: true },
+  { key: "magaluf_apartments", nombre: "Magaluf Apartamentos", url: "https://www.booking.com/reviews/es/hotel/magaluf-1a.es.html" },
   { key: "santa_ponsa", nombre: "Santa Ponça Pins", url: "https://www.booking.com/reviews/es/hotel/tryp-mallorca-santa-ponsa.es.html" },
   { key: "claudia", nombre: "Claudia by Nura", url: "https://www.booking.com/reviews/es/hotel/claudia-by-nura.es.html" },
 ];
@@ -6161,19 +6161,15 @@ setTimeout(checkResenasReminder, 3500);
 
 async function checkOneEstablishment(est) {
   try {
-    const html = await fetchWithProxyFallback(est.url);
-    if (!html) { console.warn('❌ No se pudo obtener HTML de:', est.nombre); return { est, error: true }; }
+    const resp = await fetchWithTimeout('https://r.jina.ai/' + est.url, 20000);
+    if (!resp.ok) { console.warn('❌ No se pudo obtener datos de:', est.nombre); return { est, error: true }; }
+    const text = await resp.text();
 
-    const countMatch = html.match(/itemprop="ratingCount"\s+content="([\d.,]+)"/i) || html.match(/<title>\s*([\d.,]+)\s*Opiniones/i);
+    const countMatch = text.match(/Basada en\s+([\d.,]+)\s+opiniones/i);
     const reviewCount = countMatch ? countMatch[1].replace(/\./g, '').replace(',', '') : null;
 
-    let scoreMatch = html.match(/itemprop="ratingValue"\s+content="([\d.,]+)"/i);
-    let score = scoreMatch ? scoreMatch[1].replace(',', '.') : null;
-
-    // Fallback con renderizado JS (Jina Reader) solo si no encontramos la nota por el método rápido
-    if (!score && est.useJsRender) {
-      score = await fetchScoreWithJsRender(est.url);
-    }
+    const scoreMatch = text.match(/Basada en\s+[\d.,]+\s+opiniones[^\n]*\n+\s*(\d[.,]\d)/i);
+    const score = scoreMatch ? scoreMatch[1].replace(',', '.') : null;
 
     if (!reviewCount) { console.warn('❌ No se encontró el patrón de reseñas en:', est.nombre); return { est, error: true }; }
 
@@ -6181,20 +6177,6 @@ async function checkOneEstablishment(est) {
   } catch (e) {
     console.warn('Error comprobando', est.nombre, e);
     return { est, error: true };
-  }
-}
-
-async function fetchScoreWithJsRender(targetUrl) {
-  try {
-    const resp = await fetchWithTimeout('https://r.jina.ai/' + targetUrl, 20000);
-    if (!resp.ok) return null;
-    const text = await resp.text();
-    // Jina devuelve texto limpio, buscamos un patrón tipo "8,0 Buena" o similar cerca de "Puntuación"
-    const m = text.match(/(\d[.,]\d)\s*(?:Buena|Fabuloso|Estupendo|Excelente|Maravilloso)/i) || text.match(/Puntuación[^\d]*(\d[.,]\d)/i);
-    return m ? m[1].replace(',', '.') : null;
-  } catch (e) {
-    console.warn('Jina render fallback falló:', e);
-    return null;
   }
 }
 
