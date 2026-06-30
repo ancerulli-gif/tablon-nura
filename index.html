@@ -6093,10 +6093,10 @@ async function manualCheckBookingReviews() {
       const html = await fetchWithProxyFallback(est.url);
       if (!html) { errCount++; continue; }
 
-      const countMatch = html.match(/Basada en\s+([\d.,]+)\s+opiniones/i) || html.match(/([\d.,]+)\s+reviews/i);
+      const countMatch = html.match(/itemprop="ratingCount"\s+content="([\d.,]+)"/i) || html.match(/<title>\s*([\d.,]+)\s*Opiniones/i);
       const reviewCount = countMatch ? countMatch[1].replace(/\./g, '').replace(',', '') : null;
 
-      const scoreMatch = html.match(/"reviewScore"\s*:\s*"?([\d.,]+)/i) || html.match(/(\d[.,]\d)\s*<\/[^>]*>\s*<[^>]*>\s*Limpieza/i);
+      const scoreMatch = html.match(/itemprop="ratingValue"\s+content="([\d.,]+)"/i);
       const score = scoreMatch ? scoreMatch[1].replace(',', '.') : null;
 
       if (!reviewCount) { errCount++; continue; }
