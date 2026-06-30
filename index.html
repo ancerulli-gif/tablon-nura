@@ -1244,7 +1244,7 @@ input:focus,select:focus{border-color:#999;}
       <i class="ti ti-star" style="font-size:15px;"></i><span>Resumen reseñas</span>
     </div>
     <div class="sidebar-item" id="check-resenas-btn" onclick="manualCheckBookingReviews()" style="position:relative;">
-      <i class="ti ti-refresh" style="font-size:15px;"></i><span>Comprobar nuevas <span id="check-resenas-spinner" style="display:none;">⏳</span></span>
+      <i class="ti ti-refresh" style="font-size:15px;"></i><span>Nuevas reseñas <span id="check-resenas-spinner" style="display:none;">⏳</span></span>
       <span class="check-resenas-reminder" id="check-resenas-reminder"></span>
     </div>
     <div class="sidebar-item" id="premio-btn" onclick="openPremio()">
@@ -6016,32 +6016,35 @@ setTimeout(checkResenasReminder, 3500);
 
 async function manualCheckBookingReviews() {
   const spinner = document.getElementById('check-resenas-spinner');
+  const badge = document.getElementById('check-resenas-reminder');
   spinner.style.display = 'inline';
+  // Apagar el aviso visual inmediatamente al pulsar, sin esperar a que termine la comprobación
+  if (badge) badge.classList.remove('show');
+
   let foundNew = 0;
+  let okCount = 0;
+  let errCount = 0;
 
   for (const est of BOOKING_REVIEW_PAGES) {
     try {
       const resp = await fetch(CORS_PROXY + encodeURIComponent(est.url));
-      if (!resp.ok) continue;
+      if (!resp.ok) { errCount++; continue; }
       const html = await resp.text();
 
-      // Buscar "Basada en X opiniones" o "X reviews" / "X comentarios"
       const countMatch = html.match(/Basada en\s+([\d.,]+)\s+opiniones/i) || html.match(/([\d.,]+)\s+reviews/i);
       const reviewCount = countMatch ? countMatch[1].replace(/\./g, '').replace(',', '') : null;
 
-      // Buscar puntuación general (ej. "8.1" cerca de "Limpieza" o el bloque de score)
       const scoreMatch = html.match(/"reviewScore"\s*:\s*"?([\d.,]+)/i) || html.match(/(\d[.,]\d)\s*<\/[^>]*>\s*<[^>]*>\s*Limpieza/i);
       const score = scoreMatch ? scoreMatch[1].replace(',', '.') : null;
 
-      if (!reviewCount) continue;
+      if (!reviewCount) { errCount++; continue; }
+      okCount++;
 
-      // Comparar con el último valor guardado
       const { data: lastData } = await db.from('resenas_contadores').select('*').eq('establecimiento_key', est.key).maybeSingle();
       const lastCount = lastData ? parseInt(lastData.ultimo_conteo) : null;
       const newCount = parseInt(reviewCount);
 
       if (lastCount !== null && newCount > lastCount) {
-        // ¡Hay reseña(s) nueva(s)!
         const diff = newCount - lastCount;
         await db.from('resenas_avisos').insert([{
           establecimiento: est.nombre,
@@ -6053,24 +6056,30 @@ async function manualCheckBookingReviews() {
         foundNew += diff;
       }
 
-      // Actualizar el contador guardado (tanto si es la primera vez como si hay cambios)
       if (lastData) {
         await db.from('resenas_contadores').update({ ultimo_conteo: newCount, ultima_puntuacion: score, checked_at: new Date().toISOString() }).eq('establecimiento_key', est.key);
       } else {
         await db.from('resenas_contadores').insert([{ establecimiento_key: est.key, establecimiento: est.nombre, ultimo_conteo: newCount, ultima_puntuacion: score, checked_at: new Date().toISOString() }]);
       }
     } catch (e) {
+      errCount++;
       console.warn('Error comprobando', est.nombre, e);
     }
   }
 
   spinner.style.display = 'none';
-  checkResenasReminder();
+
+  if (okCount === 0) {
+    showToast('⚠️ No se pudo conectar con Booking. Inténtalo de nuevo más tarde.');
+    // No reactivamos el aviso rojo aquí: el usuario ya hizo el esfuerzo de comprobar
+    return;
+  }
+
   if (foundNew > 0) {
     showToast(`🔔 ${foundNew} reseña(s) nueva(s) detectada(s)`);
     checkNewReviewAlerts();
   } else {
-    showToast('✓ Sin reseñas nuevas');
+    showToast(`✓ Sin reseñas nuevas (${okCount}/${BOOKING_REVIEW_PAGES.length} comprobados)`);
   }
 }
 
