@@ -1020,6 +1020,14 @@ input:focus,select:focus{border-color:#999;}
 .review-pushup-close:hover{color:#fff;}
 @media(max-width:640px){.review-pushup{right:10px;left:10px;max-width:none;}}
 
+
+.check-resenas-reminder{
+  position:absolute;top:-3px;right:6px;width:8px;height:8px;border-radius:50%;
+  background:#D1453B;display:none;
+}
+.check-resenas-reminder.show{display:block;animation:reminder-pulse 1.6s ease-in-out infinite;}
+@keyframes reminder-pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.4);opacity:.6;}}
+
 </style>
 </head>
 <body>
@@ -1235,8 +1243,9 @@ input:focus,select:focus{border-color:#999;}
     <div class="sidebar-item" id="resumen-resenas-btn" onclick="openResumenResenas()">
       <i class="ti ti-star" style="font-size:15px;"></i><span>Resumen reseñas</span>
     </div>
-    <div class="sidebar-item" id="check-resenas-btn" onclick="manualCheckBookingReviews()">
+    <div class="sidebar-item" id="check-resenas-btn" onclick="manualCheckBookingReviews()" style="position:relative;">
       <i class="ti ti-refresh" style="font-size:15px;"></i><span>Comprobar nuevas <span id="check-resenas-spinner" style="display:none;">⏳</span></span>
+      <span class="check-resenas-reminder" id="check-resenas-reminder"></span>
     </div>
     <div class="sidebar-item" id="premio-btn" onclick="openPremio()">
       <i class="ti ti-trophy" style="font-size:15px;color:#D4A017;"></i><span style="color:#D4A017;font-weight:500;">Premio Reseñas</span>
@@ -5993,6 +6002,18 @@ const BOOKING_REVIEW_PAGES = [
 // Proxy CORS público para poder leer el HTML desde el navegador (Booking bloquea fetch directo cross-origin)
 const CORS_PROXY = "https://corsproxy.io/?url=";
 
+async function checkResenasReminder() {
+  try {
+    const { data } = await db.from('resenas_contadores').select('checked_at').order('checked_at', { ascending: false }).limit(1).maybeSingle();
+    const badge = document.getElementById('check-resenas-reminder');
+    if (!badge) return;
+    if (!data) { badge.classList.add('show'); return; }
+    const hoursSince = (Date.now() - new Date(data.checked_at).getTime()) / 3600000;
+    badge.classList.toggle('show', hoursSince >= 12);
+  } catch (e) { /* silent */ }
+}
+setTimeout(checkResenasReminder, 3500);
+
 async function manualCheckBookingReviews() {
   const spinner = document.getElementById('check-resenas-spinner');
   spinner.style.display = 'inline';
@@ -6044,6 +6065,7 @@ async function manualCheckBookingReviews() {
   }
 
   spinner.style.display = 'none';
+  checkResenasReminder();
   if (foundNew > 0) {
     showToast(`🔔 ${foundNew} reseña(s) nueva(s) detectada(s)`);
     checkNewReviewAlerts();
