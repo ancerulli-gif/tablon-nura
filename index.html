@@ -1075,6 +1075,26 @@ input:focus,select:focus{border-color:#999;}
 .review-modal-hint{font-size:11px;color:var(--subtle);text-align:center;margin-top:16px;}
 .review-modal-new-tag{font-size:9px;background:var(--teal);color:#fff;padding:1px 6px;border-radius:8px;font-weight:600;}
 
+
+.review-loading-modal{
+  position:fixed;inset:0;z-index:650;
+  background:rgba(15,15,31,.55);backdrop-filter:blur(3px);
+  display:none;align-items:center;justify-content:center;
+}
+.review-loading-modal.show{display:flex;}
+.review-loading-card{
+  background:var(--surface);border-radius:var(--radius-lg);
+  padding:32px 36px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.4);
+}
+.review-loading-spinner{
+  width:36px;height:36px;border-radius:50%;
+  border:3px solid var(--border);border-top-color:var(--teal);
+  margin:0 auto 14px;animation:review-spin 0.8s linear infinite;
+}
+@keyframes review-spin{to{transform:rotate(360deg);}}
+.review-loading-text{font-size:14px;font-weight:500;color:var(--dark);}
+.review-loading-sub{font-size:12px;color:var(--subtle);margin-top:4px;}
+
 </style>
 </head>
 <body>
@@ -1172,6 +1192,14 @@ input:focus,select:focus{border-color:#999;}
   <div class="logout-sub">Nos vemos en el próximo 😊</div>
 </div>
 
+
+<div class="review-loading-modal" id="review-loading-modal">
+  <div class="review-loading-card">
+    <div class="review-loading-spinner"></div>
+    <div class="review-loading-text">Consultando reseñas...</div>
+    <div class="review-loading-sub" id="review-loading-progress">0 de 7 alojamientos</div>
+  </div>
+</div>
 <div class="review-modal-backdrop" id="review-modal-backdrop" onclick="closeReviewModal()">
   <div class="review-modal" id="review-modal-content"></div>
 </div>
@@ -6086,15 +6114,13 @@ async function fetchWithTimeout(url, ms) {
 }
 
 async function fetchWithProxyFallback(targetUrl) {
-  for (const proxy of CORS_PROXIES) {
-    try {
-      const resp = await fetchWithTimeout(proxy + encodeURIComponent(targetUrl), 15000);
-      if (resp.ok) {
-        const text = await resp.text();
-        if (text && text.length > 500) return text;
-      }
-    } catch (e) { /* try next proxy */ }
-  }
+  try {
+    const resp = await fetchWithTimeout(CORS_PROXIES[0] + encodeURIComponent(targetUrl), 25000);
+    if (resp.ok) {
+      const text = await resp.text();
+      if (text && text.length > 500) return text;
+    }
+  } catch (e) { /* failed */ }
   return null;
 }
 
@@ -6136,12 +6162,26 @@ async function manualCheckBookingReviews() {
   spinner.style.display = 'inline';
   if (badge) badge.classList.remove('show');
 
+  // Mostrar modal de carga inmediatamente
+  const loadingModal = document.getElementById('review-loading-modal');
+  const progressEl = document.getElementById('review-loading-progress');
+  loadingModal.classList.add('show');
+  let completed = 0;
+  progressEl.textContent = `0 de ${BOOKING_REVIEW_PAGES.length} alojamientos`;
+
   let foundNew = 0;
   let okCount = 0;
   const results = [];
 
-  // Procesar los 7 establecimientos EN PARALELO para no acumular tiempos de espera
-  const checks = await Promise.all(BOOKING_REVIEW_PAGES.map(checkOneEstablishment));
+  // Procesar los 7 establecimientos EN PARALELO, actualizando el progreso conforme van llegando
+  const checks = await Promise.all(BOOKING_REVIEW_PAGES.map(async (est) => {
+    const r = await checkOneEstablishment(est);
+    completed++;
+    progressEl.textContent = `${completed} de ${BOOKING_REVIEW_PAGES.length} alojamientos`;
+    return r;
+  }));
+
+  loadingModal.classList.remove('show');
 
   for (const check of checks) {
     if (check.error) continue;
