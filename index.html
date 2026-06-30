@@ -6039,13 +6039,26 @@ const CORS_PROXIES = [
   "https://api.codetabs.com/v1/proxy?quest="
 ];
 
+async function fetchWithTimeout(url, ms) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    const resp = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
+    return resp;
+  } catch (e) {
+    clearTimeout(timer);
+    throw e;
+  }
+}
+
 async function fetchWithProxyFallback(targetUrl) {
   for (const proxy of CORS_PROXIES) {
     try {
-      const resp = await fetch(proxy + encodeURIComponent(targetUrl));
+      const resp = await fetchWithTimeout(proxy + encodeURIComponent(targetUrl), 8000);
       if (resp.ok) {
         const text = await resp.text();
-        if (text && text.length > 500) return text; // basic sanity check, avoid empty/error pages
+        if (text && text.length > 500) return text;
       }
     } catch (e) { /* try next proxy */ }
   }
