@@ -6177,11 +6177,26 @@ async function checkOneEstablishment(est) {
     // Método 2 (respaldo): calcular media de las reseñas individuales visibles en la página
     // (Jina a veces devuelve directamente la lista de comentarios, sin el bloque de cabecera)
     if (!score) {
-      const individualScores = [...text.matchAll(/\n\s*(\d[.,]\d)\s*\n\s*[""]/g)].map(m => parseFloat(m[1].replace(',', '.')));
+      const individualScores = [...text.matchAll(/^(\d[.,]\d)$/gm)].map(m => parseFloat(m[1].replace(',', '.'))).filter(n => n >= 1 && n <= 10);
       if (individualScores.length >= 3) {
         const avg = individualScores.reduce((a, b) => a + b, 0) / individualScores.length;
         score = avg.toFixed(1);
         if (!reviewCount) reviewCount = String(individualScores.length); // aproximado, solo lo visible en esta página
+      }
+    }
+
+    // Fallback final: usar la nota manual guardada en el Resumen de Reseñas si no se pudo detectar nada
+    let isManual = false;
+    if (!score && !reviewCount) {
+      const MANUAL_FALLBACK_MAP = {
+        magaluf_apartments: "Magaluf Apartments",
+      };
+      const targetName = MANUAL_FALLBACK_MAP[est.key];
+      const manual = targetName ? RESENAS_DATA.find(r => r.nombre === targetName) : null;
+      if (manual) {
+        score = manual.score.toFixed(1);
+        reviewCount = String(manual.n);
+        isManual = true;
       }
     }
 
@@ -6253,7 +6268,7 @@ async function manualCheckBookingReviews() {
 
   for (const check of checks) {
     if (check.error) continue;
-    const { est, reviewCount: newCount, score } = check;
+    const { est, reviewCount: newCount, score, isManualFallback } = check;
     okCount++;
 
     const { data: lastData } = await db.from('resenas_contadores').select('*').eq('establecimiento_key', est.key).maybeSingle();
@@ -6272,7 +6287,7 @@ async function manualCheckBookingReviews() {
       foundNew += diff;
     }
 
-    results.push({ nombre: est.nombre, puntuacion: score, numResenas: newCount, isNew });
+    results.push({ nombre: est.nombre, puntuacion: score, numResenas: newCount, isNew, isManualFallback });
 
     if (lastData) {
       await db.from('resenas_contadores').update({ ultimo_conteo: newCount, ultima_puntuacion: score, checked_at: new Date().toISOString() }).eq('establecimiento_key', est.key);
@@ -6306,7 +6321,7 @@ function showReviewModal(results, foundNew) {
     <div class="review-modal-title">⭐ Puntuaciones actuales</div>
     <div class="review-modal-sub">${foundNew > 0 ? foundNew + ' reseña(s) nueva(s) detectada(s)' : 'Sin reseñas nuevas desde la última comprobación'}</div>
     ${results.map(r => `<div class="review-modal-row">
-      <div class="review-modal-name">${r.nombre}${r.isNew ? '<span class="review-modal-new-tag">NUEVA</span>' : ''}</div>
+      <div class="review-modal-name">${r.nombre}${r.isNew ? '<span class="review-modal-new-tag">NUEVA</span>' : ''}${r.isManualFallback ? '<span style="font-size:9px;color:var(--subtle);font-weight:500;margin-left:4px;">(manual)</span>' : ''}</div>
       <div>
         <span class="review-modal-score ${scoreClass(r.puntuacion)}">${r.puntuacion || '—'}</span>
         <span style="color:var(--subtle);font-size:11px;"> (${r.numResenas})</span>
