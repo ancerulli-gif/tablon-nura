@@ -6165,11 +6165,25 @@ async function checkOneEstablishment(est) {
     if (!resp.ok) { console.warn('❌ No se pudo obtener datos de:', est.nombre); return { est, error: true }; }
     const text = await resp.text();
 
+    // Método 1: cabecera oficial "Basada en X opiniones \n 8.2"
     const countMatch = text.match(/Basada en\s+([\d.,]+)\s+opiniones/i);
-    const reviewCount = countMatch ? countMatch[1].replace(/\./g, '').replace(',', '') : null;
+    let reviewCount = countMatch ? countMatch[1].replace(/\./g, '').replace(',', '') : null;
+    let score = null;
+    if (countMatch) {
+      const scoreMatch = text.match(/Basada en\s+[\d.,]+\s+opiniones[^\n]*\n+\s*(\d[.,]\d)/i);
+      score = scoreMatch ? scoreMatch[1].replace(',', '.') : null;
+    }
 
-    const scoreMatch = text.match(/Basada en\s+[\d.,]+\s+opiniones[^\n]*\n+\s*(\d[.,]\d)/i);
-    const score = scoreMatch ? scoreMatch[1].replace(',', '.') : null;
+    // Método 2 (respaldo): calcular media de las reseñas individuales visibles en la página
+    // (Jina a veces devuelve directamente la lista de comentarios, sin el bloque de cabecera)
+    if (!score) {
+      const individualScores = [...text.matchAll(/\n\s*(\d[.,]\d)\s*\n\s*[""]/g)].map(m => parseFloat(m[1].replace(',', '.')));
+      if (individualScores.length >= 3) {
+        const avg = individualScores.reduce((a, b) => a + b, 0) / individualScores.length;
+        score = avg.toFixed(1);
+        if (!reviewCount) reviewCount = String(individualScores.length); // aproximado, solo lo visible en esta página
+      }
+    }
 
     if (!reviewCount) { console.warn('❌ No se encontró el patrón de reseñas en:', est.nombre); return { est, error: true }; }
 
