@@ -6069,9 +6069,7 @@ const BOOKING_REVIEW_PAGES = [
 
 // Proxy CORS público para poder leer el HTML desde el navegador (Booking bloquea fetch directo cross-origin)
 const CORS_PROXIES = [
-  "https://api.allorigins.win/raw?url=",
-  "https://corsproxy.io/?url=",
-  "https://api.codetabs.com/v1/proxy?quest="
+  "https://api.allorigins.win/raw?url="
 ];
 
 async function fetchWithTimeout(url, ms) {
@@ -6090,7 +6088,7 @@ async function fetchWithTimeout(url, ms) {
 async function fetchWithProxyFallback(targetUrl) {
   for (const proxy of CORS_PROXIES) {
     try {
-      const resp = await fetchWithTimeout(proxy + encodeURIComponent(targetUrl), 20000);
+      const resp = await fetchWithTimeout(proxy + encodeURIComponent(targetUrl), 15000);
       if (resp.ok) {
         const text = await resp.text();
         if (text && text.length > 500) return text;
