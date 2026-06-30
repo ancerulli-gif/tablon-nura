@@ -6090,7 +6090,7 @@ async function fetchWithTimeout(url, ms) {
 async function fetchWithProxyFallback(targetUrl) {
   for (const proxy of CORS_PROXIES) {
     try {
-      const resp = await fetchWithTimeout(proxy + encodeURIComponent(targetUrl), 8000);
+      const resp = await fetchWithTimeout(proxy + encodeURIComponent(targetUrl), 20000);
       if (resp.ok) {
         const text = await resp.text();
         if (text && text.length > 500) return text;
@@ -6112,6 +6112,26 @@ async function checkResenasReminder() {
 }
 setTimeout(checkResenasReminder, 3500);
 
+async function checkOneEstablishment(est) {
+  try {
+    const html = await fetchWithProxyFallback(est.url);
+    if (!html) { console.warn('❌ No se pudo obtener HTML de:', est.nombre); return { est, error: true }; }
+
+    const countMatch = html.match(/itemprop="ratingCount"\s+content="([\d.,]+)"/i) || html.match(/<title>\s*([\d.,]+)\s*Opiniones/i);
+    const reviewCount = countMatch ? countMatch[1].replace(/\./g, '').replace(',', '') : null;
+
+    const scoreMatch = html.match(/itemprop="ratingValue"\s+content="([\d.,]+)"/i);
+    const score = scoreMatch ? scoreMatch[1].replace(',', '.') : null;
+
+    if (!reviewCount) { console.warn('❌ No se encontró el patrón de reseñas en:', est.nombre); return { est, error: true }; }
+
+    return { est, reviewCount: parseInt(reviewCount), score, error: false };
+  } catch (e) {
+    console.warn('Error comprobando', est.nombre, e);
+    return { est, error: true };
+  }
+}
+
 async function manualCheckBookingReviews() {
   const spinner = document.getElementById('check-resenas-spinner');
   const badge = document.getElementById('check-resenas-reminder');
@@ -6120,50 +6140,38 @@ async function manualCheckBookingReviews() {
 
   let foundNew = 0;
   let okCount = 0;
-  let errCount = 0;
   const results = [];
 
-  for (const est of BOOKING_REVIEW_PAGES) {
-    try {
-      const html = await fetchWithProxyFallback(est.url);
-      if (!html) { errCount++; console.warn('❌ No se pudo obtener HTML de:', est.nombre); continue; }
+  // Procesar los 7 establecimientos EN PARALELO para no acumular tiempos de espera
+  const checks = await Promise.all(BOOKING_REVIEW_PAGES.map(checkOneEstablishment));
 
-      const countMatch = html.match(/itemprop="ratingCount"\s+content="([\d.,]+)"/i) || html.match(/<title>\s*([\d.,]+)\s*Opiniones/i);
-      const reviewCount = countMatch ? countMatch[1].replace(/\./g, '').replace(',', '') : null;
+  for (const check of checks) {
+    if (check.error) continue;
+    const { est, reviewCount: newCount, score } = check;
+    okCount++;
 
-      const scoreMatch = html.match(/itemprop="ratingValue"\s+content="([\d.,]+)"/i);
-      const score = scoreMatch ? scoreMatch[1].replace(',', '.') : null;
+    const { data: lastData } = await db.from('resenas_contadores').select('*').eq('establecimiento_key', est.key).maybeSingle();
+    const lastCount = lastData ? parseInt(lastData.ultimo_conteo) : null;
+    const isNew = lastCount !== null && newCount > lastCount;
 
-      if (!reviewCount) { errCount++; console.warn('❌ No se encontró el patrón de reseñas en:', est.nombre); continue; }
-      okCount++;
+    if (isNew) {
+      const diff = newCount - lastCount;
+      await db.from('resenas_avisos').insert([{
+        establecimiento: est.nombre,
+        puntuacion: score,
+        num_resenas: String(newCount),
+        visto: false,
+        created_at: new Date().toISOString()
+      }]);
+      foundNew += diff;
+    }
 
-      const { data: lastData } = await db.from('resenas_contadores').select('*').eq('establecimiento_key', est.key).maybeSingle();
-      const lastCount = lastData ? parseInt(lastData.ultimo_conteo) : null;
-      const newCount = parseInt(reviewCount);
+    results.push({ nombre: est.nombre, puntuacion: score, numResenas: newCount, isNew });
 
-      if (lastCount !== null && newCount > lastCount) {
-        const diff = newCount - lastCount;
-        await db.from('resenas_avisos').insert([{
-          establecimiento: est.nombre,
-          puntuacion: score,
-          num_resenas: reviewCount,
-          visto: false,
-          created_at: new Date().toISOString()
-        }]);
-        foundNew += diff;
-      }
-
-      const isNew = lastCount !== null && newCount > lastCount;
-      results.push({ nombre: est.nombre, puntuacion: score, numResenas: newCount, isNew });
-
-      if (lastData) {
-        await db.from('resenas_contadores').update({ ultimo_conteo: newCount, ultima_puntuacion: score, checked_at: new Date().toISOString() }).eq('establecimiento_key', est.key);
-      } else {
-        await db.from('resenas_contadores').insert([{ establecimiento_key: est.key, establecimiento: est.nombre, ultimo_conteo: newCount, ultima_puntuacion: score, checked_at: new Date().toISOString() }]);
-      }
-    } catch (e) {
-      errCount++;
-      console.warn('Error comprobando', est.nombre, e);
+    if (lastData) {
+      await db.from('resenas_contadores').update({ ultimo_conteo: newCount, ultima_puntuacion: score, checked_at: new Date().toISOString() }).eq('establecimiento_key', est.key);
+    } else {
+      await db.from('resenas_contadores').insert([{ establecimiento_key: est.key, establecimiento: est.nombre, ultimo_conteo: newCount, ultima_puntuacion: score, checked_at: new Date().toISOString() }]);
     }
   }
 
