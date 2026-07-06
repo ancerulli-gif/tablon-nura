@@ -1302,7 +1302,7 @@ input:focus,select:focus{border-color:#999;}
 <div id="nav-overlay" onclick="closeNav()"></div>
 <div class="layout">
 <div class="sidebar">
-  <div class="sidebar-section">
+  <div class="sidebar-section collapsed">
     <div class="sidebar-item active" data-section="tablon" onclick="switchSection(this)">
       <i class="ti ti-layout-board"></i><span>Tablón</span><span class="count" id="count-tablon">0</span>
     </div>
@@ -1310,7 +1310,7 @@ input:focus,select:focus{border-color:#999;}
       <i class="ti ti-square-plus" style="color:var(--teal);"></i><span style="color:var(--teal);font-weight:500;">Nuevo anuncio</span>
     </div>
   </div>
-  <div class="sidebar-section">
+  <div class="sidebar-section collapsed">
     <div class="sidebar-label" onclick="toggleSidebarSection(this.parentElement)">Archivos <span class="sidebar-label-arrow">▾</span></div>
     <div class="sidebar-item" data-section="procedimientos" onclick="switchSection(this)">
       <i class="ti ti-list-check"></i><span>Procedimientos</span><span class="count" id="count-procedimientos">0</span>
@@ -1344,7 +1344,7 @@ input:focus,select:focus{border-color:#999;}
     </div>
   </div>
 
-  <div class="sidebar-section">
+  <div class="sidebar-section collapsed">
     <div class="sidebar-label" onclick="toggleSidebarSection(this.parentElement)">🛎 Extras <span class="sidebar-label-arrow">▾</span></div>
     <div class="sidebar-item" id="extras-btn" onclick="openExtras('toallas')">
       <i class="ti ti-towel" style="font-size:15px;"></i><span>Depósito toallas</span>
@@ -1371,7 +1371,7 @@ input:focus,select:focus{border-color:#999;}
       <i class="ti ti-report-money" style="font-size:15px;color:#8A5D1A;"></i><span style="color:#8A5D1A;font-weight:500;">Liquidación</span>
     </div>
   </div>
-  <div class="sidebar-section">
+  <div class="sidebar-section collapsed">
     <div class="sidebar-label" onclick="toggleSidebarSection(this.parentElement)">Herramientas <span class="sidebar-label-arrow">▾</span></div>
     <div class="sidebar-item" id="turnos-sidebar-btn" onclick="openTurnosFijo()">
       <i class="ti ti-calendar-time" style="font-size:15px;"></i><span>Turnos</span>
@@ -1401,7 +1401,7 @@ input:focus,select:focus{border-color:#999;}
       <i class="ti ti-calendar-event" style="font-size:15px;"></i><span>Sala conferencias</span>
     </div>
   </div>
-  <div class="sidebar-section">
+  <div class="sidebar-section collapsed">
     <div class="sidebar-label" onclick="toggleSidebarSection(this.parentElement)">Privado <span class="sidebar-label-arrow">▾</span></div>
     <div class="sidebar-item" id="peticiones-btn" onclick="openPanel('peticiones')">
       <i class="ti ti-lock" style="font-size:15px;color:#8A5D1A;"></i><span style="color:#8A5D1A;">Mis peticiones</span>
@@ -1413,7 +1413,7 @@ input:focus,select:focus{border-color:#999;}
       <i class="ti ti-key" style="font-size:15px;color:#8A5D1A;"></i><span style="color:#8A5D1A;">Control contraseñas</span>
     </div>
   </div>
-  <div class="sidebar-section">
+  <div class="sidebar-section collapsed">
     <div class="sidebar-label" onclick="toggleSidebarSection(this.parentElement)">⭐ Reseñas <span class="sidebar-label-arrow">▾</span></div>
     <div class="sidebar-item" id="resumen-resenas-btn" onclick="openResumenResenas()">
       <i class="ti ti-star" style="font-size:15px;"></i><span>Resumen reseñas</span>
@@ -1426,14 +1426,14 @@ input:focus,select:focus{border-color:#999;}
       <i class="ti ti-trophy" style="font-size:15px;color:#D4A017;"></i><span style="color:#D4A017;font-weight:500;">Premio Reseñas</span>
     </div>
   </div>
-  <div class="sidebar-section">
+  <div class="sidebar-section collapsed">
     <div class="sidebar-label" onclick="toggleSidebarSection(this.parentElement)">Mensajería <span class="sidebar-label-arrow">▾</span></div>
     <div class="sidebar-item" id="mensajes-btn" onclick="openMensajes()">
       <i class="ti ti-message-circle" style="font-size:15px;"></i><span>Mensajes internos</span>
       <span class="notif-dot" id="mensajes-notif-dot" style="display:none;"></span>
     </div>
   </div>
-  <div class="sidebar-section">
+  <div class="sidebar-section collapsed">
     <div class="sidebar-label" onclick="toggleSidebarSection(this.parentElement)">Asistente <span class="sidebar-label-arrow">▾</span></div>
     <div class="sidebar-item" id="ia-btn" onclick="openIA()">
       <i class="ti ti-sparkles" style="font-size:15px;"></i><span>Asistente IA</span>
