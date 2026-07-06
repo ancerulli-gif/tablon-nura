@@ -1373,6 +1373,9 @@ input:focus,select:focus{border-color:#999;}
   </div>
   <div class="sidebar-section collapsed">
     <div class="sidebar-label" onclick="toggleSidebarSection(this.parentElement)">Herramientas <span class="sidebar-label-arrow">▾</span></div>
+    <div class="sidebar-item" id="fichaje-btn" onclick="openFichaje()">
+      <i class="ti ti-fingerprint" style="font-size:15px;"></i><span>Fichaje</span>
+    </div>
     <div class="sidebar-item" id="turnos-sidebar-btn" onclick="openTurnosFijo()">
       <i class="ti ti-calendar-time" style="font-size:15px;"></i><span>Turnos</span>
     </div>
@@ -2754,6 +2757,25 @@ input:focus,select:focus{border-color:#999;}
     </div>
   </div>
 
+  <!-- ── FICHAJE ── -->
+  <div class="f2-panel" id="panel-fichaje">
+    <div class="f2-card" style="padding:0;overflow:hidden;">
+      <div class="f2-header" style="border-radius:var(--radius-lg) var(--radius-lg) 0 0;">
+        <span>🕐 Fichaje — Persee</span>
+        <a href="https://nurahotels.app.persee.es/asistencias/punto-acceso-publico/z_U9AkJbvhB_X45e2oE9qu4eq7aej74iRoGdRGHuCtU" target="_blank" style="font-size:11px;color:rgba(255,255,255,.7);display:flex;align-items:center;gap:4px;">
+          <i class="ti ti-external-link" style="font-size:12px;"></i>Abrir en nueva pestaña
+        </a>
+      </div>
+      <iframe
+        id="fichaje-iframe"
+        src=""
+        style="width:100%;height:calc(100vh - 180px);min-height:500px;border:none;display:block;"
+        allow="camera; microphone; geolocation"
+        title="Fichaje Persee">
+      </iframe>
+    </div>
+  </div>
+
   <div class="section-header" id="section-header">
     <div class="section-title" id="section-title">Tablón</div>
     <div class="section-desc" id="section-desc">Comunicaciones y avisos para el equipo</div>
@@ -3646,6 +3668,24 @@ function restoreTurnosWidget() {
   }
 }
 
+
+function openFichaje() {
+  restoreTurnosWidget();
+  var twEl=document.getElementById('tw');if(twEl)twEl.style.display='none';
+  ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.style.display = 'none';
+  });
+  document.querySelectorAll('.f2-panel').forEach(p => p.style.display = 'none');
+  document.getElementById('panel-fichaje').style.display = 'block';
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('fichaje-btn').classList.add('active');
+  currentF2Panel = 'fichaje';
+  // Load iframe only when panel is opened (lazy load)
+  const iframe = document.getElementById('fichaje-iframe');
+  if (!iframe.src || iframe.src === window.location.href) {
+    iframe.src = 'https://nurahotels.app.persee.es/asistencias/punto-acceso-publico/z_U9AkJbvhB_X45e2oE9qu4eq7aej74iRoGdRGHuCtU';
+  }
+}
 
 function toggleSidebarSection(section){
   section.classList.toggle('collapsed');
