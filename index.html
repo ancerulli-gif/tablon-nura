@@ -1343,6 +1343,9 @@ input:focus,select:focus{border-color:#999;}
     <div class="sidebar-item" id="extras-planchas-btn" onclick="openExtras('planchas')">
       <i class="ti ti-steam" style="font-size:15px;"></i><span>Planchas</span>
     </div>
+    <div class="sidebar-item" id="extras-liquidacion-btn" onclick="openExtrasLiquidacion()" style="display:none;">
+      <i class="ti ti-report-money" style="font-size:15px;color:#8A5D1A;"></i><span style="color:#8A5D1A;font-weight:500;">Liquidación</span>
+    </div>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-label">Herramientas</div>
@@ -2625,6 +2628,25 @@ input:focus,select:focus{border-color:#999;}
     </div>
   </div>
 
+  <!-- ── LIQUIDACIÓN EXTRAS ── -->
+  <div class="f2-panel" id="panel-extras-liquidacion">
+    <div class="f2-card">
+      <div class="f2-header" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <span>📋 Resumen de liquidación</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <select id="liq-hotel-filter" onchange="openExtrasLiquidacion()" style="font-size:12px;padding:5px 10px;border-radius:var(--radius);border:1px solid var(--border);">
+            <option value="all">Todos los hoteles</option>
+            <option value="condor">Cóndor</option>
+            <option value="boreal">Boreal</option>
+          </select>
+          <button onclick="extrasLiqCopiar()" style="font-size:12px;background:var(--teal);color:#fff;border:none;border-radius:var(--radius);padding:6px 14px;cursor:pointer;display:flex;align-items:center;gap:5px;"><i class="ti ti-copy"></i> Copiar</button>
+          <button onclick="extrasLiqLiquidarTodo()" style="font-size:12px;background:#8A5D1A;color:#fff;border:none;border-radius:var(--radius);padding:6px 14px;cursor:pointer;">✓ Liquidar todo</button>
+        </div>
+      </div>
+      <div class="f2-body" id="liq-content" style="font-family:monospace;font-size:12.5px;white-space:pre-wrap;background:#F7F5F2;padding:14px;border-radius:var(--radius);min-height:100px;line-height:1.7;color:var(--dark);"></div>
+    </div>
+  </div>
+
   <div class="section-header" id="section-header">
     <div class="section-title" id="section-title">Tablón</div>
     <div class="section-desc" id="section-desc">Comunicaciones y avisos para el equipo</div>
@@ -2787,7 +2809,7 @@ async function saveWorkerNote(){
 }
 
 function toggleAdmin(){
-  if(adminMode){adminMode=false;document.getElementById("admin-wrap").style.display="none";document.getElementById("pass-screen").style.display="none";document.getElementById("admin-badge").style.display="none";document.getElementById("toggle-admin-btn").textContent="Admin";var cb=document.getElementById("comisiones-btn");if(cb)cb.style.display="none";var pwBtn=document.getElementById("passwords-btn");if(pwBtn)pwBtn.style.display="none";var naBtn=document.getElementById("nuevo-anuncio-btn");if(naBtn)naBtn.style.display="none";loadSection();}
+  if(adminMode){adminMode=false;document.getElementById("admin-wrap").style.display="none";document.getElementById("pass-screen").style.display="none";document.getElementById("admin-badge").style.display="none";document.getElementById("toggle-admin-btn").textContent="Admin";var cb=document.getElementById("comisiones-btn");if(cb)cb.style.display="none";var pwBtn=document.getElementById("passwords-btn");if(pwBtn)pwBtn.style.display="none";var liqBtn2=document.getElementById("extras-liquidacion-btn");if(liqBtn2)liqBtn2.style.display="none";var naBtn=document.getElementById("nuevo-anuncio-btn");if(naBtn)naBtn.style.display="none";loadSection();}
   else{document.getElementById("pass-screen").style.display="block";document.getElementById("toggle-admin-btn").textContent="Cancelar";setTimeout(()=>document.getElementById("pass-input").focus(),50);}
 }
 function checkPass(){
@@ -2806,6 +2828,8 @@ function checkPass(){
     if(comBtn) comBtn.style.display = (val===ADMIN_PASS) ? "flex" : "none";
     var pwBtn = document.getElementById("passwords-btn");
     if(pwBtn) pwBtn.style.display = (val===ADMIN_PASS) ? "flex" : "none";
+    var liqBtn = document.getElementById("extras-liquidacion-btn");
+    if(liqBtn) liqBtn.style.display = "flex";
     var naBtn = document.getElementById("nuevo-anuncio-btn");
     if(naBtn) naBtn.style.display = "flex";
     loadSection();
@@ -5718,6 +5742,8 @@ function doLogin(){
       if(cb) cb.style.display = 'flex';
       var pwBtn = document.getElementById('passwords-btn');
       if(pwBtn) pwBtn.style.display = 'flex';
+      var liqBtn = document.getElementById('extras-liquidacion-btn');
+      if(liqBtn) liqBtn.style.display = 'flex';
       var naBtn = document.getElementById('nuevo-anuncio-btn');
       if(naBtn) naBtn.style.display = 'flex';
       completeLogin('Admin', true);
@@ -5896,6 +5922,8 @@ function checkExistingSession(){
       adminMode = true;
       var naBtn = document.getElementById('nuevo-anuncio-btn');
       if(naBtn) naBtn.style.display = 'flex';
+      var liqBtn = document.getElementById('extras-liquidacion-btn');
+      if(liqBtn) liqBtn.style.display = 'flex';
       if(name === 'Admin'){
         var pwBtn = document.getElementById('passwords-btn');
         if(pwBtn) pwBtn.style.display = 'flex';
@@ -6733,6 +6761,113 @@ async function extrasLoadList() {
       </div>`;
     }
   }).join('');
+}
+
+
+
+
+// ── LIQUIDACIÓN EXTRAS ──
+const LIQ_TYPES = [
+  { key: 'cajas',     label: 'CAJAS FUERTES',  table: 'extras_cajas_fuertes',  hasHotel: true  },
+  { key: 'bicis',     label: 'BICICLETAS',      table: 'extras_bicicletas',     hasHotel: false },
+  { key: 'transfers', label: 'TRANSFERS',        table: 'extras_transfers',      hasHotel: true  },
+  { key: 'desayunos', label: 'DESAYUNOS',        table: 'extras_desayunos',      hasHotel: true  },
+];
+
+let liqPendingIds = [];
+
+function openExtrasLiquidacion() {
+  restoreTurnosWidget();
+  var twEl=document.getElementById('tw');if(twEl)twEl.style.display='none';
+  ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.style.display = 'none';
+  });
+  document.querySelectorAll('.f2-panel').forEach(p => p.style.display = 'none');
+  document.getElementById('panel-extras-liquidacion').style.display = 'block';
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('extras-liquidacion-btn').classList.add('active');
+  currentF2Panel = 'extras-liquidacion';
+  extrasLiqCargar();
+}
+
+async function extrasLiqCargar() {
+  const content = document.getElementById('liq-content');
+  const hotelFilter = document.getElementById('liq-hotel-filter')?.value || 'all';
+  content.textContent = 'Cargando...';
+  liqPendingIds = [];
+
+  const today = new Date();
+  const p2 = n => String(n).padStart(2,'0');
+  const fecha = `${p2(today.getDate())}/${p2(today.getMonth()+1)}/${today.getFullYear()}`;
+
+  let output = `LIQUIDACIÓN EXTRAS — ${fecha}\n`;
+  if (hotelFilter !== 'all') output += `Hotel: ${hotelFilter === 'condor' ? 'Cóndor' : 'Boreal'}\n`;
+  output += '═'.repeat(48) + '\n\n';
+
+  let totalGlobal = 0;
+
+  for (const tipo of LIQ_TYPES) {
+    let query = db.from(tipo.table).select('*').eq('liquidado', false).order('created_at', { ascending: true });
+    if (tipo.hasHotel && hotelFilter !== 'all') query = query.eq('hotel', hotelFilter);
+    const { data } = await query;
+    if (!data || !data.length) continue;
+
+    // Track IDs for bulk liquidation
+    data.forEach(r => liqPendingIds.push({ table: tipo.table, id: r.id }));
+
+    const subtotal = data.reduce((s, r) => s + (parseFloat(r.cantidad) || 0), 0);
+    totalGlobal += subtotal;
+
+    output += `── ${tipo.label} ──\n`;
+    output += `${'Fecha'.padEnd(22)} ${'Hab.'.padEnd(8)} ${'Método'.padEnd(10)} Importe\n`;
+    output += '─'.repeat(48) + '\n';
+
+    data.forEach(r => {
+      const fecha_r = (r.fecha || '—').substring(0, 20).padEnd(22);
+      const hab = (r.habitacion || '—').substring(0, 7).padEnd(8);
+      const met = (r.metodo_pago || '—').padEnd(10);
+      const imp = `${parseFloat(r.cantidad || 0).toFixed(2)} €`;
+      const notas = r.notas ? ` (${r.notas})` : '';
+      output += `${fecha_r} ${hab} ${met} ${imp}${notas}\n`;
+    });
+
+    output += '─'.repeat(48) + '\n';
+    output += `SUBTOTAL ${tipo.label}: ${subtotal.toFixed(2)} €\n`;
+    const ef = data.filter(r => r.metodo_pago === 'efectivo').reduce((s,r) => s+(parseFloat(r.cantidad)||0),0);
+    const tj = data.filter(r => r.metodo_pago !== 'efectivo').reduce((s,r) => s+(parseFloat(r.cantidad)||0),0);
+    if (ef > 0) output += `  · Efectivo: ${ef.toFixed(2)} €\n`;
+    if (tj > 0) output += `  · Tarjeta:  ${tj.toFixed(2)} €\n`;
+    output += `  · Unidades: ${data.length}\n\n`;
+  }
+
+  output += '═'.repeat(48) + '\n';
+  output += `TOTAL PENDIENTE: ${totalGlobal.toFixed(2)} €\n`;
+
+  const efTotal = liqPendingIds.length > 0 ? 0 : 0; // calculated inline above
+  output += `Generado: ${fecha}\n`;
+
+  content.textContent = output;
+}
+
+function extrasLiqCopiar() {
+  const text = document.getElementById('liq-content').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('✓ Copiado al portapapeles'));
+}
+
+async function extrasLiqLiquidarTodo() {
+  if (!liqPendingIds.length) { showToast('No hay pendientes'); return; }
+  if (!confirm(`¿Marcar como liquidados todos los ${liqPendingIds.length} registros pendientes?`)) return;
+
+  const today = new Date();
+  const p2 = n => String(n).padStart(2,'0');
+  const hoy = `${today.getFullYear()}-${p2(today.getMonth()+1)}-${p2(today.getDate())}`;
+
+  for (const item of liqPendingIds) {
+    await db.from(item.table).update({ liquidado: true, fecha_liquidacion: hoy }).eq('id', item.id);
+  }
+
+  showToast(`✓ ${liqPendingIds.length} registros liquidados`);
+  extrasLiqCargar();
 }
 
 
