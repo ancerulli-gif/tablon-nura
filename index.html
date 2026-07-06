@@ -1305,7 +1305,7 @@ input:focus,select:focus{border-color:#999;}
 <div class="sidebar">
   <div class="sidebar-section collapsed">
     <div class="sidebar-item active" data-section="tablon" onclick="switchSection(this)">
-      <i class="ti ti-layout-board"></i><span>Tablón</span><span class="count" id="count-tablon">0</span>
+      <i class="ti ti-layout-board" style="font-size:15px;"></i><span>Tablón</span><span class="count" id="count-tablon">0</span>
     </div>
     <div class="sidebar-item" id="nuevo-anuncio-btn" onclick="openNuevoAnuncio()" style="display:none;">
       <i class="ti ti-square-plus" style="color:var(--teal);"></i><span style="color:var(--teal);font-weight:500;">Nuevo anuncio</span>
@@ -1323,7 +1323,7 @@ input:focus,select:focus{border-color:#999;}
       <i class="ti ti-folder" style="font-size:15px;"></i><span>Archivos importantes</span><span class="count" id="count-archivos">0</span>
     </div>
     <div class="sidebar-item" id="contactos-fijo-btn" onclick="openContactosFijo()">
-      <i class="ti ti-lock-password" style="font-size:15px;"></i><span>Tlf. y Contraseñas</span>
+      <i class="ti ti-key" style="font-size:15px;"></i><span>Tlf. y Contraseñas</span>
     </div>
     <div class="sidebar-item" id="alojamientos-btn" onclick="openAlojamientos()">
       <i class="ti ti-photo" style="font-size:15px;"></i><span>Alojamientos</span>
@@ -6004,6 +6004,12 @@ function completeLogin(name, isAdmin){
   showWelcomeToast(name);
   startSessionTimer();
   if(typeof loadSection === 'function') loadSection();
+  // Make sure the Tablón sidebar item is marked active on initial load
+  var tabBtn = document.querySelector('.sidebar-item[data-section="tablon"]');
+  if(tabBtn && !document.querySelector('.sidebar-item.active:not([data-section="tablon"])')) {
+    document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+    tabBtn.classList.add('active');
+  }
 }
 
 function applyLoggedUserUI(name, isAdmin){
@@ -6125,6 +6131,12 @@ function checkExistingSession(){
     applyLoggedUserUI(name, wasAdmin);
     startSessionTimer();
     if(typeof loadSection === 'function') loadSection();
+  // Make sure the Tablón sidebar item is marked active on initial load
+  var tabBtn = document.querySelector('.sidebar-item[data-section="tablon"]');
+  if(tabBtn && !document.querySelector('.sidebar-item.active:not([data-section="tablon"])')) {
+    document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+    tabBtn.classList.add('active');
+  }
     return true;
   }
   return false;
