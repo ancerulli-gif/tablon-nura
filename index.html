@@ -6529,7 +6529,7 @@ function extrasCajasCalc(){
   if(!ini||!fin||!imp) return;
   const d1 = new Date(ini.value), d2 = new Date(fin.value);
   if(isNaN(d1)||isNaN(d2)||d2<d1) return;
-  const dias = Math.max(1, Math.round((d2-d1)/(86400000))+1);
+  const dias = Math.max(1, Math.round((d2-d1)/(86400000)));
   imp.value = (dias*2).toFixed(2);
 }
 
@@ -6591,14 +6591,14 @@ function extrasRenderForm() {
   } else if (type === 'desayunos') {
     const esCond = extrasCurrentHotel === 'condor';
     area.innerHTML = `
-      ${esCond ? `
-      <div class="f2-field"><label>Tipo de desayuno</label><select id="ext-tipo-des" onchange="extrasDesayunosCalc()"><option value="dia">Desayuno 1 día — 10.50€/pers.</option><option value="estancia">Toda la estancia — 7.50€/pers./día</option><option value="promo">Promo apartamentos Booking — 5.00€/pers./día</option></select></div>
+      <div class="f2-field"><label>Tipo de desayuno</label><select id="ext-tipo-des" onchange="extrasDesayunosCalc()">
+        <option value="dia">Desayuno 1 día — 10.50€/pers.</option>
+        <option value="estancia">Toda la estancia — 7.50€/pers./día</option>
+        ${esCond ? '<option value="promo">Promo apartamentos Booking — 5.00€/pers./día</option>' : ''}
+      </select></div>
       <div class="f2-field"><label>Nº de personas</label><input type="number" id="ext-personas" value="1" min="1" oninput="extrasDesayunosCalc()" /></div>
-      <div class="f2-field"><label>Nº de días <span style="font-size:11px;color:var(--subtle);">(solo para "toda estancia" y "promo")</span></label><input type="number" id="ext-dias-des" value="1" min="1" oninput="extrasDesayunosCalc()" /></div>
+      <div class="f2-field"><label>Nº de días <span style="font-size:11px;color:var(--subtle);">(solo para "toda estancia"${esCond?' y "promo"':''})</span></label><input type="number" id="ext-dias-des" value="1" min="1" oninput="extrasDesayunosCalc()" /></div>
       <div class="f2-field"><label>Importe total (€)</label><input type="number" id="ext-importe" value="10.50" step="0.01" /></div>
-      ` : `
-      <div class="f2-field"><label>Importe (€)</label><input type="number" id="ext-importe" placeholder="0.00" step="0.01" /></div>
-      `}
       <div class="f2-field"><label>Fecha</label><input type="date" id="ext-fecha" value="${todayStr()}" /></div>
       <div class="f2-field"><label>Habitación</label><input type="text" id="ext-habitacion" placeholder="Ej: 205" /></div>
       <div class="f2-field"><label>Nº reserva</label><input type="text" id="ext-reserva" placeholder="Opcional" /></div>
