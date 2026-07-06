@@ -6533,7 +6533,8 @@ function extrasRenderForm() {
     area.innerHTML = `
       <div class="f2-field"><label>Habitación / Daypass</label><input type="text" id="ext-habitacion" placeholder="Ej: 205 o DAYPASS" /></div>
       <div class="f2-field"><label>¿Es Daypass?</label><select id="ext-daypass"><option value="no">No — Habitación</option><option value="si">Sí — Daypass</option></select></div>
-      <div class="f2-field"><label>Cantidad de toallas</label><input type="number" id="ext-cantidad" value="1" min="1" /></div>
+      <div class="f2-field"><label>Cantidad de toallas</label><input type="number" id="ext-cantidad" value="1" min="1" oninput="document.getElementById('ext-importe').value=(this.value*10).toFixed(2)" /></div>
+      <div class="f2-field"><label>Importe (€) <span style="font-size:11px;color:var(--subtle);">10€/toalla por defecto</span></label><input type="number" id="ext-importe" value="10.00" step="0.01" /></div>
       <div class="f2-field"><label>Hora entrega</label><input type="text" id="ext-hora" value="${nowStr()}" /></div>
       <div class="f2-field"><label>Método de pago depósito</label><select id="ext-pago"><option value="efectivo">💵 Efectivo</option><option value="tarjeta">💳 Tarjeta</option></select></div>
       <button class="btn-publish" onclick="extrasGuardar()">+ Registrar depósito</button>`;
@@ -6566,7 +6567,7 @@ async function extrasGuardar() {
   if (type === 'toallas') {
     const hab = document.getElementById('ext-habitacion').value.trim();
     if (!hab) { showToast('Introduce habitación o daypass'); return; }
-    row = { hotel, habitacion: hab, es_daypass: document.getElementById('ext-daypass').value === 'si', trabajador_entrega: worker, cantidad: parseInt(document.getElementById('ext-cantidad').value)||1, hora_entrega: document.getElementById('ext-hora').value, metodo_pago: document.getElementById('ext-pago').value };
+    row = { hotel, habitacion: hab, es_daypass: document.getElementById('ext-daypass').value === 'si', trabajador_entrega: worker, cantidad: parseInt(document.getElementById('ext-cantidad').value)||1, importe: parseFloat(document.getElementById('ext-importe').value)||0, hora_entrega: document.getElementById('ext-hora').value, metodo_pago: document.getElementById('ext-pago').value };
   } else if (type === 'secadores' || type === 'planchas') {
     const hab = document.getElementById('ext-habitacion').value.trim();
     if (!hab) { showToast('Introduce habitación'); return; }
@@ -6601,6 +6602,14 @@ async function extrasLiquidarItem(id) {
   extrasLoadList();
 }
 
+async function extrasBorrarItem(id) {
+  if (!confirm('¿Borrar este registro? No se puede deshacer.')) return;
+  const type = extrasCurrentType;
+  await db.from(EXTRAS_TABLE[type]).delete().eq('id', id);
+  showToast('Registro eliminado');
+  extrasLoadList();
+}
+
 async function extrasLoadList() {
   const type = extrasCurrentType;
   const cfg = EXTRAS_CONFIG[type];
@@ -6628,11 +6637,12 @@ async function extrasLoadList() {
     if (type === 'toallas') {
       return `<div class="extras-record ${r.devuelto?'devuelto':''}">
         <div class="extras-record-info">
-          <div class="extras-record-title">${r.es_daypass ? '🏊 Daypass' : '🛏 Hab. '+r.habitacion} · ${r.cantidad} toalla(s)</div>
+          <div class="extras-record-title">${r.es_daypass ? '🏊 Daypass' : '🛏 Hab. '+r.habitacion} · ${r.cantidad} toalla(s) · ${r.importe ? parseFloat(r.importe).toFixed(2)+' €' : '—'}</div>
           <div class="extras-record-meta">${r.trabajador_entrega} · ${r.hora_entrega||'—'}${r.devuelto ? ` | Devuelto por ${r.trabajador_devolucion} a las ${r.hora_devolucion}` : ''}</div>
         </div>
         <span class="extras-record-badge ${badgeClass(r.metodo_pago, false)}">${badgeLabel(r.metodo_pago, false)}</span>
         ${!r.devuelto ? `<button class="extras-devolver-btn" onclick="extrasDevolverItem(${r.id})">↩ Devolver</button>` : ''}
+        ${adminMode ? `<button onclick="extrasBorrarItem(${r.id})" style="background:none;border:none;cursor:pointer;color:var(--red);padding:4px;font-size:15px;" title="Borrar"><i class="ti ti-trash"></i></button>` : ''}
       </div>`;
     } else if (type === 'secadores' || type === 'planchas') {
       return `<div class="extras-record ${r.devuelto?'devuelto':''}">
@@ -6641,6 +6651,7 @@ async function extrasLoadList() {
           <div class="extras-record-meta">${r.trabajador_entrega} · ${fmtDate(r.fecha_entrega)} → ${fmtDate(r.fecha_devolucion_prevista)||'sin fecha'}${r.devuelto ? ` | Devuelto: ${r.trabajador_devolucion} ${r.hora_devolucion}` : ''}</div>
         </div>
         ${!r.devuelto ? `<button class="extras-devolver-btn" onclick="extrasDevolverItem(${r.id})">↩ Devolver</button>` : '<span style="font-size:11px;color:var(--teal);">✓ Devuelto</span>'}
+        ${adminMode ? `<button onclick="extrasBorrarItem(${r.id})" style="background:none;border:none;cursor:pointer;color:var(--red);padding:4px;font-size:15px;" title="Borrar"><i class="ti ti-trash"></i></button>` : ''}
       </div>`;
     } else {
       return `<div class="extras-record ${r.liquidado?'liquidado':''}">
@@ -6650,6 +6661,7 @@ async function extrasLoadList() {
         </div>
         <span class="extras-record-badge ${badgeClass(r.metodo_pago, r.liquidado)}">${badgeLabel(r.metodo_pago, r.liquidado)}</span>
         ${adminMode && !r.liquidado ? `<button class="extras-liquidar-btn" onclick="extrasLiquidarItem(${r.id})">Liquidar</button>` : ''}
+        ${adminMode ? `<button onclick="extrasBorrarItem(${r.id})" style="background:none;border:none;cursor:pointer;color:var(--red);padding:4px;font-size:15px;" title="Borrar"><i class="ti ti-trash"></i></button>` : ''}
       </div>`;
     }
   }).join('');
