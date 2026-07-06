@@ -34,7 +34,8 @@ body{background:var(--bg);font-family:'DM Sans',system-ui,sans-serif;font-size:1
 .sidebar-section{padding:6px 0;border-bottom:1px solid var(--border-light);}
 .sidebar-item{display:flex;align-items:center;gap:9px;padding:9px 16px;font-size:13px;color:var(--muted);cursor:pointer;transition:background .12s,color .12s;border-left:2px solid transparent;user-select:none;}
 .sidebar-item:hover{background:#F7F5F2;color:var(--dark);}
-.sidebar-item.active{background:#F0EDE8;color:var(--dark);font-weight:500;border-left-color:var(--dark);}
+.sidebar-item.active{background:#EBF5F2;color:#1D6A5A;font-weight:600;border-left-color:#1D6A5A;}
+.sidebar-item.active i{color:#1D6A5A!important;}
 .sidebar-item i{font-size:15px;flex-shrink:0;}
 .sidebar-item .count{margin-left:auto;font-size:11px;background:var(--border-light);color:var(--subtle);padding:1px 7px;border-radius:20px;}
 .sidebar-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);padding:10px 16px 4px;font-weight:500;}
@@ -1313,31 +1314,25 @@ input:focus,select:focus{border-color:#999;}
   <div class="sidebar-section collapsed">
     <div class="sidebar-label" onclick="toggleSidebarSection(this.parentElement)">Archivos <span class="sidebar-label-arrow">▾</span></div>
     <div class="sidebar-item" data-section="procedimientos" onclick="switchSection(this)">
-      <i class="ti ti-list-check"></i><span>Procedimientos</span><span class="count" id="count-procedimientos">0</span>
+      <i class="ti ti-list-check" style="font-size:15px;"></i><span>Procedimientos</span><span class="count" id="count-procedimientos">0</span>
     </div>
     <div class="sidebar-item" data-section="normativas" onclick="switchSection(this)">
-      <i class="ti ti-file-certificate"></i><span>Normativas</span><span class="count" id="count-normativas">0</span>
-    </div>
-    <div class="sidebar-item" data-section="cursos" onclick="switchSection(this)">
-      <i class="ti ti-school"></i><span>Cursos</span><span class="count" id="count-cursos">0</span>
+      <i class="ti ti-file-certificate" style="font-size:15px;"></i><span>Normativas</span><span class="count" id="count-normativas">0</span>
     </div>
     <div class="sidebar-item" data-section="archivos" onclick="switchSection(this)">
-      <i class="ti ti-folder"></i><span>Archivos importantes</span><span class="count" id="count-archivos">0</span>
-    </div>
-    <div class="sidebar-item" data-section="nurahouses" onclick="switchSection(this)" ondragover="sidebarDragOver(event,this)" ondragleave="sidebarDragLeave(event,this)" ondrop="sidebarDrop(event,this)">
-      <i class="ti ti-home"></i><span>Nura Houses</span><span class="count" id="count-nurahouses">0</span>
+      <i class="ti ti-folder" style="font-size:15px;"></i><span>Archivos importantes</span><span class="count" id="count-archivos">0</span>
     </div>
     <div class="sidebar-item" id="contactos-fijo-btn" onclick="openContactosFijo()">
-      <i class="ti ti-lock-password"></i><span>Tlf. y Contraseñas</span>
+      <i class="ti ti-lock-password" style="font-size:15px;"></i><span>Tlf. y Contraseñas</span>
     </div>
     <div class="sidebar-item" id="alojamientos-btn" onclick="openAlojamientos()">
-      <i class="ti ti-photo"></i><span>Alojamientos</span>
+      <i class="ti ti-photo" style="font-size:15px;"></i><span>Alojamientos</span>
     </div>
     <div class="sidebar-item" id="emergencias-fijo-btn" onclick="openEmergenciasFijo()">
       <i class="ti ti-ambulance" style="color:#C0392B;"></i><span>Emergencias</span>
     </div>
     <div class="sidebar-item" data-section="rrhh" onclick="switchSection(this)" ondragover="sidebarDragOver(event,this)" ondragleave="sidebarDragLeave(event,this)" ondrop="sidebarDrop(event,this)">
-      <i class="ti ti-users"></i><span>RRHH</span><span class="count" id="count-rrhh">0</span>
+      <i class="ti ti-users" style="font-size:15px;"></i><span>RRHH</span><span class="count" id="count-rrhh">0</span>
     </div>
     <div class="sidebar-item" data-section="documentos" onclick="switchSection(this)" ondragover="sidebarDragOver(event,this)" ondragleave="sidebarDragLeave(event,this)" ondrop="sidebarDrop(event,this)">
       <i class="ti ti-files"></i><span>Documentos</span><span class="count" id="count-documentos">0</span>
