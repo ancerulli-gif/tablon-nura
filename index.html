@@ -1133,6 +1133,30 @@ input:focus,select:focus{border-color:#999;}
 .extras-total-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;font-size:13px;}
 .extras-total-num{font-size:18px;font-weight:700;color:var(--dark);}
 
+
+/* ── SIDEBAR COLLAPSIBLE SECTIONS ── */
+.sidebar-section .sidebar-label{
+  cursor:pointer;display:flex;align-items:center;justify-content:space-between;
+  user-select:none;
+}
+.sidebar-label-arrow{
+  font-size:10px;transition:transform .2s ease;display:inline-block;
+}
+.sidebar-section.collapsed .sidebar-label-arrow{transform:rotate(-90deg);}
+.sidebar-section.collapsed .sidebar-item{display:none!important;}
+
+/* ── QUICK ADD IN SECTION ── */
+.section-quick-add{
+  display:flex;align-items:center;gap:6px;margin-bottom:10px;
+}
+.section-quick-add-btn{
+  display:flex;align-items:center;gap:5px;font-size:12px;
+  background:var(--surface);border:1px dashed var(--border);
+  border-radius:var(--radius);padding:7px 12px;cursor:pointer;
+  color:var(--subtle);transition:all .15s;width:100%;
+}
+.section-quick-add-btn:hover{border-color:var(--teal);color:var(--teal);}
+
 </style>
 </head>
 <body>
@@ -1287,7 +1311,7 @@ input:focus,select:focus{border-color:#999;}
     </div>
   </div>
   <div class="sidebar-section">
-    <div class="sidebar-label">Archivos</div>
+    <div class="sidebar-label" onclick="toggleSidebarSection(this.parentElement)">Archivos <span class="sidebar-label-arrow">▾</span></div>
     <div class="sidebar-item" data-section="procedimientos" onclick="switchSection(this)">
       <i class="ti ti-list-check"></i><span>Procedimientos</span><span class="count" id="count-procedimientos">0</span>
     </div>
@@ -1321,7 +1345,7 @@ input:focus,select:focus{border-color:#999;}
   </div>
 
   <div class="sidebar-section">
-    <div class="sidebar-label">🛎 Extras</div>
+    <div class="sidebar-label" onclick="toggleSidebarSection(this.parentElement)">🛎 Extras <span class="sidebar-label-arrow">▾</span></div>
     <div class="sidebar-item" id="extras-btn" onclick="openExtras('toallas')">
       <i class="ti ti-towel" style="font-size:15px;"></i><span>Depósito toallas</span>
     </div>
@@ -1348,7 +1372,7 @@ input:focus,select:focus{border-color:#999;}
     </div>
   </div>
   <div class="sidebar-section">
-    <div class="sidebar-label">Herramientas</div>
+    <div class="sidebar-label" onclick="toggleSidebarSection(this.parentElement)">Herramientas <span class="sidebar-label-arrow">▾</span></div>
     <div class="sidebar-item" id="turnos-sidebar-btn" onclick="openTurnosFijo()">
       <i class="ti ti-calendar-time" style="font-size:15px;"></i><span>Turnos</span>
     </div>
@@ -1378,7 +1402,7 @@ input:focus,select:focus{border-color:#999;}
     </div>
   </div>
   <div class="sidebar-section">
-    <div class="sidebar-label">Privado</div>
+    <div class="sidebar-label" onclick="toggleSidebarSection(this.parentElement)">Privado <span class="sidebar-label-arrow">▾</span></div>
     <div class="sidebar-item" id="peticiones-btn" onclick="openPanel('peticiones')">
       <i class="ti ti-lock" style="font-size:15px;color:#8A5D1A;"></i><span style="color:#8A5D1A;">Mis peticiones</span>
     </div>
@@ -1390,7 +1414,7 @@ input:focus,select:focus{border-color:#999;}
     </div>
   </div>
   <div class="sidebar-section">
-    <div class="sidebar-label">⭐ Reseñas</div>
+    <div class="sidebar-label" onclick="toggleSidebarSection(this.parentElement)">⭐ Reseñas <span class="sidebar-label-arrow">▾</span></div>
     <div class="sidebar-item" id="resumen-resenas-btn" onclick="openResumenResenas()">
       <i class="ti ti-star" style="font-size:15px;"></i><span>Resumen reseñas</span>
     </div>
@@ -1403,14 +1427,14 @@ input:focus,select:focus{border-color:#999;}
     </div>
   </div>
   <div class="sidebar-section">
-    <div class="sidebar-label">Mensajería</div>
+    <div class="sidebar-label" onclick="toggleSidebarSection(this.parentElement)">Mensajería <span class="sidebar-label-arrow">▾</span></div>
     <div class="sidebar-item" id="mensajes-btn" onclick="openMensajes()">
       <i class="ti ti-message-circle" style="font-size:15px;"></i><span>Mensajes internos</span>
       <span class="notif-dot" id="mensajes-notif-dot" style="display:none;"></span>
     </div>
   </div>
   <div class="sidebar-section">
-    <div class="sidebar-label">Asistente</div>
+    <div class="sidebar-label" onclick="toggleSidebarSection(this.parentElement)">Asistente <span class="sidebar-label-arrow">▾</span></div>
     <div class="sidebar-item" id="ia-btn" onclick="openIA()">
       <i class="ti ti-sparkles" style="font-size:15px;"></i><span>Asistente IA</span>
     </div>
@@ -1433,9 +1457,12 @@ input:focus,select:focus{border-color:#999;}
     <p class="pass-err" id="pass-err">Contraseña incorrecta</p>
   </div>
   <div id="admin-wrap" class="admin-wrap">
-    <div class="admin-header">
-      <i class="ti ti-edit" style="font-size:15px;color:#6B6660;"></i>
-      <span id="admin-header-text">Nuevo anuncio</span>
+    <div class="admin-header" style="justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <i class="ti ti-edit" style="font-size:15px;color:#6B6660;"></i>
+        <span id="admin-header-text">Nuevo anuncio</span>
+      </div>
+      <button onclick="closeNuevoAnuncio()" style="background:none;border:none;cursor:pointer;color:var(--subtle);font-size:20px;line-height:1;padding:0 4px;" title="Cerrar">×</button>
     </div>
     <div class="admin-body">
       <div class="field-row">
@@ -2889,7 +2916,7 @@ async function saveWorkerNote(){
 }
 
 function toggleAdmin(){
-  if(adminMode){adminMode=false;document.getElementById("admin-wrap").style.display="none";document.getElementById("pass-screen").style.display="none";document.getElementById("admin-badge").style.display="none";document.getElementById("toggle-admin-btn").textContent="Admin";var cb=document.getElementById("comisiones-btn");if(cb)cb.style.display="none";var pwBtn=document.getElementById("passwords-btn");if(pwBtn)pwBtn.style.display="none";var liqBtn2=document.getElementById("extras-liquidacion-btn");if(liqBtn2)liqBtn2.style.display="none";var naBtn=document.getElementById("nuevo-anuncio-btn");if(naBtn)naBtn.style.display="none";loadSection();}
+  if(adminMode){adminMode=false;document.getElementById("admin-wrap").style.display="none";document.getElementById("pass-screen").style.display="none";document.getElementById("admin-badge").style.display="none";document.getElementById("toggle-admin-btn").textContent="Admin";var cb=document.getElementById("comisiones-btn");if(cb)cb.style.display="none";var pwBtn=document.getElementById("passwords-btn");if(pwBtn)pwBtn.style.display="none";var liqBtn2=document.getElementById("extras-liquidacion-btn");if(liqBtn2)liqBtn2.style.display="none";var naBtn=document.getElementById("nuevo-anuncio-btn");if(naBtn)naBtn.style.display="none";if(typeof updateQuickAddBtn==="function")updateQuickAddBtn();loadSection();}
   else{document.getElementById("pass-screen").style.display="block";document.getElementById("toggle-admin-btn").textContent="Cancelar";setTimeout(()=>document.getElementById("pass-input").focus(),50);}
 }
 function checkPass(){
@@ -2913,6 +2940,7 @@ function checkPass(){
     var naBtn = document.getElementById("nuevo-anuncio-btn");
     if(naBtn) naBtn.style.display = "flex";
     loadSection();
+    if(typeof updateQuickAddBtn === 'function') updateQuickAddBtn();
   } else {document.getElementById("pass-err").style.display="block";}
 }
 
@@ -2931,6 +2959,38 @@ function switchSection(el){
   document.getElementById("section-desc").textContent=SECTIONS[currentSection].desc;
   updateTurnosVisibility();
   loadSection();
+  updateQuickAddBtn();
+}
+
+function updateQuickAddBtn(){
+  let qa = document.getElementById('section-quick-add');
+  if(!qa){
+    qa = document.createElement('div');
+    qa.id = 'section-quick-add';
+    qa.className = 'section-quick-add';
+    const sh = document.getElementById('section-header');
+    sh.parentNode.insertBefore(qa, sh.nextSibling);
+  }
+  if(adminMode){
+    qa.style.display = 'block';
+    qa.innerHTML = `<button class="section-quick-add-btn" onclick="openNuevoAnuncioEnSeccion('${currentSection}')">
+      <i class="ti ti-plus" style="font-size:13px;"></i> Añadir nota o archivo en esta sección
+    </button>`;
+  } else {
+    qa.style.display = 'none';
+  }
+}
+
+function openNuevoAnuncioEnSeccion(section){
+  document.getElementById('admin-wrap').style.display = 'block';
+  // Pre-select the current section in the section dropdown
+  const sel = document.getElementById('ann-section');
+  if(sel) sel.value = section;
+  document.getElementById('ann-title').focus();
+}
+
+function closeNuevoAnuncio(){
+  document.getElementById('admin-wrap').style.display = 'none';
 }
 
 async function loadSection(){
@@ -3586,6 +3646,10 @@ function restoreTurnosWidget() {
   }
 }
 
+
+function toggleSidebarSection(section){
+  section.classList.toggle('collapsed');
+}
 
 function openNuevoAnuncio(){
   restoreTurnosWidget();
@@ -6644,6 +6708,12 @@ function extrasSetHotel(hotel) {
 
 function p2(n){ return String(n).padStart(2,'0'); }
 
+function toallasToggleHab(){
+  const isDaypass = document.getElementById('ext-daypass').value === 'si';
+  const habField = document.getElementById('ext-hab-field');
+  if(habField) habField.style.display = isDaypass ? 'none' : 'block';
+}
+
 function extrasCajasCalc(){
   const ini = document.getElementById('ext-fecha-ini');
   const fin = document.getElementById('ext-fecha-fin');
@@ -6678,12 +6748,12 @@ function extrasRenderForm() {
 
   if (type === 'toallas') {
     area.innerHTML = `
-      <div class="f2-field"><label>Habitación / Daypass</label><input type="text" id="ext-habitacion" placeholder="Ej: 205 o DAYPASS" /></div>
-      <div class="f2-field"><label>¿Es Daypass?</label><select id="ext-daypass"><option value="no">No — Habitación</option><option value="si">Sí — Daypass</option></select></div>
+      <div class="f2-field"><label>Tipo</label><select id="ext-daypass" onchange="toallasToggleHab()"><option value="no">🛏 Habitación</option><option value="si">🏊 Daypass</option></select></div>
+      <div class="f2-field" id="ext-hab-field"><label>Número de habitación</label><input type="text" id="ext-habitacion" placeholder="Ej: 205" /></div>
       <div class="f2-field"><label>Cantidad de toallas</label><input type="number" id="ext-cantidad" value="1" min="1" oninput="document.getElementById('ext-importe').value=(this.value*10).toFixed(2)" /></div>
-      <div class="f2-field"><label>Importe (€) <span style="font-size:11px;color:var(--subtle);">10€/toalla por defecto</span></label><input type="number" id="ext-importe" value="10.00" step="0.01" /></div>
+      <div class="f2-field"><label>Importe (€) <span style="font-size:11px;color:var(--subtle);">10€/toalla</span></label><input type="number" id="ext-importe" value="10.00" step="0.01" /></div>
       <div class="f2-field"><label>Hora entrega</label><input type="text" id="ext-hora" value="${nowStr()}" /></div>
-      <div class="f2-field"><label>Método de pago depósito</label><select id="ext-pago"><option value="efectivo">💵 Efectivo</option><option value="tarjeta">💳 Tarjeta</option></select></div>
+      <div class="f2-field"><label>Método de pago</label><select id="ext-pago"><option value="efectivo">💵 Efectivo</option><option value="tarjeta">💳 Tarjeta</option></select></div>
       <button class="btn-publish" onclick="extrasGuardar()">+ Registrar depósito</button>`;
   } else if (type === 'secadores' || type === 'planchas') {
     area.innerHTML = `
@@ -6815,7 +6885,10 @@ async function extrasLoadList() {
 
   // Calculate totals for payment types
   if (cfg.hasPago) {
-    const pending = data.filter(r => !r.liquidado).reduce((s, r) => s + (parseFloat(r.cantidad)||0), 0);
+    const pending = data.filter(r => !r.liquidado).reduce((s, r) => {
+      const val = type === 'toallas' ? (parseFloat(r.importe)||0) : (parseFloat(r.cantidad)||0);
+      return s + val;
+    }, 0);
     document.getElementById('extras-total-num').textContent = pending.toFixed(2) + ' €';
     document.getElementById('extras-total-bar').style.display = 'block';
   }
@@ -6827,10 +6900,13 @@ async function extrasLoadList() {
     if (type === 'toallas') {
       return `<div class="extras-record ${r.devuelto?'devuelto':''}">
         <div class="extras-record-info">
-          <div class="extras-record-title">${r.es_daypass ? '🏊 Daypass' : '🛏 Hab. '+r.habitacion} · ${r.cantidad} toalla(s) · ${r.importe ? parseFloat(r.importe).toFixed(2)+' €' : '—'}</div>
-          <div class="extras-record-meta">${r.trabajador_entrega} · ${r.hora_entrega||'—'}${r.devuelto ? ` | Devuelto por ${r.trabajador_devolucion} a las ${r.hora_devolucion}` : ''}</div>
+          <div class="extras-record-title">${r.es_daypass ? '🏊 Daypass' : '🛏 Hab. '+r.habitacion} · ${r.cantidad} toalla(s)</div>
+          <div class="extras-record-meta">${r.trabajador_entrega} · ${r.hora_entrega||'—'}${r.devuelto ? ` · Devuelto: ${r.trabajador_devolucion} ${r.hora_devolucion}` : ''}</div>
         </div>
-        <span class="extras-record-badge ${badgeClass(r.metodo_pago, false)}">${badgeLabel(r.metodo_pago, false)}</span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+          <span class="extras-record-badge ${badgeClass(r.metodo_pago, false)}">${badgeLabel(r.metodo_pago, false)}</span>
+          ${r.importe ? `<span style="font-size:12px;font-weight:600;color:var(--dark);">${parseFloat(r.importe).toFixed(2)} €</span>` : ''}
+        </div>
         ${!r.devuelto ? `<button class="extras-devolver-btn" onclick="extrasDevolverItem(${r.id})">↩ Devolver</button>` : ''}
         ${adminMode ? `<button onclick="extrasBorrarItem(${r.id})" style="background:none;border:none;cursor:pointer;color:var(--red);padding:4px;font-size:15px;" title="Borrar"><i class="ti ti-trash"></i></button>` : ''}
       </div>`;
