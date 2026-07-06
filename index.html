@@ -344,11 +344,13 @@ input:focus,select:focus{border-color:#999;}
   .field-row{grid-template-columns:1fr!important;}
   .arqueo-meta{grid-template-columns:1fr!important;}
   .relevo-field-row{grid-template-columns:1fr!important;}
-  .tw-body{padding:6px 8px;}
-  .tw-table td{padding:3px 4px;}
-  .tw-td-name{min-width:52px!important;font-size:11px!important;}
-  .tw-day{width:14px!important;height:14px!important;font-size:7px!important;}
-  .tw-shift{font-size:9px!important;padding:1px 5px!important;}
+  .tw-body{padding:8px 6px;}
+  .tw-table{width:100%;table-layout:fixed;}
+  .tw-table td{padding:4px 2px;}
+  .tw-td-name{min-width:60px!important;font-size:12px!important;font-weight:600!important;}
+  .tw-day{width:32px!important;height:32px!important;font-size:11px!important;border-radius:6px!important;}
+  .tw-shift{font-size:10px!important;padding:2px 6px!important;}
+  .tw{overflow-x:auto;}
   .move-menu{right:auto;left:0;}
 
 
@@ -2980,10 +2982,8 @@ function switchSection(el){
   document.getElementById("section-header").style.display="block";
   document.getElementById("announcements-list").style.display="block";
   document.querySelectorAll(".sidebar-item").forEach(i=>i.classList.remove("active"));
-  document.querySelectorAll(".sidebar-section").forEach(s=>s.classList.remove("has-active"));
   el.classList.add("active");
-  const parentSection = el.closest('.sidebar-section');
-  if(parentSection) { parentSection.classList.add("has-active"); parentSection.classList.remove("collapsed"); }
+  setSidebarActive(el);
   currentSection=el.dataset.section;
   document.getElementById("section-title").textContent=SECTIONS[currentSection].title;
   document.getElementById("section-desc").textContent=SECTIONS[currentSection].desc;
@@ -3650,15 +3650,7 @@ function openTurnosFijo() {
   panel.style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('turnos-sidebar-btn').classList.add('active');
-  document.querySelectorAll('.sidebar-section').forEach(s=>s.classList.remove('has-active'));
-  document.querySelectorAll('.sidebar-section').forEach(s=>{
-    const lbl = s.querySelector('.sidebar-label');
-    if(lbl && lbl.textContent.trim().toLowerCase().includes('herramientas')) {
-      s.classList.add('has-active');
-      s.classList.remove('collapsed');
-    }
-  });
-  currentF2Panel = 'turnos-fijo';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'turnos-fijo';
 
   // Move the #tw widget into this panel
   const tw = document.getElementById('tw');
@@ -3695,19 +3687,23 @@ function openFichaje() {
   document.getElementById('panel-fichaje').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('fichaje-btn').classList.add('active');
-  document.querySelectorAll('.sidebar-section').forEach(s=>s.classList.remove('has-active'));
-  document.querySelectorAll('.sidebar-section').forEach(s=>{
-    const lbl = s.querySelector('.sidebar-label');
-    if(lbl && lbl.textContent.trim().toLowerCase().includes('herramientas')) {
-      s.classList.add('has-active');
-      s.classList.remove('collapsed');
-    }
-  });
-  currentF2Panel = 'fichaje';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'fichaje';
   // Load iframe only when panel is opened (lazy load)
   const iframe = document.getElementById('fichaje-iframe');
   if (!iframe.src || iframe.src === window.location.href) {
     iframe.src = 'https://nurahotels.app.persee.es/asistencias/punto-acceso-publico/z_U9AkJbvhB_X45e2oE9qu4eq7aej74iRoGdRGHuCtU';
+  }
+}
+
+function setSidebarActive(activeEl){
+  // Clear all section highlights
+  document.querySelectorAll('.sidebar-section').forEach(s => s.classList.remove('has-active'));
+  // Find the parent section of the active element and highlight it + expand it
+  if(!activeEl) return;
+  const parentSection = activeEl.closest('.sidebar-section');
+  if(parentSection){
+    parentSection.classList.add('has-active');
+    parentSection.classList.remove('collapsed');
   }
 }
 
@@ -3726,8 +3722,7 @@ function openNuevoAnuncio(){
   document.getElementById('admin-wrap').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('nuevo-anuncio-btn').classList.add('active');
-  document.querySelectorAll('.sidebar-section').forEach(s=>s.classList.remove('has-active'));
-  currentF2Panel = 'nuevo-anuncio';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'nuevo-anuncio';
 }
 
 function openRelevo() {
@@ -3742,15 +3737,7 @@ function openRelevo() {
   document.getElementById('relevo-panel').style.display='block';
   document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
   document.getElementById('relevo-sidebar-btn').classList.add('active');
-  document.querySelectorAll('.sidebar-section').forEach(s=>s.classList.remove('has-active'));
-  document.querySelectorAll('.sidebar-section').forEach(s=>{
-    const lbl = s.querySelector('.sidebar-label');
-    if(lbl && lbl.textContent.trim().toLowerCase().includes('herramientas')) {
-      s.classList.add('has-active');
-      s.classList.remove('collapsed');
-    }
-  });
-  // Show form if admin
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  // Show form if admin
   document.getElementById('relevo-form-wrap').style.display = 'block';
   setTimeout(initRelevaQuill, 100);
   updateRelevaDateHeader();
@@ -4076,15 +4063,7 @@ function openArqueo(){
   document.getElementById('arqueo-panel').style.display='block';
   document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
   document.getElementById('arqueo-sidebar-btn').classList.add('active');
-  document.querySelectorAll('.sidebar-section').forEach(s=>s.classList.remove('has-active'));
-  document.querySelectorAll('.sidebar-section').forEach(s=>{
-    const lbl = s.querySelector('.sidebar-label');
-    if(lbl && lbl.textContent.trim().toLowerCase().includes('herramientas')) {
-      s.classList.add('has-active');
-      s.classList.remove('collapsed');
-    }
-  });
-  const now = new Date();
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  const now = new Date();
   const p2=n=>('0'+n).slice(-2);
   document.getElementById('arqueo-date-label').textContent=p2(now.getDate())+'/'+p2(now.getMonth()+1)+'/'+now.getFullYear()+' '+p2(now.getHours())+':'+p2(now.getMinutes());
   buildArqueoTable();
@@ -4836,14 +4815,7 @@ function openMensajes() {
   document.getElementById('panel-mensajes').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('mensajes-btn').classList.add('active');
-  document.querySelectorAll('.sidebar-section').forEach(s=>s.classList.remove('has-active'));
-  document.querySelectorAll('.sidebar-section').forEach(s=>{
-    const lbl = s.querySelector('.sidebar-label');
-    if(lbl && lbl.textContent.trim().toLowerCase().includes('mensajer')) {
-      s.classList.add('has-active'); s.classList.remove('collapsed');
-    }
-  });
-  currentF2Panel = 'mensajes';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'mensajes';
 
   if(msgCurrentUser) {
     document.getElementById('msg-auth-screen').style.display = 'none';
@@ -5068,15 +5040,7 @@ function openAlojamientos() {
   document.getElementById('panel-alojamientos').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('alojamientos-btn').classList.add('active');
-  document.querySelectorAll('.sidebar-section').forEach(s=>s.classList.remove('has-active'));
-  document.querySelectorAll('.sidebar-section').forEach(s=>{
-    const lbl = s.querySelector('.sidebar-label');
-    if(lbl && lbl.textContent.trim().toLowerCase().includes('archivos')) {
-      s.classList.add('has-active');
-      s.classList.remove('collapsed');
-    }
-  });
-  currentF2Panel = 'alojamientos';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'alojamientos';
 
   buildAlojTabs();
   buildAlojTabsEspecifico();
@@ -5497,15 +5461,7 @@ function openEmergenciasFijo() {
   document.getElementById('panel-emergencias-fijo').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('emergencias-fijo-btn').classList.add('active');
-  document.querySelectorAll('.sidebar-section').forEach(s=>s.classList.remove('has-active'));
-  document.querySelectorAll('.sidebar-section').forEach(s=>{
-    const lbl = s.querySelector('.sidebar-label');
-    if(lbl && lbl.textContent.trim().toLowerCase().includes('archivos')) {
-      s.classList.add('has-active');
-      s.classList.remove('collapsed');
-    }
-  });
-  currentF2Panel = 'emergencias-fijo';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'emergencias-fijo';
 }
 
 function openContactosFijo() {
@@ -5519,15 +5475,7 @@ function openContactosFijo() {
   document.getElementById('panel-contactos-fijo').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('contactos-fijo-btn').classList.add('active');
-  document.querySelectorAll('.sidebar-section').forEach(s=>s.classList.remove('has-active'));
-  document.querySelectorAll('.sidebar-section').forEach(s=>{
-    const lbl = s.querySelector('.sidebar-label');
-    if(lbl && lbl.textContent.trim().toLowerCase().includes('archivos')) {
-      s.classList.add('has-active');
-      s.classList.remove('collapsed');
-    }
-  });
-  currentF2Panel = 'contactos-fijo';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'contactos-fijo';
 }
 
 function openIA() {
@@ -5541,15 +5489,7 @@ function openIA() {
   document.getElementById('panel-ia').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('ia-btn').classList.add('active');
-  document.querySelectorAll('.sidebar-section').forEach(s=>s.classList.remove('has-active'));
-  document.querySelectorAll('.sidebar-section').forEach(s=>{
-    const lbl = s.querySelector('.sidebar-label');
-    if(lbl && lbl.textContent.trim().toLowerCase().includes('asistente')) {
-      s.classList.add('has-active');
-      s.classList.remove('collapsed');
-    }
-  });
-  currentF2Panel = 'ia';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'ia';
   setTimeout(() => document.getElementById('ia-input')?.focus(), 100);
 }
 
@@ -5719,15 +5659,7 @@ function openChecklist() {
   document.getElementById('panel-checklist').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('checklist-sidebar-btn').classList.add('active');
-  document.querySelectorAll('.sidebar-section').forEach(s=>s.classList.remove('has-active'));
-  document.querySelectorAll('.sidebar-section').forEach(s=>{
-    const lbl = s.querySelector('.sidebar-label');
-    if(lbl && lbl.textContent.trim().toLowerCase().includes('herramientas')) {
-      s.classList.add('has-active');
-      s.classList.remove('collapsed');
-    }
-  });
-  currentF2Panel = 'checklist';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'checklist';
   document.getElementById('cl-hotel-select').value = clCurrentHotel;
   clRender();
   clLoadHistory();
@@ -5884,15 +5816,7 @@ function openPremio() {
   document.getElementById('panel-premio').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('premio-btn').classList.add('active');
-  document.querySelectorAll('.sidebar-section').forEach(s=>s.classList.remove('has-active'));
-  document.querySelectorAll('.sidebar-section').forEach(s=>{
-    const lbl = s.querySelector('.sidebar-label');
-    if(lbl && lbl.textContent.trim().toLowerCase().includes('reseñas')) {
-      s.classList.add('has-active');
-      s.classList.remove('collapsed');
-    }
-  });
-  currentF2Panel = 'premio';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'premio';
 
   document.getElementById('premio-prize-img').src = PREMIO_IMG_URL;
   loadPremioRanking();
@@ -6336,15 +6260,7 @@ function openPasswordsAdmin(){
   document.getElementById('panel-passwords').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('passwords-btn').classList.add('active');
-  document.querySelectorAll('.sidebar-section').forEach(s=>s.classList.remove('has-active'));
-  document.querySelectorAll('.sidebar-section').forEach(s=>{
-    const lbl = s.querySelector('.sidebar-label');
-    if(lbl && lbl.textContent.trim().toLowerCase().includes('privado')) {
-      s.classList.add('has-active');
-      s.classList.remove('collapsed');
-    }
-  });
-  currentF2Panel = 'passwords';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'passwords';
   renderPasswordsList();
 }
 
@@ -6396,15 +6312,7 @@ function openResumenResenas() {
   document.getElementById('panel-resumen-resenas').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('resumen-resenas-btn').classList.add('active');
-  document.querySelectorAll('.sidebar-section').forEach(s=>s.classList.remove('has-active'));
-  document.querySelectorAll('.sidebar-section').forEach(s=>{
-    const lbl = s.querySelector('.sidebar-label');
-    if(lbl && lbl.textContent.trim().toLowerCase().includes('reseñas')) {
-      s.classList.add('has-active');
-      s.classList.remove('collapsed');
-    }
-  });
-  currentF2Panel = 'resumen-resenas';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'resumen-resenas';
   renderResenasResumen();
   loadStoredReviewCheckSummary();
 }
@@ -6839,8 +6747,7 @@ function openExtras(type) {
   const btn = document.getElementById(BTN_IDS[type]);
   if (btn) {
     btn.classList.add('active');
-    const parentSec = btn.closest('.sidebar-section');
-    if(parentSec){ parentSec.classList.add('has-active'); parentSec.classList.remove('collapsed'); }
+    setSidebarActive(btn);
   }
   currentF2Panel = 'extras';
 
@@ -7125,15 +7032,7 @@ function openExtrasLiquidacion() {
   document.getElementById('panel-extras-liquidacion').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('extras-liquidacion-btn').classList.add('active');
-  document.querySelectorAll('.sidebar-section').forEach(s=>s.classList.remove('has-active'));
-  document.querySelectorAll('.sidebar-section').forEach(s=>{
-    const lbl = s.querySelector('.sidebar-label');
-    if(lbl && lbl.textContent.trim().toLowerCase().includes('extras')) {
-      s.classList.add('has-active');
-      s.classList.remove('collapsed');
-    }
-  });
-  currentF2Panel = 'extras-liquidacion';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'extras-liquidacion';
   extrasLiqCargar();
 }
 
