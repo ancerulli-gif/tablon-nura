@@ -181,11 +181,11 @@ input:focus,select:focus{border-color:#999;}
 .tw-td-week{width:100%;}
 .tw-week{display:flex;gap:2px;align-items:flex-end;}
 .tw-day-col{display:flex;flex-direction:column;align-items:center;gap:1px;}
-.tw-day-lbl{font-size:8px;font-weight:600;color:#A09890;line-height:1.2;}
-.tw-day-num{font-size:8px;color:#C2B9B0;line-height:1.2;}
+.tw-day-lbl{font-size:11px;font-weight:600;color:#A09890;line-height:1.2;}
+.tw-day-num{font-size:11px;color:#C2B9B0;line-height:1.2;}
 .tw-day-lbl.td-lbl{color:#1a1a2e!important;}
 .tw-day-num.td-num{color:#1a1a2e!important;}
-.tw-day{width:17px;height:17px;border-radius:3px;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.tw-day{width:32px;height:32px;border-radius:6px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;}
 .tw-today{box-shadow:0 0 0 2px #1a1a2e;}
 .tw-shift{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;white-space:nowrap;}
 .s-M{background:#DBEAFE;color:#1E40AF;}.s-T{background:#FEF3C7;color:#92400E;}.s-N{background:#EDE9FE;color:#5B21B6;}.s-L{background:#F0FDF4;color:#166534;}
@@ -6957,7 +6957,14 @@ async function extrasLoadList() {
 
   const { data, error } = await query;
   if (error || !data) { el.innerHTML = '<div class="empty">Error al cargar</div>'; return; }
-  if (!data.length) { el.innerHTML = '<div class="empty"><i class="ti ti-list"></i>Sin registros.</div>'; return; }
+  if (!data.length) {
+    // Reset total to 0 when no records
+    if (cfg.hasPago) {
+      document.getElementById('extras-total-num').textContent = '0.00 €';
+    }
+    el.innerHTML = '<div class="empty"><i class="ti ti-list"></i>Sin registros.</div>';
+    return;
+  }
 
   // Calculate totals for payment types
   if (cfg.hasPago) {
