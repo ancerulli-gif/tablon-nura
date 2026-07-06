@@ -1309,8 +1309,8 @@ input:focus,select:focus{border-color:#999;}
     <div class="sidebar-item" id="alojamientos-btn" onclick="openAlojamientos()">
       <i class="ti ti-photo"></i><span>Alojamientos</span>
     </div>
-    <div class="sidebar-item" data-section="emergencias" onclick="switchSection(this)" ondragover="sidebarDragOver(event,this)" ondragleave="sidebarDragLeave(event,this)" ondrop="sidebarDrop(event,this)">
-      <i class="ti ti-ambulance" style="color:#C0392B;"></i><span>Emergencias</span><span class="count" id="count-emergencias">0</span>
+    <div class="sidebar-item" id="emergencias-fijo-btn" onclick="openEmergenciasFijo()">
+      <i class="ti ti-ambulance" style="color:#C0392B;"></i><span>Emergencias</span>
     </div>
     <div class="sidebar-item" data-section="rrhh" onclick="switchSection(this)" ondragover="sidebarDragOver(event,this)" ondragleave="sidebarDragLeave(event,this)" ondrop="sidebarDrop(event,this)">
       <i class="ti ti-users"></i><span>RRHH</span><span class="count" id="count-rrhh">0</span>
@@ -2633,8 +2633,15 @@ input:focus,select:focus{border-color:#999;}
     <div class="f2-card">
       <div class="f2-header" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <span>📋 Resumen de liquidación</span>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <select id="liq-hotel-filter" onchange="openExtrasLiquidacion()" style="font-size:12px;padding:5px 10px;border-radius:var(--radius);border:1px solid var(--border);">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <select id="liq-tipo-filter" onchange="extrasLiqCargar()" style="font-size:12px;padding:5px 10px;border-radius:var(--radius);border:1px solid var(--border);">
+            <option value="all">Todos los conceptos</option>
+            <option value="cajas">Cajas fuertes</option>
+            <option value="bicis">Bicicletas</option>
+            <option value="transfers">Transfers</option>
+            <option value="desayunos">Desayunos</option>
+          </select>
+          <select id="liq-hotel-filter" onchange="extrasLiqCargar()" style="font-size:12px;padding:5px 10px;border-radius:var(--radius);border:1px solid var(--border);">
             <option value="all">Todos los hoteles</option>
             <option value="condor">Cóndor</option>
             <option value="boreal">Boreal</option>
@@ -2644,6 +2651,74 @@ input:focus,select:focus{border-color:#999;}
         </div>
       </div>
       <div class="f2-body" id="liq-content" style="font-family:monospace;font-size:12.5px;white-space:pre-wrap;background:#F7F5F2;padding:14px;border-radius:var(--radius);min-height:100px;line-height:1.7;color:var(--dark);"></div>
+    </div>
+  </div>
+
+  <!-- ── EMERGENCIAS (panel fijo) ── -->
+  <div class="f2-panel" id="panel-emergencias-fijo">
+
+    <div style="background:#FCF0EF;border-left:4px solid #D1453B;border-radius:6px;padding:14px 18px;margin-bottom:16px;">
+      <div style="font-size:14px;font-weight:700;color:#A33;margin-bottom:4px;">🔴 EMERGENCIA — Prioridad</div>
+      <div style="font-size:13px;color:#7A2620;line-height:1.6;">
+        1. Llamar al <strong>112</strong><br>
+        2. Contactar <strong>Ayla</strong> — si lo indica, escalar<br>
+        <span style="font-size:11px;margin-top:4px;display:block;opacity:.8;">Aplica el sentido común. Ante la duda, siempre pregunta antes de actuar.</span>
+      </div>
+    </div>
+
+    <!-- CONTACTOS -->
+    <div class="cf-card cf-red" style="margin-bottom:14px;">
+      <div class="cf-card-header"><i class="ti ti-phone"></i>Contactos de emergencia</div>
+      <div class="cf-card-body">
+        <div class="cf-row"><div class="cf-row-label">Anthony</div><div class="cf-row-value">Jefe de Recepción<br><code>676 588 532</code></div></div>
+        <div class="cf-row"><div class="cf-row-label">Ayla</div><div class="cf-row-value">Subdirectora Boreal-Cóndor<br><code>666 237 368</code></div></div>
+        <div class="cf-row"><div class="cf-row-label">Federico</div><div class="cf-row-value">Director<br><code>605 083 579</code></div></div>
+        <div class="cf-row"><div class="cf-row-label">Ignacio</div><div class="cf-row-value">Nura Houses<br><code>649 238 274</code></div></div>
+        <div class="cf-row"><div class="cf-row-label">Reservas</div><div class="cf-row-value"><a href="mailto:reservas@nurahotels.com" style="color:#1A4F8A;">reservas@nurahotels.com</a></div></div>
+        <div class="cf-row"><div class="cf-row-label">Administración</div><div class="cf-row-value"><a href="mailto:administracion@nurahotels.com" style="color:#1A4F8A;">administracion@nurahotels.com</a></div></div>
+      </div>
+    </div>
+
+    <!-- PROTOCOLO -->
+    <div style="display:flex;flex-direction:column;gap:10px;">
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #1D6A5A;border-radius:6px;padding:12px 16px;">
+        <div style="font-size:11px;font-weight:700;color:#1D6A5A;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">🏨 Operativa Hoteles</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:6px;">SSTT, F&B, Pisos, jardinería, lavandería, ascensores, máquinas expendedoras…</div>
+        <div style="font-size:12px;">Contacto: <span style="background:#EBF5F2;color:#1D6A5A;padding:1px 8px;border-radius:10px;font-weight:600;font-size:11px;">Ayla</span> <span style="background:#EBF5F2;color:#1D6A5A;padding:1px 8px;border-radius:10px;font-weight:600;font-size:11px;">Federico</span></div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #1A4F8A;border-radius:6px;padding:12px 16px;">
+        <div style="font-size:11px;font-weight:700;color:#1A4F8A;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">🏠 Operativa Nura Houses</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:6px;">Misma operativa aplicada a todos los apartamentos.</div>
+        <div style="font-size:12px;display:flex;flex-direction:column;gap:3px;">
+          <div>Horario trabajo: <span style="background:#EEF4FB;color:#1A4F8A;padding:1px 8px;border-radius:10px;font-weight:600;font-size:11px;">Ignacio</span></div>
+          <div>Dom/Lun (días libres): <span style="background:#EEF4FB;color:#1A4F8A;padding:1px 8px;border-radius:10px;font-weight:600;font-size:11px;">Anthony</span></div>
+          <div>Emergencia nocturna: <span style="background:#EEF4FB;color:#1A4F8A;padding:1px 8px;border-radius:10px;font-weight:600;font-size:11px;">Federico</span></div>
+        </div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #EF9F27;border-radius:6px;padding:12px 16px;">
+        <div style="font-size:11px;font-weight:700;color:#8A5D1A;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">📋 Reservas y Facturación</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:6px;">Reservas, incidencias, facturación, grupos y empresas.</div>
+        <div style="font-size:12px;">Contacto: <span style="background:#FBF4E8;color:#8A5D1A;padding:1px 8px;border-radius:10px;font-weight:600;font-size:11px;">Irene — por mail</span> <a href="mailto:reservas@nurahotels.com" style="font-size:11px;color:#1A4F8A;margin-left:4px;">reservas@nurahotels.com</a></div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #1D6A5A;border-radius:6px;padding:12px 16px;">
+        <div style="font-size:11px;font-weight:700;color:#1D6A5A;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">🎯 Responsable de Recepción</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:6px;">Procedimientos de recepción y atención al cliente Nura Houses. Si no sabes dónde acudir, pregunta primero.</div>
+        <div style="font-size:12px;display:flex;flex-direction:column;gap:3px;">
+          <div>Consultas: <span style="background:#EBF5F2;color:#1D6A5A;padding:1px 8px;border-radius:10px;font-weight:600;font-size:11px;">Anthony</span></div>
+          <div>Emergencia: <span style="background:#FCF0EF;color:#A33;padding:1px 8px;border-radius:10px;font-weight:600;font-size:11px;">Siempre llamar — 676 588 532</span></div>
+        </div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #888;border-radius:6px;padding:12px 16px;">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">💰 Administración</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:6px;">Pagos, cajas, pedidos, proveedores.</div>
+        <div style="font-size:12px;">Contacto: <span style="background:#F0EDE8;color:var(--muted);padding:1px 8px;border-radius:10px;font-weight:600;font-size:11px;">Rubén / Alex / Andreu</span> <a href="mailto:administracion@nurahotels.com" style="font-size:11px;color:#1A4F8A;margin-left:4px;">administracion@nurahotels.com</a></div>
+      </div>
+
     </div>
   </div>
 
@@ -5246,6 +5321,20 @@ async function alojHandleFiles(fileList, mode) {
 // ── ASISTENTE IA ──
 let iaHistory = [];
 
+
+function openEmergenciasFijo() {
+  restoreTurnosWidget();
+  var twEl=document.getElementById('tw');if(twEl)twEl.style.display='none';
+  ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.style.display = 'none';
+  });
+  document.querySelectorAll('.f2-panel').forEach(p => p.style.display = 'none');
+  document.getElementById('panel-emergencias-fijo').style.display = 'block';
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('emergencias-fijo-btn').classList.add('active');
+  currentF2Panel = 'emergencias-fijo';
+}
+
 function openContactosFijo() {
   restoreTurnosWidget();
   var twEl=document.getElementById('tw');if(twEl)twEl.style.display='none';
@@ -6793,6 +6882,7 @@ function openExtrasLiquidacion() {
 async function extrasLiqCargar() {
   const content = document.getElementById('liq-content');
   const hotelFilter = document.getElementById('liq-hotel-filter')?.value || 'all';
+  const tipoFilter = document.getElementById('liq-tipo-filter')?.value || 'all';
   content.textContent = 'Cargando...';
   liqPendingIds = [];
 
@@ -6801,12 +6891,14 @@ async function extrasLiqCargar() {
   const fecha = `${p2(today.getDate())}/${p2(today.getMonth()+1)}/${today.getFullYear()}`;
 
   let output = `LIQUIDACIÓN EXTRAS — ${fecha}\n`;
+  if (tipoFilter !== 'all') output += `Concepto: ${LIQ_TYPES.find(t=>t.key===tipoFilter)?.label||tipoFilter}\n`;
   if (hotelFilter !== 'all') output += `Hotel: ${hotelFilter === 'condor' ? 'Cóndor' : 'Boreal'}\n`;
   output += '═'.repeat(48) + '\n\n';
 
   let totalGlobal = 0;
 
-  for (const tipo of LIQ_TYPES) {
+  const tiposAMostrar = tipoFilter === 'all' ? LIQ_TYPES : LIQ_TYPES.filter(t => t.key === tipoFilter);
+  for (const tipo of tiposAMostrar) {
     let query = db.from(tipo.table).select('*').eq('liquidado', false).order('created_at', { ascending: true });
     if (tipo.hasHotel && hotelFilter !== 'all') query = query.eq('hotel', hotelFilter);
     const { data } = await query;
