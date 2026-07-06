@@ -1106,6 +1106,33 @@ input:focus,select:focus{border-color:#999;}
 .review-loading-text{font-size:14px;font-weight:500;color:var(--dark);}
 .review-loading-sub{font-size:12px;color:var(--subtle);margin-top:4px;}
 
+
+/* ── EXTRAS ── */
+.extras-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px;}
+.extras-tab{padding:9px 8px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface);cursor:pointer;text-align:center;font-size:12px;font-weight:500;color:var(--subtle);transition:all .18s;}
+.extras-tab:hover{border-color:#ccc;color:var(--dark);}
+.extras-tab.active{background:#EBF5F2;border-color:var(--teal);color:var(--teal);}
+
+/* Payment badge colors */
+.badge-efectivo{background:#EBF5F2;color:#1D6A5A;}
+.badge-tarjeta{background:#EEF4FB;color:#1A4F8A;}
+.badge-liquidado{background:#F0EDE8;color:#6B6660;}
+.badge-pendiente{background:#FEF3C7;color:#92400E;}
+
+.extras-record{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:11px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);}
+.extras-record.devuelto{opacity:.65;border-style:dashed;}
+.extras-record.liquidado{border-left:3px solid #6B6660;}
+.extras-record-info{flex:1;min-width:0;}
+.extras-record-title{font-size:13px;font-weight:500;color:var(--dark);}
+.extras-record-meta{font-size:11px;color:var(--subtle);margin-top:2px;}
+.extras-record-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;}
+.extras-devolver-btn{font-size:11px;background:var(--teal);color:#fff;border:none;border-radius:var(--radius);padding:6px 11px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.extras-devolver-btn:hover{opacity:.88;}
+.extras-liquidar-btn{font-size:11px;background:#F0EDE8;color:#6B6660;border:none;border-radius:var(--radius);padding:6px 11px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.extras-liquidar-btn:hover{background:#6B6660;color:#fff;}
+.extras-total-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;font-size:13px;}
+.extras-total-num{font-size:18px;font-weight:700;color:var(--dark);}
+
 </style>
 </head>
 <body>
@@ -1293,6 +1320,30 @@ input:focus,select:focus{border-color:#999;}
     </div>
   </div>
 
+  <div class="sidebar-section">
+    <div class="sidebar-label">🛎 Extras</div>
+    <div class="sidebar-item" id="extras-btn" onclick="openExtras('toallas')">
+      <i class="ti ti-towel" style="font-size:15px;"></i><span>Depósito toallas</span>
+    </div>
+    <div class="sidebar-item" id="extras-cajas-btn" onclick="openExtras('cajas')">
+      <i class="ti ti-lock" style="font-size:15px;"></i><span>Cajas fuertes</span>
+    </div>
+    <div class="sidebar-item" id="extras-bicis-btn" onclick="openExtras('bicis')">
+      <i class="ti ti-bike" style="font-size:15px;"></i><span>Bicicletas</span>
+    </div>
+    <div class="sidebar-item" id="extras-transfers-btn" onclick="openExtras('transfers')">
+      <i class="ti ti-car" style="font-size:15px;"></i><span>Transfers</span>
+    </div>
+    <div class="sidebar-item" id="extras-desayunos-btn" onclick="openExtras('desayunos')">
+      <i class="ti ti-coffee" style="font-size:15px;"></i><span>Desayunos recepción</span>
+    </div>
+    <div class="sidebar-item" id="extras-secadores-btn" onclick="openExtras('secadores')">
+      <i class="ti ti-wind" style="font-size:15px;"></i><span>Secadores</span>
+    </div>
+    <div class="sidebar-item" id="extras-planchas-btn" onclick="openExtras('planchas')">
+      <i class="ti ti-steam" style="font-size:15px;"></i><span>Planchas</span>
+    </div>
+  </div>
   <div class="sidebar-section">
     <div class="sidebar-label">Herramientas</div>
     <div class="sidebar-item" id="turnos-sidebar-btn" onclick="openTurnosFijo()">
@@ -2548,6 +2599,30 @@ input:focus,select:focus{border-color:#999;}
     <div id="review-check-summary-container"></div>
 
     <div id="rr-list"></div>
+  </div>
+
+  <!-- ── EXTRAS ── -->
+  <div class="f2-panel" id="panel-extras">
+    <div class="f2-card">
+      <div class="f2-header">
+        <span id="extras-panel-title">Extras</span>
+        <div class="extras-tabs" id="extras-hotel-tabs" style="display:none;">
+          <div class="extras-tab active" data-hotel="condor" onclick="extrasSetHotel('condor')">Cóndor</div>
+          <div class="extras-tab" data-hotel="boreal" onclick="extrasSetHotel('boreal')">Boreal</div>
+        </div>
+      </div>
+      <div class="f2-body" id="extras-form-area"></div>
+    </div>
+    <div class="f2-card">
+      <div class="f2-header"><span id="extras-list-title">Registros</span></div>
+      <div id="extras-total-bar" style="display:none;">
+        <div class="extras-total-bar">
+          <span>Total pendiente de liquidar</span>
+          <span class="extras-total-num" id="extras-total-num">0.00 €</span>
+        </div>
+      </div>
+      <div id="extras-list"></div>
+    </div>
   </div>
 
   <div class="section-header" id="section-header">
@@ -6368,6 +6443,216 @@ function renderReviewCheckSummary(results) {
       </div>
     </div>`).join('')}
   </div>`;
+}
+
+
+
+// ── EXTRAS ──
+let extrasCurrentType = 'toallas';
+let extrasCurrentHotel = 'condor';
+
+const EXTRAS_CONFIG = {
+  toallas:    { title: '🏖 Depósito de toallas',    hoteles: ['condor','boreal'], hasPago: true,  hasDev: true,  tieneSecador: false },
+  cajas:      { title: '🔒 Cajas fuertes',           hoteles: ['condor','boreal'], hasPago: true,  hasDev: false, tieneSecador: false },
+  bicis:      { title: '🚴 Alquiler de bicicletas',  hoteles: ['boreal'],         hasPago: true,  hasDev: false, tieneSecador: false },
+  transfers:  { title: '🚗 Transfers',               hoteles: ['condor','boreal'], hasPago: true,  hasDev: false, tieneSecador: false },
+  desayunos:  { title: '☕ Desayunos recepción',     hoteles: ['condor','boreal'], hasPago: true,  hasDev: false, tieneSecador: false },
+  secadores:  { title: '💨 Secadores de pelo',       hoteles: ['condor','boreal'], hasPago: false, hasDev: true,  tieneSecador: true },
+  planchas:   { title: '👔 Planchas',                hoteles: ['condor','boreal'], hasPago: false, hasDev: true,  tieneSecador: true },
+};
+
+const EXTRAS_TABLE = {
+  toallas: 'extras_toallas', cajas: 'extras_cajas_fuertes', bicis: 'extras_bicicletas',
+  transfers: 'extras_transfers', desayunos: 'extras_desayunos',
+  secadores: 'extras_secadores', planchas: 'extras_planchas'
+};
+
+const HOTELES_LABEL = { condor: 'Hotel Cóndor', boreal: 'Hotel Boreal' };
+const BTN_IDS = { toallas:'extras-btn', cajas:'extras-cajas-btn', bicis:'extras-bicis-btn', transfers:'extras-transfers-btn', desayunos:'extras-desayunos-btn', secadores:'extras-secadores-btn', planchas:'extras-planchas-btn' };
+
+function openExtras(type) {
+  extrasCurrentType = type;
+  const cfg = EXTRAS_CONFIG[type];
+  if (cfg.hoteles.length === 1) {
+    extrasCurrentHotel = cfg.hoteles[0];
+  }
+
+  restoreTurnosWidget();
+  var twEl=document.getElementById('tw');if(twEl)twEl.style.display='none';
+  ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.style.display = 'none';
+  });
+  document.querySelectorAll('.f2-panel').forEach(p => p.style.display = 'none');
+  document.getElementById('panel-extras').style.display = 'block';
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  const btn = document.getElementById(BTN_IDS[type]);
+  if (btn) btn.classList.add('active');
+  currentF2Panel = 'extras';
+
+  document.getElementById('extras-panel-title').textContent = cfg.title;
+  document.getElementById('extras-list-title').textContent = 'Registros — ' + (cfg.hoteles.length > 1 ? HOTELES_LABEL[extrasCurrentHotel] : HOTELES_LABEL[cfg.hoteles[0]]);
+
+  // Hotel tabs
+  const hotelTabs = document.getElementById('extras-hotel-tabs');
+  if (cfg.hoteles.length > 1) {
+    hotelTabs.style.display = 'grid';
+    hotelTabs.querySelectorAll('.extras-tab').forEach(t => {
+      t.style.display = cfg.hoteles.includes(t.dataset.hotel) ? 'block' : 'none';
+      t.classList.toggle('active', t.dataset.hotel === extrasCurrentHotel);
+    });
+  } else {
+    hotelTabs.style.display = 'none';
+    extrasCurrentHotel = cfg.hoteles[0];
+  }
+
+  // Total bar only for payment types
+  document.getElementById('extras-total-bar').style.display = cfg.hasPago ? 'block' : 'none';
+
+  extrasRenderForm();
+  extrasLoadList();
+}
+
+function extrasSetHotel(hotel) {
+  extrasCurrentHotel = hotel;
+  document.querySelectorAll('#extras-hotel-tabs .extras-tab').forEach(t => t.classList.toggle('active', t.dataset.hotel === hotel));
+  document.getElementById('extras-list-title').textContent = 'Registros — ' + HOTELES_LABEL[hotel];
+  extrasLoadList();
+}
+
+function p2(n){ return String(n).padStart(2,'0'); }
+function nowStr(){ const d=new Date(); return `${p2(d.getHours())}:${p2(d.getMinutes())}`; }
+function todayStr(){ const d=new Date(); return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`; }
+function fmtDate(s){ if(!s)return '—'; const d=new Date(s); if(isNaN(d))return s; return `${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()}`; }
+
+function extrasRenderForm() {
+  const type = extrasCurrentType;
+  const cfg = EXTRAS_CONFIG[type];
+  const area = document.getElementById('extras-form-area');
+
+  if (type === 'toallas') {
+    area.innerHTML = `
+      <div class="f2-field"><label>Habitación / Daypass</label><input type="text" id="ext-habitacion" placeholder="Ej: 205 o DAYPASS" /></div>
+      <div class="f2-field"><label>¿Es Daypass?</label><select id="ext-daypass"><option value="no">No — Habitación</option><option value="si">Sí — Daypass</option></select></div>
+      <div class="f2-field"><label>Cantidad de toallas</label><input type="number" id="ext-cantidad" value="1" min="1" /></div>
+      <div class="f2-field"><label>Hora entrega</label><input type="text" id="ext-hora" value="${nowStr()}" /></div>
+      <div class="f2-field"><label>Método de pago depósito</label><select id="ext-pago"><option value="efectivo">💵 Efectivo</option><option value="tarjeta">💳 Tarjeta</option></select></div>
+      <button class="btn-publish" onclick="extrasGuardar()">+ Registrar depósito</button>`;
+  } else if (type === 'secadores' || type === 'planchas') {
+    area.innerHTML = `
+      <div class="f2-field"><label>Habitación</label><input type="text" id="ext-habitacion" placeholder="Ej: 205" /></div>
+      <div class="f2-field"><label>Nº de reserva</label><input type="text" id="ext-reserva" placeholder="Opcional" /></div>
+      <div class="f2-field"><label>Fecha de préstamo</label><input type="date" id="ext-fecha-inicio" value="${todayStr()}" /></div>
+      <div class="f2-field"><label>Fecha devolución prevista</label><input type="date" id="ext-fecha-fin" /></div>
+      <button class="btn-publish" onclick="extrasGuardar()">+ Registrar préstamo</button>`;
+  } else {
+    // cajas, bicis, transfers, desayunos
+    area.innerHTML = `
+      <div class="f2-field"><label>Fecha</label><input type="date" id="ext-fecha" value="${todayStr()}" /></div>
+      <div class="f2-field"><label>Habitación</label><input type="text" id="ext-habitacion" placeholder="Ej: 205" /></div>
+      <div class="f2-field"><label>Nº reserva</label><input type="text" id="ext-reserva" placeholder="Opcional" /></div>
+      <div class="f2-field"><label>Importe (€)</label><input type="number" id="ext-importe" placeholder="0.00" step="0.01" /></div>
+      <div class="f2-field"><label>Método de pago</label><select id="ext-pago"><option value="efectivo">💵 Efectivo</option><option value="tarjeta">💳 Tarjeta</option></select></div>
+      <button class="btn-publish" onclick="extrasGuardar()">+ Registrar</button>`;
+  }
+}
+
+async function extrasGuardar() {
+  const type = extrasCurrentType;
+  const cfg = EXTRAS_CONFIG[type];
+  const worker = currentLoggedUser || 'Sin identificar';
+  const hotel = extrasCurrentHotel;
+  let row = {};
+
+  if (type === 'toallas') {
+    const hab = document.getElementById('ext-habitacion').value.trim();
+    if (!hab) { showToast('Introduce habitación o daypass'); return; }
+    row = { hotel, habitacion: hab, es_daypass: document.getElementById('ext-daypass').value === 'si', trabajador_entrega: worker, cantidad: parseInt(document.getElementById('ext-cantidad').value)||1, hora_entrega: document.getElementById('ext-hora').value, metodo_pago: document.getElementById('ext-pago').value };
+  } else if (type === 'secadores' || type === 'planchas') {
+    const hab = document.getElementById('ext-habitacion').value.trim();
+    if (!hab) { showToast('Introduce habitación'); return; }
+    row = { hotel, habitacion: hab, num_reserva: document.getElementById('ext-reserva').value.trim(), trabajador_entrega: worker, fecha_entrega: document.getElementById('ext-fecha-inicio').value, fecha_devolucion_prevista: document.getElementById('ext-fecha-fin').value };
+  } else {
+    const imp = parseFloat(document.getElementById('ext-importe').value);
+    if (!imp) { showToast('Introduce el importe'); return; }
+    row = { hotel, fecha: document.getElementById('ext-fecha').value, trabajador: worker, habitacion: document.getElementById('ext-habitacion').value.trim(), num_reserva: document.getElementById('ext-reserva').value.trim(), cantidad: imp, metodo_pago: document.getElementById('ext-pago').value };
+    if (type === 'bicis') { delete row.hotel; }
+  }
+
+  const { error } = await db.from(EXTRAS_TABLE[type]).insert([row]);
+  if (error) { showToast('Error: ' + error.message); return; }
+  showToast('✓ Registrado');
+  extrasRenderForm(); // reset form
+  extrasLoadList();
+}
+
+async function extrasDevolverItem(id) {
+  const type = extrasCurrentType;
+  const worker = currentLoggedUser || 'Sin identificar';
+  const hora = nowStr();
+  await db.from(EXTRAS_TABLE[type]).update({ devuelto: true, trabajador_devolucion: worker, hora_devolucion: hora }).eq('id', id);
+  showToast('✓ Devolución registrada');
+  extrasLoadList();
+}
+
+async function extrasLiquidarItem(id) {
+  const type = extrasCurrentType;
+  await db.from(EXTRAS_TABLE[type]).update({ liquidado: true, fecha_liquidacion: todayStr() }).eq('id', id);
+  showToast('✓ Liquidado');
+  extrasLoadList();
+}
+
+async function extrasLoadList() {
+  const type = extrasCurrentType;
+  const cfg = EXTRAS_CONFIG[type];
+  const el = document.getElementById('extras-list');
+  el.innerHTML = '<div class="loading"><i class="ti ti-loader"></i>Cargando...</div>';
+
+  let query = db.from(EXTRAS_TABLE[type]).select('*').order('created_at', { ascending: false }).limit(80);
+  if (cfg.hoteles.length > 1) query = query.eq('hotel', extrasCurrentHotel);
+
+  const { data, error } = await query;
+  if (error || !data) { el.innerHTML = '<div class="empty">Error al cargar</div>'; return; }
+  if (!data.length) { el.innerHTML = '<div class="empty"><i class="ti ti-list"></i>Sin registros.</div>'; return; }
+
+  // Calculate totals for payment types
+  if (cfg.hasPago) {
+    const pending = data.filter(r => !r.liquidado).reduce((s, r) => s + (parseFloat(r.cantidad)||0), 0);
+    document.getElementById('extras-total-num').textContent = pending.toFixed(2) + ' €';
+    document.getElementById('extras-total-bar').style.display = 'block';
+  }
+
+  const badgeClass = (pago, liq) => liq ? 'badge-liquidado' : pago === 'efectivo' ? 'badge-efectivo' : 'badge-tarjeta';
+  const badgeLabel = (pago, liq) => liq ? '✓ Liquidado' : pago === 'efectivo' ? '💵 Efectivo' : '💳 Tarjeta';
+
+  el.innerHTML = data.map(r => {
+    if (type === 'toallas') {
+      return `<div class="extras-record ${r.devuelto?'devuelto':''}">
+        <div class="extras-record-info">
+          <div class="extras-record-title">${r.es_daypass ? '🏊 Daypass' : '🛏 Hab. '+r.habitacion} · ${r.cantidad} toalla(s)</div>
+          <div class="extras-record-meta">${r.trabajador_entrega} · ${r.hora_entrega||'—'}${r.devuelto ? ` | Devuelto por ${r.trabajador_devolucion} a las ${r.hora_devolucion}` : ''}</div>
+        </div>
+        <span class="extras-record-badge ${badgeClass(r.metodo_pago, false)}">${badgeLabel(r.metodo_pago, false)}</span>
+        ${!r.devuelto ? `<button class="extras-devolver-btn" onclick="extrasDevolverItem(${r.id})">↩ Devolver</button>` : ''}
+      </div>`;
+    } else if (type === 'secadores' || type === 'planchas') {
+      return `<div class="extras-record ${r.devuelto?'devuelto':''}">
+        <div class="extras-record-info">
+          <div class="extras-record-title">🛏 Hab. ${r.habitacion}${r.num_reserva ? ' · Res. '+r.num_reserva : ''}</div>
+          <div class="extras-record-meta">${r.trabajador_entrega} · ${fmtDate(r.fecha_entrega)} → ${fmtDate(r.fecha_devolucion_prevista)||'sin fecha'}${r.devuelto ? ` | Devuelto: ${r.trabajador_devolucion} ${r.hora_devolucion}` : ''}</div>
+        </div>
+        ${!r.devuelto ? `<button class="extras-devolver-btn" onclick="extrasDevolverItem(${r.id})">↩ Devolver</button>` : '<span style="font-size:11px;color:var(--teal);">✓ Devuelto</span>'}
+      </div>`;
+    } else {
+      return `<div class="extras-record ${r.liquidado?'liquidado':''}">
+        <div class="extras-record-info">
+          <div class="extras-record-title">${r.habitacion ? '🛏 Hab. '+r.habitacion : ''} ${r.num_reserva ? '· Res. '+r.num_reserva : ''} · ${parseFloat(r.cantidad).toFixed(2)} €</div>
+          <div class="extras-record-meta">${r.trabajador} · ${fmtDate(r.fecha)}${r.liquidado ? ` | Liquidado ${fmtDate(r.fecha_liquidacion)}` : ''}</div>
+        </div>
+        <span class="extras-record-badge ${badgeClass(r.metodo_pago, r.liquidado)}">${badgeLabel(r.metodo_pago, r.liquidado)}</span>
+        ${adminMode && !r.liquidado ? `<button class="extras-liquidar-btn" onclick="extrasLiquidarItem(${r.id})">Liquidar</button>` : ''}
+      </div>`;
+    }
+  }).join('');
 }
 
 
