@@ -817,10 +817,15 @@ input:focus,select:focus{border-color:#999;}
 /* ── SPLASH — ESTABLECIMIENTOS Y READY TO WORK ── */
 .splash-estab-screen{
   position:absolute;inset:0;z-index:2;
-  display:none;
+  display:flex;
   flex-direction:column;align-items:center;justify-content:center;
   opacity:0;
-  transition:opacity .5s ease;
+  animation:splash-estab-fadein .7s ease forwards;
+  animation-delay:2.2s;
+}
+@keyframes splash-estab-fadein{
+  from{opacity:0;}
+  to{opacity:1;}
 }
 .splash-estab-list{
   display:grid;grid-template-columns:repeat(2,1fr);gap:18px 36px;
@@ -6022,33 +6027,17 @@ function showSplashEstab(){
   var tagline  = document.querySelector('.splash-tagline');
   var hint     = document.querySelector('.splash-skip-hint');
   var estab    = document.getElementById('splash-estab-screen');
-  // Fade out logo elements
-  if(logoWrap) logoWrap.style.transition = 'opacity .3s'; 
-  if(logoWrap) logoWrap.style.opacity = '0';
-  if(tagline)  tagline.style.opacity  = '0';
-  if(hint)     hint.style.opacity     = '0';
-  // Show estab screen — display:flex so it's fully interactive
-  if(estab){
-    estab.style.display  = 'flex';
-    // Trigger fade-in on next frame
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        estab.style.opacity = '1';
-      });
-    });
-  }
-  // Make splash-screen itself non-clickable now (estab handles its own clicks)
-  var ss = document.getElementById('splash-screen');
-  if(ss) ss.style.cursor = 'default';
+  if(logoWrap){ logoWrap.style.transition='opacity .3s'; logoWrap.style.opacity='0'; }
+  if(tagline)  tagline.style.opacity='0';
+  if(hint)     hint.style.opacity='0';
+  // Fast-forward the CSS animation
+  if(estab){ estab.style.animation='none'; estab.style.opacity='1'; }
 }
-
-// Auto-show estab screen after logo animation (2.3s)
-setTimeout(showSplashEstab, 2350);
 
 // Click on splash-screen background (during logo phase) = skip to estab
 (function(){
   var ss = document.getElementById('splash-screen');
-  if(ss) ss.addEventListener('click', function(){ if(!_splashIntroShown) showSplashEstab(); });
+  if(ss) ss.addEventListener('click', function(){ showSplashEstab(); });
 })();
 
 function skipIntroPhase(){ showSplashEstab(); }
