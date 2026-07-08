@@ -467,7 +467,7 @@ input:focus,select:focus{border-color:#999;}
     box-shadow: 4px 0 24px rgba(0,0,0,.18);
   }
   .sidebar.nav-open { left: 0 !important; }
-  .main { padding: 16px 12px 80px !important; max-width: 100% !important; }
+  .main { padding: 16px 12px 80px !important; max-width: 100% !important; margin-left: 0 !important; }
   .f2-row { grid-template-columns: 1fr !important; }
   .field-row { grid-template-columns: 1fr !important; }
   .arqueo-meta { grid-template-columns: 1fr !important; }
@@ -477,16 +477,7 @@ input:focus,select:focus{border-color:#999;}
 }
 
 
-/* ── DESKTOP SIDEBAR OVERRIDE ── */
-@media (min-width: 769px) {
-  .sidebar {
-    position: sticky !important;
-    left: auto !important;
-    width: var(--sidebar-w) !important;
-    display: flex !important;
-    flex-direction: column !important;
-  }
-}
+/* desktop sidebar: fixed positioning via main .sidebar rule */
 
 
 /* ── MENSAJES INTERNOS ── */
@@ -826,21 +817,17 @@ input:focus,select:focus{border-color:#999;}
 /* ── SPLASH — ESTABLECIMIENTOS Y READY TO WORK ── */
 #splash-skip-zone{
   position:absolute;inset:0;z-index:0;cursor:pointer;
-  animation:splash-skip-disable 0s linear forwards;
-  animation-delay:2.3s;
-}
-@keyframes splash-skip-disable{
-  to{pointer-events:none;}
 }
 .splash-estab-screen{
   position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
   opacity:0;pointer-events:none;
   animation:splash-estab-fadein .6s ease forwards;
+  animation-fill-mode:forwards;
   animation-delay:2.3s;
 }
 @keyframes splash-estab-fadein{
   0%{opacity:0;}
-  100%{opacity:1;pointer-events:auto;}
+  100%{opacity:1;}
 }
 .splash-estab-list{
   display:grid;grid-template-columns:repeat(2,1fr);gap:18px 36px;
@@ -1288,7 +1275,7 @@ input:focus,select:focus{border-color:#999;}
     </div>
 
     <div class="splash-ready-title">
-      Ready to <span class="splash-work" style="pointer-events:auto!important;position:relative;z-index:10;" onclick="hideSplashNow();showLoginScreen();">WORK</span>?
+      Ready to <span class="splash-work" style="pointer-events:auto!important;position:relative;z-index:100;cursor:pointer;" onclick="event.stopPropagation();hideSplashNow();showLoginScreen();">WORK</span>?
     </div>
   </div>
 </div>
@@ -6033,11 +6020,13 @@ async function premioAdjust(worker, delta) {
 
 
 // ── SPLASH INTRO (acción exagerada) ──
-// Fix pointer-events on splash-estab-screen (CSS can't animate this reliably)
+// Fix pointer-events for splash screen (CSS animation of pointer-events is unreliable)
 setTimeout(function(){
-  var ss = document.querySelector('.splash-estab-screen');
-  if(ss) ss.style.pointerEvents = 'auto';
-}, 2400);
+  var skipZone = document.getElementById('splash-skip-zone');
+  if(skipZone) skipZone.style.pointerEvents = 'none';
+  var estab = document.querySelector('.splash-estab-screen');
+  if(estab) estab.style.pointerEvents = 'auto';
+}, 2500);
 
 function hideSplashNow(){
   var s = document.getElementById('splash-screen');
