@@ -1288,7 +1288,7 @@ input:focus,select:focus{border-color:#999;}
     </div>
 
     <div class="splash-ready-title">
-      Ready to <span class="splash-work" onclick="hideSplashNow();showLoginScreen();">WORK</span>?
+      Ready to <span class="splash-work" style="pointer-events:auto!important;position:relative;z-index:10;" onclick="hideSplashNow();showLoginScreen();">WORK</span>?
     </div>
   </div>
 </div>
@@ -6033,6 +6033,12 @@ async function premioAdjust(worker, delta) {
 
 
 // ── SPLASH INTRO (acción exagerada) ──
+// Fix pointer-events on splash-estab-screen (CSS can't animate this reliably)
+setTimeout(function(){
+  var ss = document.querySelector('.splash-estab-screen');
+  if(ss) ss.style.pointerEvents = 'auto';
+}, 2400);
+
 function hideSplashNow(){
   var s = document.getElementById('splash-screen');
   if(!s) return;
