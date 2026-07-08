@@ -167,32 +167,32 @@ input:focus,select:focus{border-color:#999;}
 
 
 /* ── TURNOS ── */
-.tw{background:#fff;border:1px solid #E0DDD9;border-radius:6px;margin-bottom:20px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);}
-.tw-head{background:#1a1a2e;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+.tw{background:#fff;border:1px solid #E0DDD9;border-radius:8px;margin-bottom:20px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07);}
+.tw-head{background:#1a1a2e;padding:11px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;}
 .tw-head span{font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:#fff;}
-.tw-body{padding:8px 12px;display:flex;flex-direction:column;gap:8px;overflow-x:auto;}
-.tw-group{background:#F7F5F2;border-radius:4px;overflow:hidden;}
-.tw-glabel{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#A09890;font-weight:600;padding:8px 14px 5px;}
-.tw-table{width:100%;border-collapse:collapse;}
-.tw-table td{padding:4px 6px;vertical-align:middle;border-bottom:1px solid #F0EDE8;}
-.tw-table tr:last-child td{border-bottom:none;}
-.tw-td-name{color:#1C1C1E;font-weight:600;white-space:nowrap;font-size:13px;min-width:72px;}
-.tw-td-shift{white-space:nowrap;padding-right:8px!important;}
-.tw-td-week{width:100%;}
-.tw-week{display:flex;gap:2px;align-items:flex-end;}
-.tw-day-col{display:flex;flex-direction:column;align-items:center;gap:1px;}
-.tw-day-lbl{font-size:9px;font-weight:600;color:#A09890;line-height:1.2;}
-.tw-day-num{font-size:9px;color:#C2B9B0;line-height:1.2;}
-.tw-day-lbl.td-lbl{color:#1a1a2e!important;}
-.tw-day-num.td-num{color:#1a1a2e!important;}
-.tw-day{width:26px;height:26px;border-radius:5px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
-.tw-today{box-shadow:0 0 0 2px #1a1a2e;}
-.tw-shift{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+.tw-body{padding:10px 14px;display:flex;flex-direction:column;gap:10px;}
+.tw-group{background:#F7F5F2;border-radius:6px;overflow-x:auto;}
+.tw-glabel{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8A8480;font-weight:700;padding:8px 14px 6px;border-bottom:1px solid #EFECE7;}
+/* Flexbox row layout - no table, no overflow issues */
+.tw-row{display:flex;align-items:center;padding:8px 14px;border-bottom:1px solid #F0EDE8;gap:10px;min-width:max-content;}
+.tw-row:last-child{border-bottom:none;}
+.tw-row-name{font-size:13px;font-weight:700;color:#1C1C1E;width:76px;min-width:76px;flex-shrink:0;}
+.tw-row-shift{width:80px;min-width:80px;flex-shrink:0;}
+.tw-row-week{display:flex;gap:3px;align-items:flex-end;flex-shrink:0;}
+.tw-row-aviso{margin-left:8px;flex-shrink:0;}
+.tw-day-col{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.tw-day-lbl{font-size:9px;font-weight:600;color:#A09890;line-height:1.3;}
+.tw-day-num{font-size:9px;color:#C2B9B0;line-height:1.3;}
+.tw-day-lbl.td-lbl{color:#1a1a2e!important;font-weight:700;}
+.tw-day-num.td-num{color:#1a1a2e!important;font-weight:700;}
+.tw-day{width:30px;height:30px;border-radius:6px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.tw-today{box-shadow:0 0 0 2.5px #1a1a2e;}
+.tw-shift{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;white-space:nowrap;display:inline-block;}
 .s-M{background:#DBEAFE;color:#1E40AF;}.s-T{background:#FEF3C7;color:#92400E;}.s-N{background:#EDE9FE;color:#5B21B6;}.s-L{background:#F0FDF4;color:#166534;}
 .tw-aviso{font-size:10px;font-weight:500;padding:1px 6px;border-radius:3px;margin-top:1px;display:inline-block;}
 .tw-td-aviso{width:1%;white-space:nowrap;padding-left:10px!important;vertical-align:middle;}
 .tw-aviso-big{font-size:11px;font-weight:600;padding:6px 10px;border-radius:4px;display:inline-block;background:#EBF5F2;color:#1D6A5A;border:1px solid #B8DFC7;white-space:nowrap;line-height:1.5;text-align:left;}
-@media(max-width:500px){.tw-td-name{min-width:52px;font-size:11px;}.tw-day{width:14px;height:14px;font-size:7px;}.tw-shift{font-size:9px;padding:1px 5px;}}
+.tw-shift{font-size:9px;padding:1px 5px;}
 
 
 /* ── RELEVO ── */
@@ -344,13 +344,15 @@ input:focus,select:focus{border-color:#999;}
   .field-row{grid-template-columns:1fr!important;}
   .arqueo-meta{grid-template-columns:1fr!important;}
   .relevo-field-row{grid-template-columns:1fr!important;}
-  .tw-body{padding:8px 6px;}
-  .tw-table{width:100%;table-layout:fixed;}
-  .tw-table td{padding:4px 2px;}
-  .tw-td-name{min-width:60px!important;font-size:12px!important;font-weight:600!important;}
-  .tw-day{width:28px!important;height:28px!important;font-size:11px!important;border-radius:5px!important;}
-  .tw-shift{font-size:10px!important;padding:2px 6px!important;}
-  .tw{overflow-x:auto;}
+  .tw-body{padding:6px 4px;}
+  .tw-group{overflow-x:auto;}
+  .tw-row{padding:6px 10px;gap:6px;}
+  .tw-row-name{width:60px!important;min-width:60px!important;font-size:11px!important;}
+  .tw-row-shift{width:64px!important;min-width:64px!important;}
+  .tw-day{width:24px!important;height:24px!important;font-size:10px!important;}
+  .tw-row-week{gap:2px!important;}
+  .tw-shift{font-size:10px!important;padding:3px 7px!important;}
+  .tw-aviso-big{font-size:10px!important;padding:4px 8px!important;}
   .move-menu{right:auto;left:0;}
 
 
@@ -3413,11 +3415,20 @@ function fmt2(n){ return String(n).padStart(2,'0'); }
     var MONTH_FULL=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
     if(todayEl) todayEl.textContent = DAY_FULL[today.getDay()]+' '+today.getDate()+' de '+MONTH_FULL[today.getMonth()];
 
+    var ignacioWorker = null;
+    for(var gi=0;gi<GRUPOS.length;gi++){
+      if(GRUPOS[gi].label==='Nura Houses'){
+        for(var wi=0;wi<GRUPOS[gi].workers.length;wi++){
+          if(GRUPOS[gi].workers[wi].n==='Ignacio') ignacioWorker=GRUPOS[gi].workers[wi];
+        }
+      }
+    }
+    var ignacioShiftToday = ignacioWorker ? shift(ignacioWorker.p, today) : null;
+
     var html = '';
     for(var g=0; g<GRUPOS.length; g++){
       var grupo = GRUPOS[g];
       html += '<div class="tw-group"><div class="tw-glabel">'+grupo.label+'</div>';
-      html += '<table class="tw-table"><tbody>';
 
       for(var w=0; w<grupo.workers.length; w++){
         var worker = grupo.workers[w];
@@ -3426,17 +3437,13 @@ function fmt2(n){ return String(n).padStart(2,'0'); }
         var shiftFg = todayS==='M'?'#1E40AF':todayS==='T'?'#92400E':todayS==='N'?'#5B21B6':'#166534';
         var shiftText = todayS==='M'?'7–15h':todayS==='T'?'15–23h':todayS==='N'?'23–7h':'Libre';
 
-        html += '<tr><td class="tw-td-name">'+worker.n+'</td>';
-        html += '<td class="tw-td-shift"><span class="tw-shift" style="background:'+shiftBg+';color:'+shiftFg+'">'+shiftText+'</span>';
-
-        // Aviso for Deiby off (next to his own shift)
-        if(todayS==='L' && worker.libre_aviso==='consultar'){
-          html += '<br><span class="tw-aviso" style="background:#FBF4E8;color:#B07A2A;">⚠️ Consultar siempre</span>';
-        }
-        html += '</td>';
-
-        // Week mini calendar - only show day labels on first worker of each group
-        html += '<td class="tw-td-week"><div class="tw-week">';
+        html += '<div class="tw-row">';
+        // Name
+        html += '<div class="tw-row-name">'+worker.n+'</div>';
+        // Today shift badge
+        html += '<div class="tw-row-shift"><span class="tw-shift" style="background:'+shiftBg+';color:'+shiftFg+'">'+shiftText+'</span></div>';
+        // Week calendar
+        html += '<div class="tw-row-week">';
         for(var d=0; d<7; d++){
           var s = shift(worker.p, days[d], worker.n);
           var isToday = days[d].getTime()===today.getTime();
@@ -3449,26 +3456,28 @@ function fmt2(n){ return String(n).padStart(2,'0'); }
             html += '<div class="tw-day-lbl'+(isToday?' td-lbl':'')+'">'+DAY[d]+'</div>';
             html += '<div class="tw-day-num'+(isToday?' td-num':'')+'">'+days[d].getDate()+'</div>';
           } else {
-            html += '<div style="height:1.2em"></div><div style="height:1.2em"></div>';
+            html += '<div style="height:1.2em;"></div><div style="height:1.2em;"></div>';
           }
           var titleTxt = DAY[d]+': '+LABEL[s]+(isFest?' — Festivo: '+festivoNombre:'');
           html += '<div class="tw-day'+(isToday?' tw-today':'')+(isFest&&s!=='L'?' festivo':'')+'" title="'+titleTxt+'" style="background:'+bg+';color:'+fg+'">'+s+'</div>';
           html += '</div>';
         }
-        html += '</div></td>';
-
-        // Aviso column - shows for Condor morning workers when Ignacio is off
-        html += '<td class="tw-td-aviso">';
-        if(grupo.label==='Hotel Cóndor' && todayS==='M'){
-          var ignacioWorker = GRUPOS.find(function(g){return g.label==='Nura Houses';}).workers.find(function(w){return w.n==='Ignacio';});
-          var ignacioShift = ignacioWorker ? shift(ignacioWorker.p, today) : null;
-          if(ignacioShift==='L'){
-            html += '<span class="tw-aviso-big">📋 Ignacio libre<br>Enviar listados</span>';
-          }
+        html += '</div>';
+        // Aviso
+        html += '<div class="tw-row-aviso">';
+        if(grupo.label==='Hotel Cóndor' && todayS==='M' && ignacioShiftToday==='L'){
+          html += '<span class="tw-aviso-big">📋 Ignacio libre — Enviar listados</span>';
         }
-        html += '</td></tr>';
+        if(todayS==='L' && worker.libre_aviso==='consultar'){
+          html += '<span class="tw-aviso" style="background:#FBF4E8;color:#B07A2A;">⚠️ Consultar siempre</span>';
+        }
+        if(todayS==='L' && worker.libre_aviso==='listados'){
+          html += '<span class="tw-aviso" style="background:#EBF5F2;color:#1D6A5A;">📋 Enviar listados</span>';
+        }
+        html += '</div>';
+        html += '</div>';
       }
-      html += '</tbody></table></div>';
+      html += '</div>';
     }
 
     // Holiday alert summary for this week
