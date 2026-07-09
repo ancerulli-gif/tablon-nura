@@ -11,23 +11,21 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#F4F2EF;--surface:#FFFFFF;--dark:#1A1A2E;--muted:#6B6660;
-  --subtle:#A09890;--border:#E6E3DE;--border-light:#EDEBE8;
+  --bg:#F4F2EF;--surface:#fff;--dark:#1C1C1E;--muted:#6B6660;
+  --subtle:#A09890;--border:#E0DDD9;--border-light:#EDEBE8;
   --teal-bg:#EBF5F2;--teal:#1D6A5A;--teal-bright:#25A070;
   --red-bg:#FCF0EF;--red:#C0392B;
   --amber-bg:#FBF4E8;--amber:#8A5D1A;--blue-bg:#EEF4FB;--blue:#1A4F8A;
   --green:#3A6B3A;--green-bg:#EDF4ED;
-  --sidebar-w:64px;--sidebar-w-open:240px;
-  --sidebar-bg:#0F1729;
-  --radius:6px;--radius-lg:12px;--radius-xl:16px;
-  --shadow:0 1px 3px rgba(0,0,0,0.05),0 4px 12px rgba(0,0,0,0.04);
-  --shadow-md:0 4px 16px rgba(0,0,0,0.10),0 1px 4px rgba(0,0,0,0.06);
-  --shadow-lg:0 8px 32px rgba(0,0,0,0.14),0 2px 8px rgba(0,0,0,0.08);
+  --sidebar-w:64px;--sidebar-w-open:240px;--sidebar-bg:#0F1729;
+  --radius:6px;--radius-lg:12px;
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.10);
   --transition:200ms cubic-bezier(0.2,0,0,1);
 }
 body{background:var(--bg);font-family:'DM Sans',system-ui,sans-serif;font-size:15px;color:var(--dark);min-height:100vh;-webkit-font-smoothing:antialiased;}
 .logo-bg{position:fixed;bottom:28px;right:32px;width:200px;opacity:.04;pointer-events:none;z-index:0;filter:grayscale(100%);}
-.topbar{background:linear-gradient(135deg,#0F1729 0%,#1a2540 100%);height:56px;display:flex;align-items:center;padding:0 16px 0 0;position:sticky;top:0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.2);}
+.topbar{background:linear-gradient(135deg,#0F1729,#1a2540);height:56px;display:flex;align-items:center;padding:0 20px;position:sticky;top:0;z-index:100;}
 .topbar-logo{height:22px;margin-right:10px;opacity:.9;}
 .topbar-sep{width:1px;height:20px;background:rgba(255,255,255,.15);margin-right:14px;}
 .topbar-sub{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);}
@@ -36,36 +34,19 @@ body{background:var(--bg);font-family:'DM Sans',system-ui,sans-serif;font-size:1
 #toggle-admin-btn{font-size:11px;background:rgba(255,255,255,.08);border:.5px solid rgba(255,255,255,.22);color:#fff;padding:5px 13px;border-radius:var(--radius);cursor:pointer;}
 #toggle-admin-btn:hover{background:rgba(255,255,255,.15);}
 .layout{display:flex;min-height:calc(100vh - 56px);position:relative;z-index:1;}
-.sidebar{
-  width:var(--sidebar-w);
-  background:var(--sidebar-bg);
-  position:fixed;
-  top:56px;
-  left:0;
-  height:calc(100vh - 56px);
-  z-index:150;
-  overflow:hidden;
-  overflow-y:auto;
-  transition:width var(--transition);
-  display:flex;
-  flex-direction:column;
-  box-shadow:4px 0 20px rgba(0,0,0,.18);
-  scrollbar-width:none;
-}
+.sidebar{width:var(--sidebar-w);background:var(--sidebar-bg);position:fixed;top:56px;left:0;height:calc(100vh - 56px);overflow:hidden;overflow-y:auto;transition:width var(--transition);z-index:150;box-shadow:4px 0 20px rgba(0,0,0,.18);scrollbar-width:none;}
 .sidebar::-webkit-scrollbar{display:none;}
 .sidebar:hover{width:var(--sidebar-w-open);}
 .sidebar-section{padding:6px 0;border-bottom:1px solid var(--border-light);}
-.sidebar-item{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:13px;font-weight:500;color:rgba(255,255,255,.45);cursor:pointer;transition:background .15s,color .15s,border-color .15s;border-left:2px solid transparent;user-select:none;white-space:nowrap;min-height:40px;position:relative;}
-.sidebar-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85);}
+.sidebar-item{display:flex;align-items:center;gap:9px;padding:9px 16px;font-size:13px;color:rgba(255,255,255,.5);cursor:pointer;transition:background .12s,color .12s;border-left:2px solid transparent;user-select:none;white-space:nowrap;}
+.sidebar-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9);}
 .sidebar-item.active{background:rgba(29,106,90,.22);color:#4DB8A0;font-weight:600;border-left-color:#1D6A5A;}
 .sidebar-item.active i{color:#4DB8A0!important;}
-.sidebar-item i{font-size:16px;flex-shrink:0;min-width:20px;text-align:center;}
-.sidebar-item > span:not(.count):not(.notif-badge){opacity:0;transition:opacity .15s .05s;overflow:hidden;}
-.sidebar:hover .sidebar-item > span:not(.count):not(.notif-badge){opacity:1;}
-.sidebar-label .sidebar-label-arrow{opacity:0;transition:opacity .15s;}
-.sidebar:hover .sidebar-label .sidebar-label-arrow{opacity:1;}
-.sidebar-item .count{margin-left:auto;font-size:10px;background:rgba(239,68,68,.18);color:#F87171;padding:1px 6px;border-radius:10px;font-weight:700;opacity:0;transition:opacity .15s;flex-shrink:0;}
-.sidebar-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.25);padding:10px 20px 4px;font-weight:700;white-space:nowrap;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.sidebar-item i{font-size:15px;flex-shrink:0;}
+.sidebar-item > span:not(.count){opacity:0;transition:opacity .15s;}
+.sidebar:hover .sidebar-item > span:not(.count){opacity:1;}
+.sidebar-item .count{margin-left:auto;font-size:11px;background:var(--border-light);color:var(--subtle);padding:1px 7px;border-radius:20px;}
+.sidebar-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);padding:10px 16px 4px;font-weight:500;white-space:nowrap;}
 .sidebar-item.drop-target{background:#EAF5F2!important;border-left-color:var(--teal)!important;color:var(--teal)!important;}
 .personal-section{border-top:1px solid var(--border-light);}
 .personal-header{display:flex;align-items:center;gap:9px;padding:9px 16px;font-size:13px;color:var(--muted);cursor:pointer;user-select:none;transition:background .12s;}
@@ -79,7 +60,7 @@ body{background:var(--bg);font-family:'DM Sans',system-ui,sans-serif;font-size:1
 .worker-item.active{background:var(--green-bg);color:var(--green);border-left-color:var(--green);font-weight:500;}
 .worker-avatar{width:22px;height:22px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--muted);flex-shrink:0;}
 .notif-dot{width:7px;height:7px;border-radius:50%;background:var(--red);margin-left:auto;flex-shrink:0;}
-.main{flex:1;padding:24px 28px 80px;max-width:860px;margin-left:var(--sidebar-w);transition:margin-left var(--transition);}
+.main{flex:1;padding:24px 28px 64px;max-width:820px;margin-left:var(--sidebar-w);}
 .pass-screen{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px 24px;text-align:center;margin-bottom:20px;display:none;box-shadow:var(--shadow);}
 .pass-screen i{font-size:28px;color:var(--subtle);display:block;margin-bottom:10px;}
 .pass-screen p{font-size:14px;color:var(--muted);margin-bottom:14px;}
@@ -141,8 +122,8 @@ input:focus,select:focus{border-color:#999;}
 .section-header{margin-bottom:18px;}
 .section-title{font-family:'DM Serif Display',Georgia,serif;font-size:22px;font-weight:400;color:var(--dark);}
 .section-desc{font-size:13px;color:var(--subtle);margin-top:3px;}
-.ann-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .2s,transform .2s;}
-.ann-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.ann-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .15s;}
+.ann-card:hover{box-shadow:0 2px 10px rgba(0,0,0,0.09);}
 .move-menu{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:0 4px 20px rgba(0,0,0,0.12);z-index:300;min-width:190px;padding:6px 0;display:none;}
 .move-menu.open{display:block;}
 .move-menu-header{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);padding:4px 14px 6px;font-weight:500;}
@@ -385,7 +366,7 @@ input:focus,select:focus{border-color:#999;}
 
 /* ── FASE 2 PANELS ── */
 .f2-panel{display:none;width:100%;}
-.f2-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow);transition:box-shadow .2s,transform .2s;}
+.f2-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow);}
 .f2-header{background:#1a1a2e;padding:11px 18px;display:flex;align-items:center;justify-content:space-between;}
 .f2-header span{font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#fff;}
 .f2-body{padding:18px;}
@@ -834,7 +815,7 @@ input:focus,select:focus{border-color:#999;}
 }
 .splash-estab-screen{
   position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  opacity:0;
+  opacity:0;pointer-events:none;
   animation:splash-estab-fadein .6s ease forwards;
   animation-delay:2.3s;
 }
@@ -941,9 +922,9 @@ input:focus,select:focus{border-color:#999;}
 
 /* User name in topbar */
 #current-user-badge{
-  font-size:12px;font-weight:600;color:#fff;
-  background:linear-gradient(135deg,#1D6A5A,#25A070);padding:5px 14px;border-radius:20px;
-  display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(29,106,90,.35);
+  font-size:12px;font-weight:500;color:#fff;
+  background:var(--teal);padding:4px 12px;border-radius:20px;
+  display:flex;align-items:center;gap:6px;
 }
 #logout-btn{
   font-size:11px;background:rgba(255,255,255,.08);border:.5px solid rgba(255,255,255,.25);
@@ -1199,44 +1180,6 @@ input:focus,select:focus{border-color:#999;}
   color:var(--teal);
 }
 
-
-/* ── SIDEBAR HOVER EXPAND LABEL VISIBILITY ── */
-.sidebar:hover .sidebar-item .count{opacity:1;}
-
-/* ── SECTION LABEL VISIBILITY ── */
-.sidebar-section.has-active > .sidebar-label{color:rgba(77,184,160,.85)!important;}
-
-/* ── NOTIFICATION DOT ── */
-.sidebar-notif-dot{
-  position:absolute;top:8px;left:38px;
-  width:8px;height:8px;border-radius:50%;
-  background:#EF4444;border:1.5px solid var(--sidebar-bg);
-  display:none;animation:notif-pulse 2s ease-in-out infinite;
-}
-.sidebar-notif-dot.show{display:block;}
-.sidebar:hover .sidebar-notif-dot{display:none;}
-@keyframes notif-pulse{
-  0%,100%{transform:scale(1);opacity:1;}
-  50%{transform:scale(1.35);opacity:.7;}
-}
-
-/* Hide notif text badge in collapsed state, show when sidebar expanded */
-.sidebar-item .notif-badge{
-  display:none;margin-left:auto;
-  font-size:9px;font-weight:700;
-  background:rgba(239,68,68,.18);color:#F87171;
-  padding:1px 6px;border-radius:10px;flex-shrink:0;
-}
-.sidebar:hover .sidebar-item .notif-badge{display:inline-block;}
-
-
-/* ── LIVE CLOCK in topbar ── */
-#topbar-clock{
-  font-size:13px;font-weight:600;color:rgba(255,255,255,.7);
-  font-variant-numeric:tabular-nums;letter-spacing:.04em;
-  background:rgba(255,255,255,.07);padding:4px 12px;border-radius:20px;
-}
-
 </style>
 </head>
 <body>
@@ -1291,7 +1234,6 @@ input:focus,select:focus{border-color:#999;}
       Ready to <span class="splash-work" onclick="hideSplashNow();showLoginScreen();">WORK</span>?
     </div>
   </div>
-
 </div>
 
 <div id="login-screen">
@@ -1361,7 +1303,6 @@ input:focus,select:focus{border-color:#999;}
   <span style="color:rgba(255,255,255,.2);font-size:16px;margin:0 8px;">|</span>
   <span class="topbar-sub">Plataforma recepciones</span>
   <div class="topbar-right">
-    <div id="topbar-clock">--:--</div>
     <span id="current-user-badge" style="display:none;"></span>
     <button id="logout-btn" onclick="doLogout()" style="display:none;" title="Cerrar sesión"><i class="ti ti-logout" style="font-size:13px;"></i>Salir</button>
     <button id="mobile-menu-btn" onclick="openNav()" aria-label="Menú" title="Menú" style="display:none;background:none;border:none;padding:4px 8px;cursor:pointer;"><i class="ti ti-menu-2" style="font-size:20px;color:#fff;"></i></button>
@@ -2852,68 +2793,6 @@ input:focus,select:focus{border-color:#999;}
     </div>
   </div>
 
-  <!-- ── PORTADA WIDGETS ── -->
-  <div id="portada-widgets" style="display:none;margin-bottom:20px;">
-
-    <!-- Fila superior: turno + tiempo + frase -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;" id="portada-top-row">
-
-      <!-- Widget Turno -->
-      <div class="f2-card" style="margin-bottom:0;" id="shift-timer-card">
-        <div style="padding:16px 18px;">
-          <div style="font-size:10px;font-weight:700;color:var(--subtle);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
-            <span>⏱ Mi turno</span>
-            <span id="shift-label" style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;"></span>
-          </div>
-          <div style="display:flex;align-items:center;gap:14px;">
-            <div style="position:relative;width:62px;height:62px;flex-shrink:0;">
-              <svg width="62" height="62" viewBox="0 0 62 62">
-                <circle cx="31" cy="31" r="26" fill="none" stroke="var(--border)" stroke-width="5"/>
-                <circle id="shift-ring" cx="31" cy="31" r="26" fill="none" stroke="#1D6A5A" stroke-width="5"
-                  stroke-dasharray="163.4" stroke-dashoffset="163.4"
-                  stroke-linecap="round" transform="rotate(-90 31 31)"
-                  style="transition:stroke-dashoffset 1s ease;"/>
-              </svg>
-              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;">
-                <div id="shift-pct" style="font-size:14px;font-weight:800;color:var(--dark);line-height:1;">0%</div>
-              </div>
-            </div>
-            <div>
-              <div id="shift-remaining" style="font-size:15px;font-weight:700;color:var(--dark);">--h --m</div>
-              <div style="font-size:11px;color:var(--subtle);margin-top:2px;">restantes</div>
-              <div id="shift-range" style="font-size:10px;color:var(--subtle);margin-top:4px;font-family:monospace;"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Widget Tiempo -->
-      <div class="f2-card" style="margin-bottom:0;" id="weather-card">
-        <div style="padding:16px 18px;">
-          <div style="font-size:10px;font-weight:700;color:var(--subtle);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">🌤 Playa de Palma</div>
-          <div id="weather-content" style="display:flex;align-items:center;gap:12px;">
-            <div id="weather-icon" style="font-size:36px;line-height:1;">⏳</div>
-            <div>
-              <div id="weather-temp" style="font-size:24px;font-weight:800;color:var(--dark);">--°</div>
-              <div id="weather-desc" style="font-size:12px;color:var(--subtle);margin-top:2px;">Cargando...</div>
-              <div id="weather-feels" style="font-size:11px;color:var(--subtle);"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Widget Frase del día -->
-      <div class="f2-card" style="margin-bottom:0;">
-        <div style="padding:16px 18px;">
-          <div style="font-size:10px;font-weight:700;color:var(--subtle);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">💬 Frase del día</div>
-          <div id="daily-quote" style="font-size:13px;font-style:italic;color:var(--dark);line-height:1.55;">Cargando...</div>
-        </div>
-      </div>
-
-    </div>
-
-  </div>
-
   <div class="section-header" id="section-header">
     <div class="section-title" id="section-title">Tablón</div>
     <div class="section-desc" id="section-desc">Comunicaciones y avisos para el equipo</div>
@@ -3101,9 +2980,6 @@ function checkPass(){
     if(naBtn) naBtn.style.display = "flex";
     loadSection();
     if(typeof updateQuickAddBtn === 'function') updateQuickAddBtn();
-  showPortadaWidgets();
-  if(typeof loadDailyQuote === 'function') loadDailyQuote();
-  if(typeof loadWeather === 'function') loadWeather();
   } else {document.getElementById("pass-err").style.display="block";}
 }
 
@@ -3119,7 +2995,6 @@ function switchSection(el){
   el.classList.add("active");
   setSidebarActive(el);
   currentSection=el.dataset.section;
-  if(currentSection==='tablon'){ showPortadaWidgets(); } else { hidePortadaWidgets(); }
   document.getElementById("section-title").textContent=SECTIONS[currentSection].title;
   document.getElementById("section-desc").textContent=SECTIONS[currentSection].desc;
   updateTurnosVisibility();
@@ -3792,7 +3667,7 @@ function openTurnosFijo() {
   panel.style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('turnos-sidebar-btn').classList.add('active');
-  setSidebarActive(document.querySelector('.sidebar-item.active')));  currentF2Panel = 'turnos-fijo';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'turnos-fijo';
 
   // Move the #tw widget into this panel
   const tw = document.getElementById('tw');
@@ -3825,12 +3700,11 @@ function openFichaje() {
   ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
     const el = document.getElementById(id); if(el) el.style.display = 'none';
   });
-  hidePortadaWidgets();
   document.querySelectorAll('.f2-panel').forEach(p => p.style.display = 'none');
   document.getElementById('panel-fichaje').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('fichaje-btn').classList.add('active');
-  setSidebarActive(document.querySelector('.sidebar-item.active')));  currentF2Panel = 'fichaje';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'fichaje';
   // Load iframe only when panel is opened (lazy load)
   const iframe = document.getElementById('fichaje-iframe');
   if (!iframe.src || iframe.src === window.location.href) {
@@ -3865,7 +3739,7 @@ function openNuevoAnuncio(){
   document.getElementById('admin-wrap').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('nuevo-anuncio-btn').classList.add('active');
-  setSidebarActive(document.querySelector('.sidebar-item.active')));  currentF2Panel = 'nuevo-anuncio';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'nuevo-anuncio';
 }
 
 function openRelevo() {
@@ -3880,7 +3754,7 @@ function openRelevo() {
   document.getElementById('relevo-panel').style.display='block';
   document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
   document.getElementById('relevo-sidebar-btn').classList.add('active');
-  setSidebarActive(document.querySelector('.sidebar-item.active')));  // Show form if admin
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  // Show form if admin
   document.getElementById('relevo-form-wrap').style.display = 'block';
   setTimeout(initRelevaQuill, 100);
   updateRelevaDateHeader();
@@ -4206,7 +4080,7 @@ function openArqueo(){
   document.getElementById('arqueo-panel').style.display='block';
   document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
   document.getElementById('arqueo-sidebar-btn').classList.add('active');
-  setSidebarActive(document.querySelector('.sidebar-item.active')));  const now = new Date();
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  const now = new Date();
   const p2=n=>('0'+n).slice(-2);
   document.getElementById('arqueo-date-label').textContent=p2(now.getDate())+'/'+p2(now.getMonth()+1)+'/'+now.getFullYear()+' '+p2(now.getHours())+':'+p2(now.getMinutes());
   buildArqueoTable();
@@ -4958,7 +4832,7 @@ function openMensajes() {
   document.getElementById('panel-mensajes').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('mensajes-btn').classList.add('active');
-  setSidebarActive(document.querySelector('.sidebar-item.active')));  currentF2Panel = 'mensajes';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'mensajes';
 
   if(msgCurrentUser) {
     document.getElementById('msg-auth-screen').style.display = 'none';
@@ -5183,7 +5057,7 @@ function openAlojamientos() {
   document.getElementById('panel-alojamientos').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('alojamientos-btn').classList.add('active');
-  setSidebarActive(document.querySelector('.sidebar-item.active')));  currentF2Panel = 'alojamientos';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'alojamientos';
 
   buildAlojTabs();
   buildAlojTabsEspecifico();
@@ -5600,12 +5474,11 @@ function openEmergenciasFijo() {
   ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
     const el = document.getElementById(id); if(el) el.style.display = 'none';
   });
-  hidePortadaWidgets();
   document.querySelectorAll('.f2-panel').forEach(p => p.style.display = 'none');
   document.getElementById('panel-emergencias-fijo').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('emergencias-fijo-btn').classList.add('active');
-  setSidebarActive(document.querySelector('.sidebar-item.active')));  currentF2Panel = 'emergencias-fijo';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'emergencias-fijo';
 }
 
 function openContactosFijo() {
@@ -5619,7 +5492,7 @@ function openContactosFijo() {
   document.getElementById('panel-contactos-fijo').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('contactos-fijo-btn').classList.add('active');
-  setSidebarActive(document.querySelector('.sidebar-item.active')));  currentF2Panel = 'contactos-fijo';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'contactos-fijo';
 }
 
 function openIA() {
@@ -5633,7 +5506,7 @@ function openIA() {
   document.getElementById('panel-ia').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('ia-btn').classList.add('active');
-  setSidebarActive(document.querySelector('.sidebar-item.active')));  currentF2Panel = 'ia';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'ia';
   setTimeout(() => document.getElementById('ia-input')?.focus(), 100);
 }
 
@@ -5803,7 +5676,7 @@ function openChecklist() {
   document.getElementById('panel-checklist').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('checklist-sidebar-btn').classList.add('active');
-  setSidebarActive(document.querySelector('.sidebar-item.active')));  currentF2Panel = 'checklist';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'checklist';
   document.getElementById('cl-hotel-select').value = clCurrentHotel;
   clRender();
   clLoadHistory();
@@ -5960,7 +5833,7 @@ function openPremio() {
   document.getElementById('panel-premio').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('premio-btn').classList.add('active');
-  setSidebarActive(document.querySelector('.sidebar-item.active')));  currentF2Panel = 'premio';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'premio';
 
   document.getElementById('premio-prize-img').src = PREMIO_IMG_URL;
   loadPremioRanking();
@@ -6034,8 +5907,6 @@ async function premioAdjust(worker, delta) {
 
 
 // ── SPLASH INTRO (acción exagerada) ──
-
-
 function hideSplashNow(){
   var s = document.getElementById('splash-screen');
   if(!s) return;
@@ -6406,7 +6277,7 @@ function openPasswordsAdmin(){
   document.getElementById('panel-passwords').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('passwords-btn').classList.add('active');
-  setSidebarActive(document.querySelector('.sidebar-item.active')));  currentF2Panel = 'passwords';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'passwords';
   renderPasswordsList();
 }
 
@@ -6458,7 +6329,7 @@ function openResumenResenas() {
   document.getElementById('panel-resumen-resenas').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('resumen-resenas-btn').classList.add('active');
-  setSidebarActive(document.querySelector('.sidebar-item.active')));  currentF2Panel = 'resumen-resenas';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'resumen-resenas';
   renderResenasResumen();
   loadStoredReviewCheckSummary();
 }
@@ -6886,7 +6757,6 @@ function openExtras(type) {
   ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
     const el = document.getElementById(id); if(el) el.style.display = 'none';
   });
-  hidePortadaWidgets();
   document.querySelectorAll('.f2-panel').forEach(p => p.style.display = 'none');
   document.getElementById('panel-extras').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
@@ -7182,12 +7052,11 @@ function openExtrasLiquidacion() {
   ['section-header','announcements-list','relevo-panel','arqueo-panel','worker-note-panel','worker-pass-box'].forEach(id => {
     const el = document.getElementById(id); if(el) el.style.display = 'none';
   });
-  hidePortadaWidgets();
   document.querySelectorAll('.f2-panel').forEach(p => p.style.display = 'none');
   document.getElementById('panel-extras-liquidacion').style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   document.getElementById('extras-liquidacion-btn').classList.add('active');
-  setSidebarActive(document.querySelector('.sidebar-item.active')));  currentF2Panel = 'extras-liquidacion';
+  setSidebarActive(document.querySelector('.sidebar-item.active'));  currentF2Panel = 'extras-liquidacion';
   extrasLiqCargar();
 }
 
@@ -7273,168 +7142,6 @@ async function extrasLiqLiquidarTodo() {
   showToast(`✓ ${liqPendingIds.length} registros liquidados`);
   extrasLiqCargar();
 }
-
-
-
-
-// ══════════════════════════════════════════════
-// FASE 1 — LIVE CLOCK + SHIFT TIMER + WEATHER + QUOTE
-// ══════════════════════════════════════════════
-
-// ── LIVE CLOCK ──
-function updateClock(){
-  const now = new Date();
-  const h = String(now.getHours()).padStart(2,'0');
-  const m = String(now.getMinutes()).padStart(2,'0');
-  const s = String(now.getSeconds()).padStart(2,'0');
-  const el = document.getElementById('topbar-clock');
-  if(el) el.textContent = h+':'+m+':'+s;
-}
-setInterval(updateClock,1000);
-updateClock();
-
-// ── SHIFT TIMER ──
-function getShiftInfo(){
-  const now = new Date();
-  const h = now.getHours();
-  if(h >= 7 && h < 15) return {label:'7–15h',start:7,end:15,color:'#1E40AF',bg:'#DBEAFE',labelBg:'#DBEAFE',labelColor:'#1E40AF'};
-  if(h >= 15 && h < 23) return {label:'15–23h',start:15,end:23,color:'#92400E',bg:'#FEF3C7',labelBg:'#FEF3C7',labelColor:'#92400E'};
-  return {label:'23–7h',start:23,end:7,color:'#5B21B6',bg:'#EDE9FE',labelBg:'#EDE9FE',labelColor:'#5B21B6'};
-}
-
-function updateShiftTimer(){
-  const now = new Date();
-  const info = getShiftInfo();
-
-  // Calculate start and end datetimes
-  const start = new Date(now);
-  start.setHours(info.start,0,0,0);
-  const end = new Date(now);
-  if(info.end <= info.start){ end.setDate(end.getDate()+1); }
-  end.setHours(info.end,0,0,0);
-  if(now < start) start.setDate(start.getDate()-1);
-
-  const total = end - start;
-  const elapsed = now - start;
-  const remaining = end - now;
-  const pct = Math.min(100, Math.max(0, (elapsed / total) * 100));
-
-  // Ring: circumference = 2π×26 ≈ 163.4
-  const circ = 163.4;
-  const offset = circ - (pct / 100) * circ;
-  const ring = document.getElementById('shift-ring');
-  if(ring){
-    ring.style.strokeDashoffset = offset;
-    ring.style.stroke = info.color;
-  }
-
-  const remH = Math.floor(remaining / 3600000);
-  const remM = Math.floor((remaining % 3600000) / 60000);
-
-  const pctEl = document.getElementById('shift-pct');
-  const remEl = document.getElementById('shift-remaining');
-  const rangeEl = document.getElementById('shift-range');
-  const labelEl = document.getElementById('shift-label');
-  if(pctEl) pctEl.textContent = Math.round(pct)+'%';
-  if(remEl) remEl.textContent = remH+'h '+remM+'m';
-  if(rangeEl) rangeEl.textContent = info.label;
-  if(labelEl){
-    labelEl.textContent = info.label;
-    labelEl.style.background = info.labelBg;
-    labelEl.style.color = info.labelColor;
-  }
-}
-
-setInterval(updateShiftTimer,60000);
-updateShiftTimer();
-
-// ── DAILY QUOTE ──
-const DAILY_QUOTES = [
-  'La hospitalidad es el arte de hacer que alguien se sienta como en casa, especialmente cuando desearías que estuvieran en la suya.',
-  'Un cliente satisfecho es la mejor estrategia de negocio.',
-  'El servicio no es solo un departamento, es toda la actitud.',
-  'Cada persona que llega es una oportunidad de hacer algo extraordinario.',
-  'La excelencia no es un acto, es un hábito.',
-  'La amabilidad es el idioma que los sordos pueden oír y los ciegos pueden ver.',
-  'Trabaja con pasión o no trabajes en absoluto.',
-  'La diferencia entre lo ordinario y lo extraordinario es ese pequeño extra.',
-  'El éxito es la suma de pequeños esfuerzos repetidos día tras día.',
-  'Cuida a tus empleados y ellos cuidarán a tus clientes.',
-  'La sonrisa es el idioma universal de los amables.',
-  'Haz lo que puedas, con lo que tengas, donde estés.',
-  'El detalle marca la diferencia entre bueno y excepcional.',
-  'Cada día es una nueva oportunidad de marcar la diferencia.',
-  'El mejor momento para empezar fue ayer. El segundo mejor es ahora.',
-  'La calidad nunca es un accidente; siempre es el resultado del esfuerzo.',
-  'Un equipo unido convierte sueños en realidades.',
-  'La confianza se gana gota a gota y se pierde a cubos.',
-  'Ningún trabajo es insignificante si se hace con excelencia.',
-  'El cliente no siempre tiene razón, pero siempre merece respeto.',
-  'Transforma los desafíos en oportunidades de crecimiento.',
-  'La dedicación de hoy es el éxito de mañana.',
-  'La paciencia es amarga, pero su fruto es dulce.',
-  'Sé el cambio que quieres ver en el mundo.',
-  'La constancia hace al maestro.',
-  'Quien no valora lo pequeño no merece lo grande.',
-  'El respeto se gana, la honestidad se aprecia y la lealtad se devuelve.',
-  'Los detalles son los que convierten lo bueno en magnífico.',
-  'Tratar bien a la gente es la mejor inversión.',
-  'La hospitalidad genuina viene del corazón, no del protocolo.',
-];
-
-function loadDailyQuote(){
-  const el = document.getElementById('daily-quote');
-  if(!el) return;
-  const day = new Date().getDate() + new Date().getMonth()*31;
-  el.textContent = '"'+DAILY_QUOTES[day % DAILY_QUOTES.length]+'"';
-}
-
-// ── WEATHER ──
-async function loadWeather(){
-  try{
-    const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=39.5196&longitude=2.7308&current=temperature_2m,weathercode,apparent_temperature&timezone=Europe/Madrid');
-    const d = await r.json();
-    const temp = Math.round(d.current.temperature_2m);
-    const feels = Math.round(d.current.apparent_temperature);
-    const code = d.current.weathercode;
-    const icons = {0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',48:'🌫',51:'🌦',53:'🌦',55:'🌧',61:'🌧',63:'🌧',65:'🌧',71:'🌨',80:'🌦',81:'🌧',95:'⛈',96:'⛈',99:'⛈'};
-    const descs = {0:'Despejado',1:'Mayormente soleado',2:'Parcialmente nublado',3:'Nublado',45:'Niebla',51:'Llovizna',53:'Llovizna',55:'Llovizna fuerte',61:'Lluvia leve',63:'Lluvia',65:'Lluvia fuerte',71:'Nieve',80:'Chubascos',81:'Chubascos',95:'Tormenta',96:'Tormenta',99:'Tormenta'};
-    const icon = icons[code] || '🌡';
-    const desc = descs[code] || 'Tiempo variable';
-
-    document.getElementById('weather-icon').textContent = icon;
-    document.getElementById('weather-temp').textContent = temp+'°C';
-    document.getElementById('weather-desc').textContent = desc;
-    document.getElementById('weather-feels').textContent = 'Sensación: '+feels+'°C';
-  } catch(e){
-    document.getElementById('weather-desc').textContent = 'No disponible';
-  }
-}
-
-// ── SHOW PORTADA WIDGETS ──
-function showPortadaWidgets(){
-  const w = document.getElementById('portada-widgets');
-  if(w) w.style.display = 'block';
-}
-function hidePortadaWidgets(){
-  const w = document.getElementById('portada-widgets');
-  if(w) w.style.display = 'none';
-}
-
-// ── RESPONSIVE PORTADA GRID ──
-function updatePortadaGrid(){
-  const row = document.getElementById('portada-top-row');
-  if(!row) return;
-  if(window.innerWidth < 768){
-    row.style.gridTemplateColumns = '1fr';
-  } else if(window.innerWidth < 1100){
-    row.style.gridTemplateColumns = '1fr 1fr';
-  } else {
-    row.style.gridTemplateColumns = '1fr 1fr 1fr';
-  }
-}
-window.addEventListener('resize', updatePortadaGrid);
-updatePortadaGrid();
 
 
 
