@@ -17,7 +17,7 @@
   --red-bg:#FCF0EF;--red:#C0392B;
   --amber-bg:#FBF4E8;--amber:#8A5D1A;--blue-bg:#EEF4FB;--blue:#1A4F8A;
   --green:#3A6B3A;--green-bg:#EDF4ED;
-  --sidebar-w:64px;--sidebar-w-open:240px;--sidebar-bg:#0F1729;
+  --sidebar-w:64px;--sidebar-w-open:260px;--sidebar-bg:#0F1729;
   --radius:6px;--radius-lg:12px;
   --shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);
   --shadow-md:0 4px 16px rgba(0,0,0,0.10);
@@ -34,9 +34,9 @@ body{background:var(--bg);font-family:'DM Sans',system-ui,sans-serif;font-size:1
 #toggle-admin-btn{font-size:11px;background:rgba(255,255,255,.08);border:.5px solid rgba(255,255,255,.22);color:#fff;padding:5px 13px;border-radius:var(--radius);cursor:pointer;}
 #toggle-admin-btn:hover{background:rgba(255,255,255,.15);}
 .layout{display:flex;min-height:calc(100vh - 56px);position:relative;z-index:1;}
-.sidebar{width:var(--sidebar-w);background:var(--sidebar-bg);position:fixed;top:56px;left:0;height:calc(100vh - 56px);overflow:hidden;overflow-y:auto;transition:width var(--transition);z-index:150;box-shadow:4px 0 20px rgba(0,0,0,.18);scrollbar-width:none;}
+.sidebar{width:var(--sidebar-w);background:var(--sidebar-bg);position:fixed;top:56px;left:0;height:calc(100vh - 56px);overflow:hidden;overflow-y:auto;transition:width 200ms ease 400ms;z-index:150;box-shadow:4px 0 20px rgba(0,0,0,.18);scrollbar-width:none;}
 .sidebar::-webkit-scrollbar{display:none;}
-.sidebar:hover{width:var(--sidebar-w-open);}
+.sidebar:hover{width:var(--sidebar-w-open);transition:width 180ms ease 0ms;}
 .sidebar-section{padding:6px 0;border-bottom:1px solid var(--border-light);}
 .sidebar-item{display:flex;align-items:center;gap:9px;padding:9px 16px;font-size:13px;color:rgba(255,255,255,.5);cursor:pointer;transition:background .12s,color .12s;border-left:2px solid transparent;user-select:none;white-space:nowrap;}
 .sidebar-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9);}
@@ -1185,12 +1185,38 @@ input:focus,select:focus{border-color:#999;}
 /* ══════════════════════════════════════════
    FASE 1 — SIDEBAR HOVER EXPAND
 ══════════════════════════════════════════ */
+
+/* Icon sizing and alignment */
+.sidebar-item i{
+  min-width:20px;text-align:center;flex-shrink:0;font-size:16px!important;
+}
+
+/* Hide text labels when collapsed, show on hover */
 .sidebar-item > span:not(.count){
-  opacity:0;transition:opacity .15s .03s;overflow:hidden;
+  opacity:0;transition:opacity .15s .03s;white-space:nowrap;
+  flex:1;overflow:hidden;text-overflow:ellipsis;
 }
 .sidebar:hover .sidebar-item > span:not(.count){opacity:1;}
-.sidebar-label .lbl{opacity:0;transition:opacity .15s .03s;}
-.sidebar:hover .sidebar-label .lbl{opacity:1;}
+
+/* Hide section label text + arrow when collapsed */
+.sidebar-label{
+  white-space:nowrap;overflow:hidden;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.sidebar-label > span:first-child,
+.sidebar-label-arrow{
+  opacity:0;transition:opacity .15s .03s;
+}
+.sidebar:hover .sidebar-label > span:first-child,
+.sidebar:hover .sidebar-label-arrow{opacity:1;}
+
+/* Count badge */
+.sidebar-item .count{
+  opacity:0;transition:opacity .15s;margin-left:auto;flex-shrink:0;
+  font-size:11px;background:var(--border-light);color:var(--subtle);
+  padding:1px 6px;border-radius:10px;
+}
+.sidebar:hover .sidebar-item .count{opacity:1;}
 
 .sidebar-item.active i{color:#4DB8A0!important;}
 
@@ -1233,6 +1259,44 @@ input:focus,select:focus{border-color:#999;}
   .main{margin-left:0!important;}
   #portada-widgets .pw-grid{grid-template-columns:1fr;}
 }
+
+/* ── SIDEBAR: Show icons in ALL sections when sidebar is collapsed (not hovered) ──*/
+.sidebar:not(:hover) .sidebar-section.collapsed .sidebar-item{
+  display:flex!important;
+}
+/* Hide section dividers in collapsed state */
+.sidebar:not(:hover) .sidebar-section{
+  border-bottom-color:rgba(255,255,255,.06);
+}
+.sidebar-section{border-bottom:1px solid rgba(255,255,255,.08);}
+
+/* Sidebar label in dark sidebar */
+.sidebar-label{
+  cursor:pointer;user-select:none;
+  font-size:9px;letter-spacing:.12em;color:rgba(255,255,255,.3);
+  padding:10px 16px 4px;
+}
+
+/* Active sidebar item */
+.sidebar-item.active i{color:#4DB8A0!important;}
+
+/* Sidebar item icon always visible */
+.sidebar-item{position:relative;}
+
+/* Badge user in topbar */
+#current-user-badge{
+  font-size:12px;font-weight:600;color:#fff;
+  background:linear-gradient(135deg,#1D6A5A,#25A070);
+  padding:5px 14px;border-radius:20px;
+  display:flex;align-items:center;gap:6px;
+  box-shadow:0 2px 8px rgba(29,106,90,.35);
+}
+
+/* Sidebar labels don't overflow when expanded */
+.sidebar-item > span:not(.count){
+  max-width:160px;
+}
+.sidebar-label{max-width:220px;}
 </style>
 </head>
 <body>
