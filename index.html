@@ -834,7 +834,7 @@ input:focus,select:focus{border-color:#999;}
 }
 .splash-estab-screen{
   position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  opacity:0;pointer-events:none;
+  opacity:0;
   animation:splash-estab-fadein .6s ease forwards;
   animation-delay:2.3s;
 }
@@ -1291,10 +1291,7 @@ input:focus,select:focus{border-color:#999;}
       Ready to <span class="splash-work" onclick="hideSplashNow();showLoginScreen();">WORK</span>?
     </div>
   </div>
-  <!-- Overlay clickable que aparece cuando el splash-estab-screen está visible -->
-  <div id="splash-click-overlay" onclick="hideSplashNow();showLoginScreen();"
-    style="position:absolute;inset:0;z-index:9990;cursor:pointer;display:none;">
-  </div>
+
 </div>
 
 <div id="login-screen">
@@ -6037,11 +6034,7 @@ async function premioAdjust(worker, delta) {
 
 
 // ── SPLASH INTRO (acción exagerada) ──
-// Fix entrada al tablón: mostrar overlay clickable cuando aparece el WORK
-setTimeout(function(){
-  var overlay = document.getElementById('splash-click-overlay');
-  if(overlay) overlay.style.display = 'block';
-}, 2350);
+
 
 function hideSplashNow(){
   var s = document.getElementById('splash-screen');
