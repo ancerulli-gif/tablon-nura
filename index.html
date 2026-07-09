@@ -1263,6 +1263,165 @@ input:focus,select:focus{border-color:#999;}
   border-top:1px solid rgba(255,255,255,.12);
   border-bottom:none;
 }
+
+/* ═══════════════════════════════════════════════════════
+   FASE 2 CSS
+═══════════════════════════════════════════════════════ */
+
+/* ── 1. BÚSQUEDA GLOBAL ── */
+#search-overlay{
+  position:fixed;inset:0;z-index:8000;
+  background:rgba(15,23,41,.75);backdrop-filter:blur(4px);
+  display:none;align-items:flex-start;justify-content:center;
+  padding-top:80px;
+}
+#search-overlay.show{display:flex;}
+#search-box{
+  background:#fff;border-radius:16px;width:min(600px,90vw);
+  box-shadow:0 20px 60px rgba(0,0,0,.35);overflow:hidden;
+}
+#search-input{
+  width:100%;padding:18px 20px;font-size:16px;border:none;outline:none;
+  font-family:inherit;color:var(--dark);background:transparent;
+  border-bottom:1px solid var(--border);
+}
+#search-results{max-height:420px;overflow-y:auto;padding:8px 0;}
+.search-result-item{
+  padding:12px 20px;cursor:pointer;display:flex;align-items:center;gap:12px;
+  transition:background .1s;font-size:14px;color:var(--dark);
+}
+.search-result-item:hover{background:#F4F2EF;}
+.search-result-item .sr-icon{font-size:16px;flex-shrink:0;}
+.search-result-item .sr-title{font-weight:600;}
+.search-result-item .sr-section{font-size:11px;color:var(--subtle);margin-top:1px;}
+.search-result-empty{padding:32px;text-align:center;color:var(--subtle);font-size:14px;}
+#search-hint{padding:10px 20px;font-size:11px;color:var(--subtle);display:flex;gap:16px;}
+#search-hint kbd{background:var(--border-light);padding:2px 6px;border-radius:4px;font-family:monospace;}
+
+/* ── 2. BOTTOM NAV MÓVIL ── */
+#bottom-nav{
+  display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;
+  background:#0F1729;border-top:1px solid rgba(255,255,255,.1);
+  padding:8px 0 env(safe-area-inset-bottom,8px);
+}
+#bottom-nav .bn-items{display:flex;justify-content:space-around;align-items:center;}
+.bn-item{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:4px 12px;cursor:pointer;color:rgba(255,255,255,.45);
+  font-size:9px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+  transition:color .15s;border:none;background:none;
+}
+.bn-item i{font-size:20px;}
+.bn-item.active,.bn-item:hover{color:#4DB8A0;}
+@media(max-width:768px){
+  #bottom-nav{display:block;}
+  .main{padding-bottom:90px!important;}
+}
+
+/* ── 3. MOOD DEL TURNO ── */
+#mood-overlay{
+  position:fixed;inset:0;z-index:7000;
+  background:rgba(15,23,41,.8);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;
+}
+#mood-overlay.show{display:flex;}
+#mood-card{
+  background:#fff;border-radius:20px;padding:36px 40px;
+  text-align:center;width:min(400px,90vw);
+  box-shadow:0 24px 64px rgba(0,0,0,.3);
+}
+#mood-card h3{font-size:20px;font-weight:700;color:var(--dark);margin-bottom:6px;}
+#mood-card p{color:var(--subtle);font-size:14px;margin-bottom:28px;}
+.mood-options{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.mood-btn{
+  font-size:36px;padding:14px;border:2px solid var(--border);
+  border-radius:16px;cursor:pointer;background:none;
+  transition:all .15s;line-height:1;
+}
+.mood-btn:hover{border-color:var(--teal);background:var(--teal-bg);transform:scale(1.1);}
+.mood-btn.selected{border-color:var(--teal);background:var(--teal-bg);}
+#mood-submit{
+  margin-top:24px;width:100%;padding:13px;
+  background:var(--teal);color:#fff;border:none;border-radius:10px;
+  font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;
+}
+#mood-submit:hover{background:#1a5c4d;}
+
+/* ── 4. ONLINE STATUS ── */
+#online-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 16px;background:rgba(29,106,90,.08);
+  border-radius:8px;margin-bottom:12px;flex-wrap:wrap;
+}
+.online-user{
+  display:flex;align-items:center;gap:5px;
+  font-size:12px;color:var(--dark);font-weight:500;
+}
+.online-dot{
+  width:8px;height:8px;border-radius:50%;background:#22C55E;
+  box-shadow:0 0 0 2px rgba(34,197,94,.3);
+  animation:pulse-green 2s ease-in-out infinite;
+}
+@keyframes pulse-green{0%,100%{box-shadow:0 0 0 2px rgba(34,197,94,.3);}50%{box-shadow:0 0 0 5px rgba(34,197,94,.1);}}
+
+/* ── 5. CONFETTI ── */
+.confetti-piece{
+  position:fixed;width:10px;height:10px;
+  top:-10px;animation:confetti-fall linear forwards;
+  pointer-events:none;z-index:9999;border-radius:2px;
+}
+@keyframes confetti-fall{
+  0%{transform:translateY(0) rotate(0deg);opacity:1;}
+  100%{transform:translateY(100vh) rotate(720deg);opacity:0;}
+}
+
+/* ── 6. DARK MODE ── */
+body.dark-mode{
+  --bg:#111827;--surface:#1F2937;--dark:#F9FAFB;--muted:#9CA3AF;
+  --subtle:#6B7280;--border:#374151;--border-light:#1F2937;
+  --teal-bg:rgba(29,106,90,.15);--teal:#4DB8A0;
+  --red-bg:rgba(220,38,38,.1);--amber-bg:rgba(217,119,6,.1);
+  --blue-bg:rgba(59,130,246,.1);--green-bg:rgba(34,197,94,.1);
+}
+body.dark-mode .login-card{background:#1F2937!important;border:1px solid #374151;}
+body.dark-mode #login-screen{background:#0F172A!important;}
+body.dark-mode .ann-card,body.dark-mode .f2-card{border-color:#374151;}
+
+/* Dark mode toggle */
+#darkmode-btn{
+  background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.7);
+  width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;margin-right:6px;
+}
+#darkmode-btn:hover{background:rgba(255,255,255,.15);}
+
+/* ── 7. MINI STATS ADMIN ── */
+#admin-stats-bar{
+  display:none;
+  gap:12px;margin-bottom:16px;flex-wrap:wrap;
+}
+.astat{
+  flex:1;min-width:140px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:14px 16px;
+}
+.astat-label{font-size:10px;color:var(--subtle);text-transform:uppercase;letter-spacing:.08em;font-weight:700;}
+.astat-val{font-size:22px;font-weight:800;color:var(--dark);margin-top:4px;}
+.astat-sub{font-size:11px;color:var(--subtle);margin-top:2px;}
+
+/* ── 8. ACTIVITY FEED ── */
+#activity-feed{margin-top:20px;}
+#activity-feed .af-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 0;border-bottom:1px solid var(--border-light);
+  font-size:13px;color:var(--muted);
+}
+#activity-feed .af-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--teal);
+  margin-top:4px;flex-shrink:0;
+}
+#activity-feed .af-time{font-size:11px;color:var(--subtle);white-space:nowrap;}
 </style>
 </head>
 <body>
@@ -1387,6 +1546,8 @@ input:focus,select:focus{border-color:#999;}
   <span class="topbar-sub">Plataforma recepciones</span>
   <div class="topbar-right">
     <div id="topbar-clock">--:--</div>
+    <button id="darkmode-btn" onclick="toggleDarkMode()" title="Modo oscuro/claro">🌙</button>
+    <button onclick="openSearch()" title="Buscar (Ctrl+K)" style="background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.7);width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;margin-right:6px;">🔍</button>
     <span id="current-user-badge" style="display:none;"></span>
     <button id="logout-btn" onclick="doLogout()" style="display:none;" title="Cerrar sesión"><i class="ti ti-logout" style="font-size:13px;"></i>Salir</button>
     <button id="mobile-menu-btn" onclick="openNav()" aria-label="Menú" title="Menú" style="display:none;background:none;border:none;padding:4px 8px;cursor:pointer;"><i class="ti ti-menu-2" style="font-size:20px;color:#fff;"></i></button>
@@ -6010,6 +6171,7 @@ async function premioAdjust(worker, delta) {
     await db.from('premio_resenas').insert([{ worker, puntos: newPoints }]);
   }
   if (delta > 0) showToast('🎉 +1 punto para ' + worker + '!');
+  if(typeof launchConfetti==='function') launchConfetti();
   loadPremioRanking();
 }
 
@@ -6157,6 +6319,7 @@ function completeLogin(name, isAdmin){
   startSessionTimer();
   if(typeof loadSection === 'function') loadSection();
   if(typeof showPortadaWidgets==='function')showPortadaWidgets();
+  if(typeof fase2OnLogin==='function')fase2OnLogin();
   // Make sure the Tablón sidebar item is marked active on initial load
   var tabBtn = document.querySelector('.sidebar-item[data-section="tablon"]');
   if(tabBtn && !document.querySelector('.sidebar-item.active:not([data-section="tablon"])')) {
@@ -6285,6 +6448,7 @@ function checkExistingSession(){
     startSessionTimer();
     if(typeof loadSection === 'function') loadSection();
   if(typeof showPortadaWidgets==='function')showPortadaWidgets();
+  if(typeof fase2OnLogin==='function')fase2OnLogin();
   // Make sure the Tablón sidebar item is marked active on initial load
   var tabBtn = document.querySelector('.sidebar-item[data-section="tablon"]');
   if(tabBtn && !document.querySelector('.sidebar-item.active:not([data-section="tablon"])')) {
@@ -7337,6 +7501,218 @@ setTimeout(function(){var z=document.getElementById('splash-skip-zone');if(z)z.s
   }
 })();
 
+
+// ═══════════════════════════════════════════════════════
+// FASE 2 — JS COMPLETO
+// ═══════════════════════════════════════════════════════
+
+// ── 1. BÚSQUEDA GLOBAL (Ctrl+K) ──
+var _searchData = [];
+function buildSearchIndex(){
+  _searchData = [];
+  document.querySelectorAll('.ann-card').forEach(function(card){
+    var title = card.querySelector('.ann-title, .ann-header, h3, strong');
+    var body = card.querySelector('.ann-body, .ann-content, p');
+    if(title) _searchData.push({
+      title: title.textContent.trim(),
+      body: body ? body.textContent.trim().slice(0,80) : '',
+      section: 'Tablón', icon:'📋',
+      el: card
+    });
+  });
+}
+
+function openSearch(){
+  document.getElementById('search-overlay').classList.add('show');
+  setTimeout(function(){ document.getElementById('search-input').focus(); }, 50);
+  buildSearchIndex();
+  renderSearchResults('');
+}
+function closeSearch(){
+  document.getElementById('search-overlay').classList.remove('show');
+  document.getElementById('search-input').value = '';
+}
+function renderSearchResults(q){
+  var list = document.getElementById('search-results');
+  if(!q.trim()){
+    list.innerHTML = '<div class="search-result-empty">Empieza a escribir para buscar...</div>';
+    return;
+  }
+  var q2 = q.toLowerCase();
+  var results = _searchData.filter(function(d){
+    return d.title.toLowerCase().includes(q2) || d.body.toLowerCase().includes(q2);
+  }).slice(0,10);
+  if(!results.length){
+    list.innerHTML = '<div class="search-result-empty">Sin resultados para "'+q+'"</div>';
+    return;
+  }
+  list.innerHTML = results.map(function(r){
+    return '<div class="search-result-item" onclick="closeSearch();r.el&&r.el.scrollIntoView({behavior:\'smooth\'});"><span class="sr-icon">'+r.icon+'</span><div><div class="sr-title">'+r.title+'</div><div class="sr-section">'+r.section+'</div></div></div>';
+  }).join('');
+}
+
+// Keyboard shortcut
+document.addEventListener('keydown', function(e){
+  if((e.ctrlKey||e.metaKey) && e.key==='k'){ e.preventDefault(); openSearch(); }
+  if(e.key==='Escape') closeSearch();
+});
+
+// ── 2. MOOD DEL TURNO ──
+var _moodSelected = null;
+function showMoodOverlay(){
+  _moodSelected = null;
+  document.querySelectorAll('.mood-btn').forEach(function(b){ b.classList.remove('selected'); });
+  document.getElementById('mood-overlay').classList.add('show');
+}
+function selectMood(btn, mood){
+  _moodSelected = mood;
+  document.querySelectorAll('.mood-btn').forEach(function(b){ b.classList.remove('selected'); });
+  btn.classList.add('selected');
+}
+function submitMood(){
+  if(!_moodSelected) return;
+  var moods = {'😴':'Con sueño','😐':'Normal','😊':'Bien','🔥':'A tope'};
+  showToast('Turno iniciado '+_moodSelected+' — '+(moods[_moodSelected]||''));
+  document.getElementById('mood-overlay').classList.remove('show');
+  // Save mood to supabase if possible
+  if(currentLoggedUser && typeof db !== 'undefined'){
+    db.from('mood_turnos').insert({worker:currentLoggedUser, mood:_moodSelected, ts:new Date().toISOString()}).then(function(){});
+  }
+}
+
+// ── 3. CONFETTI ──
+function launchConfetti(){
+  var colors = ['#25A070','#1D6A5A','#FFD580','#FF6B6B','#4DB8A0','#A78BFA'];
+  for(var i=0;i<80;i++){
+    (function(i){
+      setTimeout(function(){
+        var el = document.createElement('div');
+        el.className = 'confetti-piece';
+        el.style.left = Math.random()*100+'vw';
+        el.style.background = colors[Math.floor(Math.random()*colors.length)];
+        el.style.width = (6+Math.random()*8)+'px';
+        el.style.height = (6+Math.random()*8)+'px';
+        el.style.animationDuration = (1.5+Math.random()*2)+'s';
+        el.style.animationDelay = (Math.random()*.5)+'s';
+        document.body.appendChild(el);
+        setTimeout(function(){ el.remove(); }, 4000);
+      }, i*25);
+    })(i);
+  }
+}
+
+// ── 4. ONLINE STATUS (Supabase Realtime) ──
+var _onlineChannel = null;
+function initOnlineStatus(){
+  if(typeof db === 'undefined' || !currentLoggedUser) return;
+  try{
+    _onlineChannel = db.channel('online-users', {
+      config: { presence: { key: currentLoggedUser } }
+    });
+    _onlineChannel.on('presence', { event: 'sync' }, function(){
+      var state = _onlineChannel.presenceState();
+      var users = Object.keys(state);
+      renderOnlineBar(users);
+    });
+    _onlineChannel.subscribe(async function(status){
+      if(status === 'SUBSCRIBED'){
+        await _onlineChannel.track({ user: currentLoggedUser, ts: Date.now() });
+      }
+    });
+  } catch(e){ console.log('Online status:', e); }
+}
+function renderOnlineBar(users){
+  var bar = document.getElementById('online-bar');
+  if(!bar) return;
+  if(!users || users.length===0){ bar.style.display='none'; return; }
+  bar.style.display = 'flex';
+  bar.innerHTML = '<span style="font-size:11px;color:var(--subtle);font-weight:600;margin-right:4px;">EN LÍNEA</span>' +
+    users.map(function(u){ return '<span class="online-user"><span class="online-dot"></span>'+u+'</span>'; }).join('');
+}
+
+// ── 5. DARK MODE ──
+var _darkMode = localStorage.getItem('nura_dark') === '1';
+function applyDarkMode(dark){
+  document.body.classList.toggle('dark-mode', dark);
+  var btn = document.getElementById('darkmode-btn');
+  if(btn) btn.textContent = dark ? '☀️' : '🌙';
+  localStorage.setItem('nura_dark', dark?'1':'0');
+  _darkMode = dark;
+}
+function toggleDarkMode(){
+  applyDarkMode(!_darkMode);
+}
+// Apply on load
+applyDarkMode(_darkMode);
+
+// ── 6. MINI STATS ADMIN ──
+async function loadAdminStats(){
+  var bar = document.getElementById('admin-stats-bar');
+  if(!bar || !adminMode) return;
+  bar.style.display = 'flex';
+  try{
+    // Extras pendientes (today)
+    var today = new Date().toISOString().split('T')[0];
+    var extrasTables = ['extras_toallas','extras_cajas_fuertes','extras_bicicletas','extras_transfers','extras_desayunos'];
+    var total = 0;
+    for(var t of extrasTables){
+      var r = await db.from(t).select('id',{count:'exact'}).gte('created_at', today);
+      if(r.count) total += r.count;
+    }
+    document.getElementById('astat-extras').textContent = total;
+    // Checklists hoy
+    var rc = await db.from('checklists').select('id',{count:'exact'}).gte('fecha', today);
+    document.getElementById('astat-checks').textContent = rc.count || 0;
+  } catch(e){}
+}
+
+// ── 7. ACTIVITY FEED ──
+async function loadActivityFeed(){
+  var feed = document.getElementById('activity-feed');
+  if(!feed) return;
+  try{
+    var r = await db.from('announcements')
+      .select('title,worker,created_at,section')
+      .order('created_at',{ascending:false})
+      .limit(8);
+    if(!r.data || !r.data.length){ feed.innerHTML=''; return; }
+    feed.innerHTML = '<div style="font-size:11px;font-weight:700;color:var(--subtle);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Actividad reciente</div>' +
+      r.data.map(function(a){
+        var t = new Date(a.created_at);
+        var diff = Math.floor((Date.now()-t)/60000);
+        var timeStr = diff<60 ? diff+'m' : Math.floor(diff/60)+'h';
+        return '<div class="af-item"><span class="af-dot"></span><div style="flex:1;"><span style="font-weight:600;color:var(--dark);">'+a.title+'</span> <span>por '+a.worker+'</span></div><span class="af-time">'+timeStr+'</span></div>';
+      }).join('');
+  } catch(e){}
+}
+
+// ── 8. BOTTOM NAV ──
+function initBottomNav(){
+  var nav = document.getElementById('bottom-nav');
+  if(!nav) return;
+  nav.querySelectorAll('.bn-item[data-section]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var sec = btn.dataset.section;
+      var el = document.querySelector('.sidebar-item[data-section="'+sec+'"]');
+      if(el) { el.click(); }
+      nav.querySelectorAll('.bn-item').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+    });
+  });
+}
+
+// ── INTEGRACIÓN CON LOGIN ──
+var _origCompleteLogin = typeof completeLogin === 'function' ? completeLogin : null;
+function fase2OnLogin(){
+  initOnlineStatus();
+  loadActivityFeed();
+  if(adminMode) loadAdminStats();
+  // Show mood after small delay
+  setTimeout(showMoodOverlay, 800);
+}
+
+
+document.addEventListener("DOMContentLoaded",function(){initBottomNav();});
 emailjs.init("-xWU2I12qGp92ZwVn");
 buildEmojiPickers();
 buildWorkersSidebar();
@@ -7389,5 +7765,38 @@ function insertRelevaSnippet(selectId){
 </script>
 
 <div id="sb-tooltip"></div>
+
+<div id="search-overlay" onclick="if(event.target===this)closeSearch()">
+  <div id="search-box">
+    <input id="search-input" type="text" placeholder="🔍  Buscar en el tablón..." oninput="renderSearchResults(this.value)" />
+    <div id="search-results"></div>
+    <div id="search-hint"><span><kbd>↑↓</kbd> navegar</span><span><kbd>Enter</kbd> abrir</span><span><kbd>Esc</kbd> cerrar</span><span><kbd>Ctrl+K</kbd> buscar</span></div>
+  </div>
+</div>
+
+<div id="mood-overlay">
+  <div id="mood-card">
+    <h3>¿Cómo llegas al turno?</h3>
+    <p>Cuéntanos cómo estás hoy</p>
+    <div class="mood-options">
+      <button class="mood-btn" onclick="selectMood(this,'😴')" title="Con sueño">😴</button>
+      <button class="mood-btn" onclick="selectMood(this,'😐')" title="Normal">😐</button>
+      <button class="mood-btn" onclick="selectMood(this,'😊')" title="Bien">😊</button>
+      <button class="mood-btn" onclick="selectMood(this,'🔥')" title="A tope">🔥</button>
+    </div>
+    <button id="mood-submit" onclick="submitMood()">Empezar turno →</button>
+  </div>
+</div>
+
+<div id="bottom-nav">
+  <div class="bn-items">
+    <button class="bn-item active" data-section="tablon"><i class="ti ti-layout-board"></i>Tablón</button>
+    <button class="bn-item" data-section="procedimientos"><i class="ti ti-list-check"></i>Proc.</button>
+    <button class="bn-item" data-section="extras"><i class="ti ti-receipt"></i>Extras</button>
+    <button class="bn-item" data-section="mensajes"><i class="ti ti-message"></i>Mensajes</button>
+    <button class="bn-item" onclick="openSearch()"><i class="ti ti-search"></i>Buscar</button>
+  </div>
+</div>
+
 </body>
 </html>
