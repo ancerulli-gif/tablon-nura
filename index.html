@@ -17,7 +17,7 @@
   --red-bg:#FCF0EF;--red:#C0392B;
   --amber-bg:#FBF4E8;--amber:#8A5D1A;--blue-bg:#EEF4FB;--blue:#1A4F8A;
   --green:#3A6B3A;--green-bg:#EDF4ED;
-  --sidebar-w:64px;--sidebar-w-open:260px;--sidebar-bg:#0F1729;
+  --sidebar-w:64px;--sidebar-w-open:280px;--sidebar-bg:#0F1729;
   --radius:6px;--radius-lg:12px;
   --shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);
   --shadow-md:0 4px 16px rgba(0,0,0,0.10);
@@ -1292,11 +1292,15 @@ input:focus,select:focus{border-color:#999;}
   box-shadow:0 2px 8px rgba(29,106,90,.35);
 }
 
-/* Sidebar labels don't overflow when expanded */
+
+
+/* Sidebar text: single line, no clipping on span */
 .sidebar-item > span:not(.count){
-  max-width:160px;
+  white-space:nowrap;
+  overflow:visible;
+  flex:1;
 }
-.sidebar-label{max-width:220px;}
+.sidebar-label{overflow:hidden;white-space:nowrap;}
 </style>
 </head>
 <body>
