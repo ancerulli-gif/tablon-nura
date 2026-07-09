@@ -1202,6 +1202,38 @@ input:focus,select:focus{border-color:#999;}
 .pw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
 @media(max-width:860px){.pw-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:560px){.pw-grid{grid-template-columns:1fr;}}
+
+/* ── SIDEBAR TOOLTIP ── */
+#sb-tooltip{
+  position:fixed;
+  left:72px;
+  background:#1E293B;
+  color:#fff;
+  font-size:12px;
+  font-weight:600;
+  padding:6px 12px;
+  border-radius:8px;
+  white-space:nowrap;
+  pointer-events:none;
+  z-index:9999;
+  opacity:0;
+  transform:translateX(-4px);
+  transition:opacity .12s ease, transform .12s ease;
+  box-shadow:0 4px 12px rgba(0,0,0,.3);
+  border:1px solid rgba(255,255,255,.1);
+}
+#sb-tooltip.show{
+  opacity:1;
+  transform:translateX(0);
+}
+#sb-tooltip::before{
+  content:'';
+  position:absolute;
+  left:-5px;top:50%;transform:translateY(-50%);
+  border:5px solid transparent;
+  border-right-color:#1E293B;
+  border-left:0;
+}
 </style>
 </head>
 <body>
@@ -7221,6 +7253,61 @@ function hidePortadaWidgets(){var w=document.getElementById('portada-widgets');i
 // Splash fix
 setTimeout(function(){var z=document.getElementById('splash-skip-zone');if(z)z.style.pointerEvents='none';var e=document.querySelector('.splash-estab-screen');if(e)e.style.pointerEvents='auto';},2400);
 
+
+// ── SIDEBAR TOOLTIPS ──
+(function(){
+  var tip = document.getElementById('sb-tooltip');
+  var sidebar = document.querySelector('.sidebar');
+  if(!tip || !sidebar) return;
+  var hideTimer = null;
+
+  function showTip(el, text){
+    clearTimeout(hideTimer);
+    var rect = el.getBoundingClientRect();
+    tip.textContent = text;
+    tip.style.top = (rect.top + rect.height/2) + 'px';
+    tip.style.transform = 'translateY(-50%) translateX(-4px)';
+    tip.classList.add('show');
+    tip.style.opacity = '1';
+    tip.style.transform = 'translateY(-50%) translateX(0)';
+  }
+  function hideTip(){
+    tip.classList.remove('show');
+    tip.style.opacity = '0';
+  }
+
+  // Attach to all sidebar items
+  function attachTooltips(){
+    sidebar.querySelectorAll('.sidebar-item').forEach(function(item){
+      // Get label text (first span that's not .count)
+      var span = item.querySelector('span:not(.count)');
+      var label = span ? span.textContent.trim() : '';
+      if(!label) return;
+
+      item.addEventListener('mouseenter', function(){
+        // Only show tooltip when sidebar is collapsed (not wide)
+        if(sidebar.offsetWidth > 80) return;
+        showTip(item, label);
+      });
+      item.addEventListener('mouseleave', function(){
+        hideTimer = setTimeout(hideTip, 100);
+      });
+    });
+
+    // Hide tooltip when sidebar expands
+    sidebar.addEventListener('mouseenter', function(){
+      hideTip();
+    });
+  }
+
+  // Wait for DOM ready
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', attachTooltips);
+  } else {
+    attachTooltips();
+  }
+})();
+
 emailjs.init("-xWU2I12qGp92ZwVn");
 buildEmojiPickers();
 buildWorkersSidebar();
@@ -7271,5 +7358,7 @@ function insertRelevaSnippet(selectId){
 
 
 </script>
+
+<div id="sb-tooltip"></div>
 </body>
 </html>
