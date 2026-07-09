@@ -6037,6 +6037,8 @@ async function premioAdjust(worker, delta) {
 setTimeout(function(){
   var z = document.getElementById('splash-skip-zone');
   if(z) z.style.pointerEvents = 'none';
+  var e = document.querySelector('.splash-estab-screen');
+  if(e) e.style.pointerEvents = 'auto';
 }, 2400);
 
 function hideSplashNow(){
