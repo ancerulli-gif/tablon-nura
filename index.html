@@ -6033,6 +6033,12 @@ async function premioAdjust(worker, delta) {
 
 
 // ── SPLASH INTRO (acción exagerada) ──
+// CSS no puede animar pointer-events — fix con JS
+setTimeout(function(){
+  var z = document.getElementById('splash-skip-zone');
+  if(z) z.style.pointerEvents = 'none';
+}, 2400);
+
 function hideSplashNow(){
   var s = document.getElementById('splash-screen');
   if(!s) return;
