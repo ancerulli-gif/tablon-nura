@@ -1291,6 +1291,10 @@ input:focus,select:focus{border-color:#999;}
       Ready to <span class="splash-work" onclick="hideSplashNow();showLoginScreen();">WORK</span>?
     </div>
   </div>
+  <!-- Overlay clickable que aparece cuando el splash-estab-screen está visible -->
+  <div id="splash-click-overlay" onclick="hideSplashNow();showLoginScreen();"
+    style="position:absolute;inset:0;z-index:9990;cursor:pointer;display:none;">
+  </div>
 </div>
 
 <div id="login-screen">
@@ -6033,13 +6037,11 @@ async function premioAdjust(worker, delta) {
 
 
 // ── SPLASH INTRO (acción exagerada) ──
-// CSS no puede animar pointer-events — fix con JS
+// Fix entrada al tablón: mostrar overlay clickable cuando aparece el WORK
 setTimeout(function(){
-  var z = document.getElementById('splash-skip-zone');
-  if(z) z.style.pointerEvents = 'none';
-  var e = document.querySelector('.splash-estab-screen');
-  if(e) e.style.pointerEvents = 'auto';
-}, 2400);
+  var overlay = document.getElementById('splash-click-overlay');
+  if(overlay) overlay.style.display = 'block';
+}, 2350);
 
 function hideSplashNow(){
   var s = document.getElementById('splash-screen');
