@@ -1636,6 +1636,20 @@ body{
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:rgba(29,106,90,.3);border-radius:10px;}
 ::-webkit-scrollbar-thumb:hover{background:rgba(29,106,90,.5);}
+
+/* ── TOOLBAR ATENUADA ── */
+.topbar{
+  background:rgba(20,31,52,.82)!important;
+  border-bottom:1px solid rgba(37,160,112,.25)!important;
+}
+.sidebar{
+  background:rgba(18,27,46,.80)!important;
+  border-right:1px solid rgba(37,160,112,.12)!important;
+}
+/* Sidebar items slightly lighter */
+.sidebar-item{color:rgba(255,255,255,.55)!important;}
+.sidebar-item i{color:rgba(255,255,255,.65)!important;}
+.sidebar:not(:hover) .sidebar-label{color:rgba(37,160,112,.65)!important;}
 </style>
 </head>
 <body>
@@ -7001,16 +7015,48 @@ setTimeout(checkResenasReminder, 3500);
 
 async function checkOneEstablishment(est) {
   try {
-    const resp = await fetchWithTimeout('https://r.jina.ai/' + est.url, 20000);
-    if (!resp.ok) { console.warn('❌ No se pudo obtener datos de:', est.nombre); return { est, error: true }; }
-    const text = await resp.text();
+    // Try jina.ai first, then allorigins fallback
+    let text = '';
+    let fetchOk = false;
+    const proxies = [
+      'https://r.jina.ai/' + est.url,
+      'https://api.allorigins.win/get?url=' + encodeURIComponent(est.url)
+    ];
+    for (const proxyUrl of proxies) {
+      try {
+        const resp = await fetchWithTimeout(proxyUrl, 25000);
+        if (resp.ok) {
+          const raw = await resp.text();
+          // allorigins wraps in {contents:'...'}
+          if (proxyUrl.includes('allorigins')) {
+            try { const j = JSON.parse(raw); text = j.contents || raw; } catch(e){ text = raw; }
+          } else {
+            text = raw;
+          }
+          if (text.length > 500) { fetchOk = true; break; }
+        }
+      } catch(e) { console.warn('Proxy failed:', proxyUrl, e.message); }
+    }
+    if (!fetchOk) { console.warn('❌ No se pudo obtener datos de:', est.nombre); return { est, error: true }; }
 
-    // Método 1: cabecera oficial "Basada en X opiniones \n 8.2"
-    const countMatch = text.match(/Basada en\s+([\d.,]+)\s+opiniones/i);
-    let reviewCount = countMatch ? countMatch[1].replace(/\./g, '').replace(',', '') : null;
+    // Método 1: "Basada en X opiniones"
+    let countMatch = text.match(/Basada en\s+([\d.,]+)\s+opiniones/i);
+    // Método 1b: "X reviews" en inglés
+    if(!countMatch) countMatch = text.match(/([\d,]+)\s+reviews?/i);
+    // Método 1c: "X opiniones"
+    if(!countMatch) countMatch = text.match(/([\d.,]+)\s+opiniones/i);
+    // Método 1d: número de reseñas en JSON-like
+    if(!countMatch) countMatch = text.match(/"reviewCount"\s*:\s*"?([\d]+)"?/i);
+
+    let reviewCount = countMatch ? countMatch[1].replace(/[.,]/g, '').replace(/,/g,'') : null;
     let score = null;
-    if (countMatch) {
-      const scoreMatch = text.match(/Basada en\s+[\d.,]+\s+opiniones[^\n]*\n+\s*(\d[.,]\d)/i);
+    if (reviewCount) {
+      // Score patterns
+      let scoreMatch = text.match(/Basada en[^\n]+\n+\s*(\d[.,]\d)/i);
+      if(!scoreMatch) scoreMatch = text.match(/"ratingValue"\s*:\s*"?([\d.]+)"?/i);
+      if(!scoreMatch) scoreMatch = text.match(/Puntuación[^\d]+(\d[.,]\d)/i);
+      if(!scoreMatch) scoreMatch = text.match(/Score[^\d]+(\d[.,]\d)/i);
+      if(!scoreMatch) scoreMatch = text.match(/\b([89]\.[0-9])\b/);
       score = scoreMatch ? scoreMatch[1].replace(',', '.') : null;
     }
 
@@ -7140,7 +7186,7 @@ async function manualCheckBookingReviews() {
   renderReviewCheckSummary(results);
 
   if (okCount === 0) {
-    showToast('⚠️ No se pudo conectar con Booking. Inténtalo de nuevo más tarde.');
+    showToast('⚠️ Booking no accesible ahora. Prueba en unos minutos o verifica la conexión.');
     return;
   }
 
