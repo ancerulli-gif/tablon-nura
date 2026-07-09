@@ -1242,6 +1242,27 @@ input:focus,select:focus{border-color:#999;}
 .sidebar:hover .sidebar-section.collapsed .sidebar-label-arrow{
   transform:rotate(0deg);
 }
+
+/* ── ENCABEZADOS VISIBLES EN COLAPSADO ── */
+.sidebar:not(:hover) .sidebar-label{
+  display:flex!important;
+  justify-content:center;
+  padding:10px 0 3px;
+  font-size:7px;
+  letter-spacing:.15em;
+  color:rgba(255,255,255,.45);
+  font-weight:800;
+  text-transform:uppercase;
+  /* hide the arrow */
+}
+.sidebar:not(:hover) .sidebar-label .sidebar-label-arrow{
+  display:none;
+}
+/* Left border accent on section labels when collapsed */
+.sidebar:not(:hover) .sidebar-section{
+  border-top:1px solid rgba(255,255,255,.12);
+  border-bottom:none;
+}
 </style>
 </head>
 <body>
