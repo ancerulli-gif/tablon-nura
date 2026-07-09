@@ -1422,6 +1422,66 @@ body.dark-mode .ann-card,body.dark-mode .f2-card{border-color:#374151;}
   margin-top:4px;flex-shrink:0;
 }
 #activity-feed .af-time{font-size:11px;color:var(--subtle);white-space:nowrap;}
+
+/* ── TOPBAR CONTRAST MEJORADO ── */
+.topbar{
+  background:linear-gradient(135deg,#0B1120 0%,#0F1E35 50%,#0D1A2E 100%)!important;
+  border-bottom:2px solid #25A070!important;
+  box-shadow:0 2px 20px rgba(0,0,0,.4)!important;
+}
+
+/* Logo area accent */
+.topbar-logo{filter:brightness(1.15);}
+.topbar-sep{background:rgba(37,160,112,.4)!important;width:1.5px!important;height:28px!important;}
+
+/* Topbar text more readable */
+.topbar-title,.topbar-name{color:rgba(255,255,255,.92)!important;letter-spacing:.01em;}
+.topbar-sub{color:rgba(37,160,112,.9)!important;letter-spacing:.08em!important;font-weight:700!important;}
+
+/* ── SIDEBAR CONTRAST MEJORADO ── */
+.sidebar{
+  background:linear-gradient(180deg,#0B1120 0%,#0E1829 60%,#0B1520 100%)!important;
+  border-right:1px solid rgba(37,160,112,.2)!important;
+}
+
+/* Section headers más contrastados */
+.sidebar:not(:hover) .sidebar-label{
+  color:rgba(37,160,112,.75)!important;
+  font-size:8px!important;
+  letter-spacing:.18em!important;
+}
+
+/* Dividers between sections */
+.sidebar-section{
+  border-bottom:1px solid rgba(255,255,255,.05)!important;
+}
+.sidebar-section:first-child{
+  border-top:1px solid rgba(37,160,112,.15);
+}
+
+/* Icons más brillantes */
+.sidebar-item i{
+  color:rgba(255,255,255,.6)!important;
+  font-size:17px!important;
+}
+.sidebar-item:hover i{color:#4DB8A0!important;}
+.sidebar-item.active i{color:#4DB8A0!important;}
+
+/* Item hover más visible */
+.sidebar-item:hover{
+  background:rgba(37,160,112,.12)!important;
+  color:rgba(255,255,255,.95)!important;
+}
+.sidebar-item.active{
+  background:rgba(37,160,112,.18)!important;
+  border-left-color:#25A070!important;
+  color:#7EDCBE!important;
+}
+
+/* Bottom border accent on topbar logo area */
+.logo-bg{
+  border-right:1px solid rgba(37,160,112,.2)!important;
+}
 </style>
 </head>
 <body>
