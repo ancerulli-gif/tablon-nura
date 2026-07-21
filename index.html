@@ -3387,16 +3387,16 @@ body{
 <div id="lightbox" class="lightbox" onclick="closeLightbox()"><img id="lightbox-img" src="" alt="" /></div>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="nura-data.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
 <script>
 const ADMIN_PASS="managerfront2025";
 const ADMIN_PASS_2="subdirectora";
 const ADMIN_NAME_2="Ayla";
-const SUPA_URL="https://fdszxvscbfgyoinylbfu.supabase.co";
-const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkc3p4dnNjYmZneW9pbnlsYmZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTM4MTcsImV4cCI6MjA5NjU2OTgxN30.6ZdkoJr_ANqFpiciXwJ2eJ7QfpCvKBwK0ztrkydvEFM";
-const BUCKET="attachments";
-const db=window.supabase.createClient(SUPA_URL,SUPA_KEY);
-window._sharedDb=db;
+// Conexión y configuración centralizadas en nura-data.js
+const BUCKET = NuraDB.BUCKET;
+const db = NuraDB.client;
+window._sharedDb = db;
 const WORKERS=["Lucas C.","Lucas R.","Toni S.","Antonia","Pedro","Dani","Manuel","Aissa","Ignacio"];
 const SECTIONS={tablon:{title:"Tablón",desc:"Comunicaciones y avisos para el equipo"},procedimientos:{title:"Procedimientos",desc:"Guías y pasos a seguir en cada situación"},normativas:{title:"Normativas",desc:"Reglas, políticas y normativas internas"},cursos:{title:"Cursos",desc:"Formaciones, tutorías y material de aprendizaje"},archivos:{title:"Archivos importantes",desc:"Documentos y recursos de referencia"},nurahouses:{title:"Nura Houses",desc:"Documentos y comunicaciones de Nura Houses"},contactos:{title:"Teléfonos y Contraseñas",desc:"Contactos, accesos y credenciales del equipo"},emergencias:{title:"Emergencias",desc:"Contactos y protocolos de emergencia"},rrhh:{title:"RRHH",desc:"Recursos Humanos, contratos y normativa laboral"},documentos:{title:"Documentos",desc:"Contratos, formularios y documentos oficiales"}};
 const EMOJIS="😀😁😂🤣😊😍🥰😎😢😅👍👎❤️🔥⚠️✅❌📢📌📎🗓️🏨🛎️🧹🔑💼📋🚨💡📞🎉🙏👏💪🤝🫡✍️📝🔔💬🌟⭐🎯📊💯";
@@ -6568,55 +6568,28 @@ async function doLogin(){
   errEl.style.color = 'var(--muted)';
   errEl.style.display = 'block';
 
-  try {
-    // 1. Buscar el email técnico asociado a ese nombre (tabla pública login_lookup)
-    const { data: lookup, error: lookErr } = await db
-      .from('login_lookup')
-      .select('auth_email')
-      .eq('display_name', displayName)
-      .maybeSingle();
-    if(lookErr || !lookup){
-      errEl.textContent = 'Usuario no encontrado. Avisa a Toni.';
-      errEl.style.color = 'var(--red)';
-      return;
-    }
-
-    // 2. Login real contra Supabase Auth (el PIN es la contraseña)
-    const { data: authData, error: authErr } = await db.auth.signInWithPassword({
-      email: lookup.auth_email,
-      password: pass
-    });
-    if(authErr || !authData || !authData.user){
-      errEl.textContent = 'PIN incorrecto.';
-      errEl.style.color = 'var(--red)';
-      return;
-    }
-
-    // 3. A partir de aquí auth.uid() ya existe y las políticas RLS se aplican.
-    //    Averiguar el rol del usuario.
-    const { data: member } = await db
-      .from('org_members')
-      .select('role')
-      .eq('user_id', authData.user.id)
-      .maybeSingle();
-    const isAdmin = !!member && member.role === 'admin';
-    const esToni = displayName === 'Toni';
-
-    if(isAdmin){
-      adminMode = true;
-      const naBtn = document.getElementById('nuevo-anuncio-btn'); if(naBtn) naBtn.style.display = 'flex';
-      const liqBtn = document.getElementById('extras-liquidacion-btn'); if(liqBtn) liqBtn.style.display = 'flex';
-      // Comisiones y control de contraseñas: solo Toni
-      const comBtn = document.getElementById('comisiones-btn'); if(comBtn) comBtn.style.display = esToni ? 'flex' : 'none';
-      const pwBtn = document.getElementById('passwords-btn'); if(pwBtn) pwBtn.style.display = esToni ? 'flex' : 'none';
-    }
-
-    errEl.style.display = 'none';
-    completeLogin(displayName, isAdmin);
-  } catch(e){
-    errEl.textContent = 'Error de conexión: ' + (e.message || e);
+  // Login real a través de la capa de datos (nura-data.js)
+  const res = await NuraDB.auth.loginWithPin(displayName, pass);
+  if(!res.ok){
+    errEl.textContent = res.reason === 'no_user'
+      ? 'Usuario no encontrado. Avisa a Toni.'
+      : (res.reason === 'bad_pin' ? 'PIN incorrecto.' : 'Error de conexión. Inténtalo de nuevo.');
     errEl.style.color = 'var(--red)';
+    return;
   }
+
+  const isAdmin = res.role === 'admin';
+  const esToni = displayName === 'Toni';
+  if(isAdmin){
+    adminMode = true;
+    const naBtn = document.getElementById('nuevo-anuncio-btn'); if(naBtn) naBtn.style.display = 'flex';
+    const liqBtn = document.getElementById('extras-liquidacion-btn'); if(liqBtn) liqBtn.style.display = 'flex';
+    const comBtn = document.getElementById('comisiones-btn'); if(comBtn) comBtn.style.display = esToni ? 'flex' : 'none';
+    const pwBtn = document.getElementById('passwords-btn'); if(pwBtn) pwBtn.style.display = esToni ? 'flex' : 'none';
+  }
+
+  errEl.style.display = 'none';
+  completeLogin(displayName, isAdmin);
 }
 function completeLogin(name, isAdmin){
   currentLoggedUser = name;
@@ -6701,7 +6674,7 @@ function doLogout(){
   document.querySelector('.logout-sub').textContent = msg.sub;
   screen.classList.add('show');
   // Cerrar sesión real de Supabase (no bloqueante)
-  try { db.auth.signOut(); } catch(e){}
+  NuraDB.auth.logout();
   sessionStorage.clear();
   currentLoggedUser = null;
   adminMode = false;
@@ -6711,7 +6684,7 @@ function doLogout(){
   }, 2200);
 }
 function sessionExpiredShowLogin(){
-  try { db.auth.signOut(); } catch(e){}
+  NuraDB.auth.logout();
   sessionStorage.removeItem('nura_logged_user');
   sessionStorage.removeItem('nura_login_time');
   sessionStorage.removeItem('nura_logged_admin');
