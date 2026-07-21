@@ -6547,78 +6547,77 @@ function loginCheckFirstTime(){
   hint.style.display = stored ? 'none' : 'block';
 }
 
-function doLogin(){
-  const name = document.getElementById('login-worker-select').value;
+async function doLogin(){
+  const sel = document.getElementById('login-worker-select').value;
   const pass = document.getElementById('login-pass-input').value;
   const errEl = document.getElementById('login-err');
   errEl.style.display = 'none';
-
-  if(!name || !pass){ errEl.textContent = 'Selecciona tu nombre y escribe una contraseña.'; errEl.style.display='block'; return; }
-
-  // Admin (Toni) login: fixed password, no first-time setup
-  if(name === 'Admin'){
-    if(pass === ADMIN_PASS){
-      adminMode = true;
-      var cb = document.getElementById('comisiones-btn');
-      if(cb) cb.style.display = 'flex';
-      var pwBtn = document.getElementById('passwords-btn');
-      if(pwBtn) pwBtn.style.display = 'flex';
-      var liqBtn = document.getElementById('extras-liquidacion-btn');
-      if(liqBtn) liqBtn.style.display = 'flex';
-      var naBtn = document.getElementById('nuevo-anuncio-btn');
-      if(naBtn) naBtn.style.display = 'flex';
-      completeLogin('Admin', true);
-    } else {
-      errEl.textContent = 'Contraseña de administrador incorrecta.';
-      errEl.style.display = 'block';
-    }
-    return;
-  }
-
-  // Admin (Ayla) login: she can set up her own password on first use, like regular workers
-  if(name === 'AdminAyla'){
-    const aylaKey = 'nura_pass_admin_ayla';
-    const aylaStored = localStorage.getItem(aylaKey);
-    const aylaHash = simpleHash(pass);
-
-    if(!aylaStored){
-      localStorage.setItem(aylaKey, aylaHash);
-      adminMode = true;
-      var cb2 = document.getElementById('comisiones-btn');
-      if(cb2) cb2.style.display = 'none';
-      var naBtn2 = document.getElementById('nuevo-anuncio-btn');
-      if(naBtn2) naBtn2.style.display = 'flex';
-      completeLogin(ADMIN_NAME_2, true);
-    } else if(aylaStored === aylaHash){
-      adminMode = true;
-      var cb3 = document.getElementById('comisiones-btn');
-      if(cb3) cb3.style.display = 'none';
-      var naBtn3 = document.getElementById('nuevo-anuncio-btn');
-      if(naBtn3) naBtn3.style.display = 'flex';
-      completeLogin(ADMIN_NAME_2, true);
-    } else {
-      errEl.textContent = 'Contraseña incorrecta.';
-      errEl.style.display = 'block';
-    }
-    return;
-  }
-
-  const key = 'nura_pass_'+wKeyLogin(name);
-  const stored = localStorage.getItem(key);
-  const hash = simpleHash(pass);
-
-  if(!stored){
-    // First time: set password
-    localStorage.setItem(key, hash);
-    completeLogin(name);
-  } else if(stored === hash){
-    completeLogin(name);
-  } else {
-    errEl.textContent = 'Contraseña incorrecta.';
+  if(!sel || !pass){
+    errEl.textContent = 'Selecciona tu nombre y escribe tu PIN.';
+    errEl.style.color = 'var(--red)';
     errEl.style.display = 'block';
+    return;
+  }
+
+  // El desplegable tiene opciones especiales: "Admin" = Toni, "AdminAyla" = Ayla
+  let displayName = sel;
+  if(sel === 'Admin') displayName = 'Toni';
+  else if(sel === 'AdminAyla') displayName = 'Ayla';
+
+  errEl.textContent = 'Comprobando...';
+  errEl.style.color = 'var(--muted)';
+  errEl.style.display = 'block';
+
+  try {
+    // 1. Buscar el email técnico asociado a ese nombre (tabla pública login_lookup)
+    const { data: lookup, error: lookErr } = await db
+      .from('login_lookup')
+      .select('auth_email')
+      .eq('display_name', displayName)
+      .maybeSingle();
+    if(lookErr || !lookup){
+      errEl.textContent = 'Usuario no encontrado. Avisa a Toni.';
+      errEl.style.color = 'var(--red)';
+      return;
+    }
+
+    // 2. Login real contra Supabase Auth (el PIN es la contraseña)
+    const { data: authData, error: authErr } = await db.auth.signInWithPassword({
+      email: lookup.auth_email,
+      password: pass
+    });
+    if(authErr || !authData || !authData.user){
+      errEl.textContent = 'PIN incorrecto.';
+      errEl.style.color = 'var(--red)';
+      return;
+    }
+
+    // 3. A partir de aquí auth.uid() ya existe y las políticas RLS se aplican.
+    //    Averiguar el rol del usuario.
+    const { data: member } = await db
+      .from('org_members')
+      .select('role')
+      .eq('user_id', authData.user.id)
+      .maybeSingle();
+    const isAdmin = !!member && member.role === 'admin';
+    const esToni = displayName === 'Toni';
+
+    if(isAdmin){
+      adminMode = true;
+      const naBtn = document.getElementById('nuevo-anuncio-btn'); if(naBtn) naBtn.style.display = 'flex';
+      const liqBtn = document.getElementById('extras-liquidacion-btn'); if(liqBtn) liqBtn.style.display = 'flex';
+      // Comisiones y control de contraseñas: solo Toni
+      const comBtn = document.getElementById('comisiones-btn'); if(comBtn) comBtn.style.display = esToni ? 'flex' : 'none';
+      const pwBtn = document.getElementById('passwords-btn'); if(pwBtn) pwBtn.style.display = esToni ? 'flex' : 'none';
+    }
+
+    errEl.style.display = 'none';
+    completeLogin(displayName, isAdmin);
+  } catch(e){
+    errEl.textContent = 'Error de conexión: ' + (e.message || e);
+    errEl.style.color = 'var(--red)';
   }
 }
-
 function completeLogin(name, isAdmin){
   currentLoggedUser = name;
   sessionStorage.setItem('nura_logged_user', name);
@@ -6696,25 +6695,23 @@ const LOGOUT_MESSAGES = [
 function doLogout(){
   const name = currentLoggedUser || '';
   const msg = LOGOUT_MESSAGES[Math.floor(Math.random()*LOGOUT_MESSAGES.length)];
-
   const screen = document.getElementById('logout-screen');
   document.querySelector('.logout-emoji').textContent = msg.emoji;
   document.getElementById('logout-title').textContent = '¡Buen turno' + (name ? ', '+name : '') + '!';
   document.querySelector('.logout-sub').textContent = msg.sub;
   screen.classList.add('show');
-
+  // Cerrar sesión real de Supabase (no bloqueante)
+  try { db.auth.signOut(); } catch(e){}
   sessionStorage.clear();
   currentLoggedUser = null;
   adminMode = false;
   clearTimeout(sessionTimer);
-
   setTimeout(() => {
     window.location.href = window.location.pathname + '?t=' + Date.now();
   }, 2200);
 }
-
 function sessionExpiredShowLogin(){
-  // Inactivity timeout: just show the login screen again, no full reload/intro
+  try { db.auth.signOut(); } catch(e){}
   sessionStorage.removeItem('nura_logged_user');
   sessionStorage.removeItem('nura_login_time');
   sessionStorage.removeItem('nura_logged_admin');
@@ -6724,7 +6721,6 @@ function sessionExpiredShowLogin(){
   document.getElementById('logout-btn').style.display = 'none';
   showLoginScreen();
 }
-
 function startSessionTimer(){
   clearTimeout(sessionTimer);
   sessionTimer = setTimeout(() => {
