@@ -24,6 +24,20 @@
   }
   var client = global.supabase.createClient(SUPA_URL, SUPA_KEY);
 
+  // ── Estado interno ──
+  var _orgId = null; // organización del usuario logueado (cache)
+
+  // Devuelve el org_id del usuario actual (lo consulta si no está en cache)
+  async function getMyOrgId() {
+    if (_orgId) return _orgId;
+    var u = await client.auth.getUser();
+    var uid = u.data && u.data.user && u.data.user.id;
+    if (!uid) return null;
+    var m = await client.from("org_members").select("org_id").eq("user_id", uid).maybeSingle();
+    _orgId = (m.data && m.data.org_id) || null;
+    return _orgId;
+  }
+
   // ── API de datos ──
   var NuraDB = {
     client: client,
@@ -46,13 +60,19 @@
           if (auth.error || !auth.data || !auth.data.user) return { ok: false, reason: "bad_pin" };
 
           var mem = await client.from("org_members")
-            .select("role").eq("user_id", auth.data.user.id).maybeSingle();
-          return { ok: true, user: auth.data.user, role: (mem.data && mem.data.role) || "recepcionista" };
+            .select("role, org_id").eq("user_id", auth.data.user.id).maybeSingle();
+          _orgId = (mem.data && mem.data.org_id) || null; // cachear org
+          return {
+            ok: true, user: auth.data.user,
+            role: (mem.data && mem.data.role) || "recepcionista",
+            orgId: _orgId
+          };
         } catch (e) {
           return { ok: false, reason: "error", error: e };
         }
       },
       logout: async function () {
+        _orgId = null;
         try { await client.auth.signOut(); } catch (e) {}
       },
       getSession: async function () {
@@ -80,6 +100,29 @@
       move: function (id, section) { return client.from("announcements").update({ section: section }).eq("id", id); },
       count: function (section) {
         return client.from("announcements").select("*", { count: "exact", head: true }).eq("section", section);
+      }
+    },
+
+    // ── org_id del usuario actual (para el resto de módulos) ──
+    getMyOrgId: getMyOrgId,
+
+    // ── Ajustes de la organización (marca, propiedades, secciones, turnos) ──
+    settings: {
+      // Devuelve el objeto de ajustes de la organización (o null si no hay)
+      get: async function () {
+        var oid = await getMyOrgId();
+        if (!oid) return null;
+        var r = await client.from("org_settings").select("settings").eq("org_id", oid).maybeSingle();
+        return (r.data && r.data.settings) || null;
+      },
+      // Guarda (upsert) el objeto de ajustes completo. Solo admin (lo aplica la RLS).
+      save: async function (settingsObj) {
+        var oid = await getMyOrgId();
+        if (!oid) return { error: { message: "sin organización" } };
+        return client.from("org_settings").upsert(
+          { org_id: oid, settings: settingsObj, updated_at: new Date().toISOString() },
+          { onConflict: "org_id" }
+        );
       }
     },
 

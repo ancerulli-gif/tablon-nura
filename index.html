@@ -6591,6 +6591,23 @@ async function doLogin(){
   errEl.style.display = 'none';
   completeLogin(displayName, isAdmin);
 }
+// FASE 2 — Aplica la marca del hotel (nombre + color) leída de org_settings.
+// No toca splash ni login (se ejecuta ya dentro de la app).
+function applyBranding(s){
+  if(!s || !s.brand) return;
+  var b = s.brand;
+  try {
+    if(b.color){
+      document.documentElement.style.setProperty('--teal', b.color);
+      document.documentElement.style.setProperty('--brand', b.color);
+    }
+    if(b.name){ document.title = b.name + ' \u2014 Tabl\u00f3n'; }
+    if(b.logo_url){
+      var tl = document.querySelector('.topbar-logo');
+      if(tl) tl.src = b.logo_url;
+    }
+  } catch(e){}
+}
 function completeLogin(name, isAdmin){
   currentLoggedUser = name;
   sessionStorage.setItem('nura_logged_user', name);
@@ -6606,6 +6623,7 @@ function completeLogin(name, isAdmin){
   if(typeof loadSection === 'function') loadSection();
   if(typeof showPortadaWidgets==='function')showPortadaWidgets();
   if(typeof fase2OnLogin==='function')fase2OnLogin();
+  if(window.NuraDB && NuraDB.settings) NuraDB.settings.get().then(applyBranding).catch(function(){});
   // Make sure the Tablón sidebar item is marked active on initial load
   var tabBtn = document.querySelector('.sidebar-item[data-section="tablon"]');
   if(tabBtn && !document.querySelector('.sidebar-item.active:not([data-section="tablon"])')) {
@@ -6732,6 +6750,7 @@ function checkExistingSession(){
     if(typeof loadSection === 'function') loadSection();
   if(typeof showPortadaWidgets==='function')showPortadaWidgets();
   if(typeof fase2OnLogin==='function')fase2OnLogin();
+  if(window.NuraDB && NuraDB.settings) NuraDB.settings.get().then(applyBranding).catch(function(){});
   // Make sure the Tablón sidebar item is marked active on initial load
   var tabBtn = document.querySelector('.sidebar-item[data-section="tablon"]');
   if(tabBtn && !document.querySelector('.sidebar-item.active:not([data-section="tablon"])')) {
